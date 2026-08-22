@@ -149,7 +149,6 @@ olarak doğrulanamıyor. Uygulamayı yayınlamayı düşünüyorsan kaynağı ke
 - `.timeSensitive` kesme seviyesi odak modlarını aşar ama ayrı entitlement istiyor;
   imzalamayı bozmamak için varsayılan seviyede bırakıldı.
 - **Critical alert** (sessizdeyken bile çalma) Apple'dan özel onay gerektiriyor.
-- Uygulama ikonu yok (asset kataloğunda yer var, görsel yok).
 
 ## Görünümleri Xcode'suz görme
 
@@ -185,7 +184,8 @@ swiftc -O EzanVakti/Features/Qibla/KaabaGlyph.swift Tools/icon/main.swift -o /tm
 /tmp/icon ~/Downloads/ezan-ikon-adaylari
 ```
 
-Dört aday üretiyor: Kâbe (krem / lacivert), hilal, kubbe+minare. Kâbe adayları
+Dört aday üretiyor: Kâbe (krem / lacivert), hilal, kubbe+minare. **Kullanılan: hilal**
+(`Assets.xcassets/AppIcon.appiconset/AppIcon.png`). Kâbe adayları
 uygulamadaki `KaabaGlyph`'i kullanıyor, yani ikon ile kıble işareti aynı çizim.
 
 İki App Store kuralı koda gömülü:
