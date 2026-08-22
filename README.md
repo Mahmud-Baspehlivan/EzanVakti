@@ -23,6 +23,7 @@ EzanVakti/
   Features/NearbyMosques/   yakındaki camiler (liste + harita)
   Features/Settings/        bildirim ayarları
 Tools/calibrate/            temkin kalibrasyonu (15 ile karşı ölçüm)
+Tools/mosque-extract/       Overpass karolarını paketlenecek cami dosyasına çevirir
 Tools/icon/main.swift       uygulama ikonu adaylarını 1024px opak PNG olarak üretir
 Tools/tests/main.swift      takip/kaza mağazasının birim testleri
 Tools/validate/main.swift   çekirdeği CSV'ye döken doğrulama koşucusu
@@ -379,8 +380,43 @@ Boyutlar: kilit ekranı (satır içi, dairesel, dikdörtgen) + ana ekran (küç�
 
 ## Yakındaki camiler
 
-Veri kaynağı **OpenStreetMap** (Overpass API): `amenity=place_of_worship` +
-`religion=muslim`.
+Türkiye içinde veri **uygulamayla paketli** — ağ hiç kullanılmıyor. Yurtdışında
+OpenStreetMap Overpass API'sine gidiliyor. İkisinde de aynı OSM etiketleri:
+`amenity=place_of_worship` + `religion=muslim`.
+
+### Paketlenmiş veri
+
+| | |
+|---|---|
+| Kayıt | **45.833 cami** |
+| Dosya | `EzanVakti/tr-mosques.txt`, 1.35 MB |
+| OSM anlık görüntüsü | 2026-08-22T13:23:00Z |
+| Ayrıştırma (tek seferlik, tembel) | 33 ms |
+| Sorgu | 0.02–0.04 ms |
+
+Biçim satır başına `enlem;boylam;ad`. JSON yerine bu seçildi: 45 bin kayıtta
+ayrıştırma yükü belirgin şekilde az ve uygulama tarafı tek `split` ile okuyor.
+Mekânsal indeks yok — kayıtlar bellekte ~4 MB tutuyor ve kutu ön elemesiyle
+tarama milisaniye altında kalıyor, bu ölçekte indeks gereksiz karmaşıklık olurdu.
+
+Kapsama kabaca Türkiye sınırları (`BundledMosqueSource.coverage`). Kutu sınır
+bölgelerini de kapsadığı için Suriye/Irak şeridinde ~390, Kıbrıs'ta birkaç kayıt
+var; sınır illerindeki kullanıcı için faydalı, zararı yok.
+
+**Adsız kayıtlar dahil.** Çıkarımda okunan 50.212 elemanın 28.558'i adsızdı ve
+bunların **%95'i `building=mosque`** taşıyor — kırsalda cami sık sık adsız
+işaretleniyor. Atmak veri setinin yarısını çöpe atmak olurdu; `building`
+etiketi yeterli sinyal, listede "Cami" olarak görünüyorlar.
+
+Yeniden üretmek: `Tools/mosque-extract/extract.py`.
+
+### Neden paketlendi
+
+Overpass topluluk sunucusu ve kullanım kuralları yayınlanmış bir uygulamadan
+gelen düzenli trafiği kapsamıyor. Üstelik ölçümde yanıt süresi 1.5–14 sn
+arasında değişiyordu ve arada 504 dönüyordu. Paketlenmiş veriyle sonuç anında
+geliyor, çevrimdışı da çalışıyor. Bedeli: veri uygulama güncellemesiyle
+tazeleniyor.
 
 ### Neden Apple değil
 

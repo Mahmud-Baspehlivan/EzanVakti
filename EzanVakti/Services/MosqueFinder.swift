@@ -15,7 +15,10 @@ enum MosqueSearchError: LocalizedError {
     }
 }
 
-/// Yakındaki camileri OpenStreetMap'ten (Overpass API) bulur.
+/// Yakındaki camileri bulur.
+///
+/// Türkiye içinde veri uygulamayla paketli (`BundledMosqueSource`) — ağ yok.
+/// Yurtdışında OpenStreetMap Overpass API'sine gidiyor.
 ///
 /// Önce Apple'ın `MKLocalSearch`'ü kullanılıyordu; ölçüm bunun bu iş için
 /// elverişsiz olduğunu gösterdi: istek başına en fazla 25 sonuç döndürüyor ve
@@ -46,6 +49,11 @@ enum MosqueFinder {
         near coordinate: Coordinate,
         radius: CLLocationDistance
     ) async throws -> [Mosque] {
+        // Türkiye verisi uygulamayla geliyor: ağ yok, önbellek yok, anında.
+        // Kapsama dışıysa (yurtdışı) Overpass'a düşüyoruz.
+        if BundledMosqueSource.covers(coordinate) {
+            return BundledMosqueSource.search(near: coordinate, radius: radius)
+        }
         if let cached = MosqueCache.load(near: coordinate, radius: radius) {
             return cached
         }
