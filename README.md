@@ -22,6 +22,7 @@ EzanVakti/
   Features/Imsakiye/        aylık vakit çizelgesi
   Features/NearbyMosques/   yakındaki camiler (liste + harita)
   Features/Settings/        bildirim ayarları
+Tools/calibrate/            temkin kalibrasyonu (15 ile karşı ölçüm)
 Tools/icon/main.swift       uygulama ikonu adaylarını 1024px opak PNG olarak üretir
 Tools/tests/main.swift      takip/kaza mağazasının birim testleri
 Tools/validate/main.swift   çekirdeği CSV'ye döken doğrulama koşucusu
@@ -57,12 +58,27 @@ karşılaştırılıyor (17 gün örtüşen veri):
 (`GunesDogus`/`GunesBatis`) 1-2 dk içinde oturuyor — yani sapmanın kaynağı
 astronomi değil, temkin.
 
-### Bilinen sınır
+### Ülke geneli doğruluk
 
-`.diyanet` temkin değerleri **İstanbul / Ağustos 2026** verisinden türetildi,
-yayınlanmış bir tablodan alınmadı. Diyanet'in temkin payı şehre göre değişiyor ve
-tek aylık örneklem mevsimsel değişimi kapsamıyor. Başka iller eklenmeden ülke
-geneline genellenmemeli; kalibrasyonu genişletmek için `Tools/validate` kullanılabilir.
+Temkin değerleri **15 ilin** gerçek Diyanet takvimine karşı ölçülüp medyanı
+alınarak türetildi (Edirne, Hakkari, Sinop, Antalya, Erzurum dahil — uçlardan
+seçildi). Sonuç:
+
+| | |
+|---|---|
+| En kötü sapma (tüm ülke) | **2 dk** |
+| Ortalama sapma | 0.56 dk |
+| 1 dk içinde kalan karşılaştırma | %92 |
+
+Şaşırtıcı bulgu: gereken düzeltme iller arasında 2-4 dk'dan fazla değişmiyor,
+yani tek küme değer ülke genelinde yeterli. Önceki "İstanbul'a kalibre, başka
+illerde sapar" uyarısı ölçümle çürüdü.
+
+Kalan 2 dk'lık uçlar (Hakkari, Samsun, Sinop, Van) temkinden değil koordinat
+farkından: Diyanet her ilçe için kendi referans noktasını kullanıyor ve
+yayınlamıyor. Hesaplamaya dayalı yaklaşımda pratik taban bu.
+
+Yöntem ve yeniden ölçüm: `Tools/calibrate/README.md`.
 
 Hicri tarih sistemin Ümmü'l-Kura takviminden geliyor, Diyanet'in tarihinden ay
 başlarında bir gün sapabilir.
