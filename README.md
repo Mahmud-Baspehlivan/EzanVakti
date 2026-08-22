@@ -22,6 +22,7 @@ EzanVakti/
   Features/Imsakiye/        aylık vakit çizelgesi
   Features/NearbyMosques/   yakındaki camiler (liste + harita)
   Features/Settings/        bildirim ayarları
+Tools/check/targets.sh      her hedefi kendi dosya kümesiyle derler
 Tools/calibrate/            temkin kalibrasyonu (15 ile karşı ölçüm)
 Tools/mosque-extract/       Overpass karolarını paketlenecek cami dosyasına çevirir
 Tools/icon/main.swift       uygulama ikonu adaylarını 1024px opak PNG olarak üretir
@@ -183,6 +184,18 @@ ekranda leke gibi duruyordu. Aynı render iki kusuru daha ortaya çıkardı: gü
 Bu yüzden `QiblaDial` ve `KaabaGlyph` ayrı bileşenler: servis bağımlılığı olmadan
 tek başlarına render edilebiliyorlar. Görsel bir parça eklerken aynı yolu izlemek
 işe yarıyor.
+
+### Hedef bazlı derleme denetimi
+
+```sh
+Tools/check/targets.sh
+```
+
+Bütün dosyaları tek klasöre kopyalayıp derlemek **hedef üyeliği hatalarını
+gizliyor.** Gerçek örnek: `Palette.swift` widget hedefine eklendi ama bağlı
+olduğu `ScaledFont.swift` eklenmedi — düz denetim geçti, Xcode derlemesi
+patladı. Betik `membershipExceptions` listesini pbxproj'dan okuyor, yani elle
+güncellenmiyor.
 
 ### Render aracının sınırı
 
