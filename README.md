@@ -22,6 +22,7 @@ EzanVakti/
   Features/Imsakiye/        aylık vakit çizelgesi
   Features/NearbyMosques/   yakındaki camiler (liste + harita)
   Features/Settings/        bildirim ayarları
+Tools/icon/main.swift       uygulama ikonu adaylarını 1024px opak PNG olarak üretir
 Tools/tests/main.swift      takip/kaza mağazasının birim testleri
 Tools/validate/main.swift   çekirdeği CSV'ye döken doğrulama koşucusu
 Tools/render/main.swift     SwiftUI görünümlerini PNG'ye basar (Xcode'suz görsel kontrol)
@@ -176,6 +177,27 @@ davranıp başlığı ekranın yarısı kadar şişirmişti, sabit yükseklikli 
 gizledi ve hata ancak cihazda ortaya çıktı.
 
 Doğrusu `GeometryReader` ile: mevcut alanı kapla, içeriği ona kırp — ScrollView gibi.
+
+### Uygulama ikonu
+
+```sh
+swiftc -O EzanVakti/Features/Qibla/KaabaGlyph.swift Tools/icon/main.swift -o /tmp/icon
+/tmp/icon ~/Downloads/ezan-ikon-adaylari
+```
+
+Dört aday üretiyor: Kâbe (krem / lacivert), hilal, kubbe+minare. Kâbe adayları
+uygulamadaki `KaabaGlyph`'i kullanıyor, yani ikon ile kıble işareti aynı çizim.
+
+İki App Store kuralı koda gömülü:
+
+- **Alfa kanalı olmamalı.** `ImageRenderer` her zaman alfalı görüntü veriyor;
+  `noneSkipLast` bir `CGContext`'e yeniden çizip `CGImageDestination` ile
+  yazıyoruz. `NSGraphicsContext` + alfasız `NSBitmapImageRep` yolu denendi,
+  simsiyah çıktı verdi. `sips -g hasAlpha` ile doğrulanabilir.
+- **Köşeler yuvarlatılmamalı** — sistem kendisi maskeliyor.
+
+Ölçüler orana bağlı; mutlak punto verilen ilk sürüm küçük boyutta render
+edilince taşıyordu ve karşılaştırma yanıltıcı oluyordu.
 
 ### Kâbe işareti
 
