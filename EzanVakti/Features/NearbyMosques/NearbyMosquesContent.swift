@@ -19,7 +19,7 @@ struct NearbyMosquesContent: View {
                 ProgressView()
                     .tint(Palette.accent)
                 Text("Camiler aranıyor…")
-                    .font(.system(size: 13))
+                    .scaledFont(13)
                     .foregroundStyle(.white.opacity(0.5))
             }
             .padding(.vertical, 44)
@@ -39,7 +39,7 @@ struct NearbyMosquesContent: View {
                 notice(symbol: "exclamationmark.triangle", text: message)
                 Button(action: onRetry) {
                     Text("Tekrar dene")
-                        .font(.system(size: 13, weight: .semibold))
+                        .scaledFont(13, weight: .semibold)
                         .foregroundStyle(.black.opacity(0.75))
                         .padding(.horizontal, 18)
                         .padding(.vertical, 9)
@@ -80,13 +80,13 @@ struct NearbyMosquesContent: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(mosque.name)
-                        .font(.system(size: 15, weight: .medium))
+                        .scaledFont(15, weight: .medium)
                         .foregroundStyle(.white.opacity(0.92))
                         .lineLimit(1)
 
                     if !mosque.address.isEmpty {
                         Text(mosque.address)
-                            .font(.system(size: 12))
+                            .scaledFont(12)
                             .foregroundStyle(.white.opacity(0.42))
                             .lineLimit(1)
                     }
@@ -95,7 +95,7 @@ struct NearbyMosquesContent: View {
                 Spacer(minLength: 8)
 
                 Text(mosque.distanceText)
-                    .font(.system(size: 14, weight: .semibold))
+                    .scaledFont(14, weight: .semibold)
                     .monospacedDigit()
                     .foregroundStyle(Palette.accent)
             }
@@ -103,6 +103,16 @@ struct NearbyMosquesContent: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(rowAccessibilityLabel(mosque))
+        .accessibilityHint("Yol tarifi için dokun")
+    }
+
+    /// Yön oku görsel; sözle "kuzeydoğu" demek daha anlaşılır.
+    private func rowAccessibilityLabel(_ mosque: Mosque) -> String {
+        var parts = [mosque.name, mosque.distanceText]
+        if !mosque.address.isEmpty { parts.append(mosque.address) }
+        return parts.joined(separator: ", ")
     }
 
     /// Telefon çevrildikçe ok camiyi göstermeye devam ediyor.
@@ -116,18 +126,21 @@ struct NearbyMosquesContent: View {
                 .frame(width: 22)
                 .animation(.interpolatingSpring(stiffness: 120, damping: 14),
                            value: heading.degrees)
+                // Yön oku görsel; satır etiketi bilgiyi sözle veriyor.
+                .accessibilityHidden(true)
         } else {
             Image(systemName: "mappin")
-                .font(.system(size: 13))
+                .scaledFont(13)
                 .foregroundStyle(.white.opacity(0.3))
                 .frame(width: 22)
+                .accessibilityHidden(true)
         }
     }
 
     /// ODbL, OSM verisini kullanan uygulamalardan kaynak belirtmesini istiyor.
     private var attribution: some View {
         Text("Cami verisi © OpenStreetMap katkıcıları")
-            .font(.system(size: 10))
+            .scaledFont(10)
             .foregroundStyle(.white.opacity(0.28))
             .frame(maxWidth: .infinity)
     }
@@ -135,10 +148,10 @@ struct NearbyMosquesContent: View {
     private func notice(symbol: String, text: String) -> some View {
         VStack(spacing: 10) {
             Image(systemName: symbol)
-                .font(.system(size: 22))
+                .scaledFont(22)
                 .foregroundStyle(.white.opacity(0.3))
             Text(text)
-                .font(.system(size: 13))
+                .scaledFont(13)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white.opacity(0.5))
                 .fixedSize(horizontal: false, vertical: true)

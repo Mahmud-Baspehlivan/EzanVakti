@@ -20,10 +20,10 @@ struct TurnIndicator: View {
         if isAligned {
             VStack(spacing: 8) {
                 Image(systemName: "checkmark")
-                    .font(.system(size: 34, weight: .semibold))
+                    .scaledFont(34, weight: .semibold)
                     .foregroundStyle(Color(red: 0.35, green: 0.82, blue: 0.48))
                 Text("Kıble yönünde")
-                    .font(.system(size: 15, weight: .medium))
+                    .scaledFont(15, weight: .medium)
                     .foregroundStyle(.white.opacity(0.8))
             }
         } else {
@@ -40,12 +40,12 @@ struct TurnIndicator: View {
 
                 VStack(spacing: 2) {
                     Text("\(degrees)°")
-                        .font(.system(size: 30, weight: .semibold, design: .rounded))
+                        .scaledFont(30, weight: .semibold, design: .rounded)
                         .monospacedDigit()
                         .foregroundStyle(.white)
                         .contentTransition(.numericText())
                     Text(clockwise ? "sağa dön" : "sola dön")
-                        .font(.system(size: 15, weight: .medium))
+                        .scaledFont(15, weight: .medium)
                         .foregroundStyle(.white.opacity(0.6))
                 }
             }

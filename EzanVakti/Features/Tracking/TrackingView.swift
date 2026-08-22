@@ -45,7 +45,7 @@ struct TrackingContent: View {
         let streak = log.currentStreak(today: today)
         return VStack(spacing: 4) {
             Text("\(streak)")
-                .font(.system(size: 46, weight: .semibold, design: .rounded))
+                .scaledFont(46, weight: .semibold, design: .rounded)
                 .foregroundStyle(streak == 0 ? .white.opacity(0.45) : Palette.accent)
                 .contentTransition(.numericText())
             Text(streak == 0 ? "seri yok" : "günlük seri")
@@ -53,6 +53,8 @@ struct TrackingContent: View {
                 .foregroundStyle(.white.opacity(0.55))
         }
         .padding(.top, 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(streak == 0 ? "Seri yok" : "\(streak) günlük seri")
     }
 
     // MARK: - Bugün
@@ -67,7 +69,7 @@ struct TrackingContent: View {
                     } label: {
                         HStack(spacing: 12) {
                             Image(systemName: prayer.symbolName)
-                                .font(.system(size: 15))
+                                .scaledFont(15)
                                 .frame(width: 22)
                                 .foregroundStyle(.white.opacity(0.5))
                             Text(prayer.title)
@@ -77,13 +79,19 @@ struct TrackingContent: View {
                                 .font(.caption.weight(.medium))
                                 .foregroundStyle(status == .unmarked ? .white.opacity(0.35) : status.tint)
                             Image(systemName: status.symbolName)
-                                .font(.system(size: 19))
+                                .scaledFont(19)
                                 .foregroundStyle(status.tint)
                         }
                         .padding(.vertical, 11)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    // Dokundukça durum değiştiği için etiket-değer-ipucu üçlüsü
+                    // gerekiyor: ne olduğu, hangi durumda olduğu, ne olacağı.
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(prayer.title)
+                    .accessibilityValue(status == .unmarked ? "işaretlenmedi" : status.title)
+                    .accessibilityHint("Sıradaki duruma geçmek için dokun: \(status.next.title)")
                 }
             }
         }
@@ -113,6 +121,8 @@ struct TrackingContent: View {
                             .padding(.top, 2)
                     }
                     .frame(maxWidth: .infinity)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(formatter.string(from: day)), \(log.performedCount(on: day)) / 5 kılındı")
                 }
             }
             .padding(.vertical, 6)
@@ -150,8 +160,10 @@ struct TrackingContent: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(balance == 0)
+                        .accessibilityLabel("\(prayer.title) kazası kıldım")
                     }
                     .padding(.vertical, 9)
+                    .accessibilityElement(children: .contain)
                 }
 
                 Button {

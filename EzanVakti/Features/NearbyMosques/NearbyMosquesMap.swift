@@ -67,12 +67,12 @@ struct NearbyMosquesMap: View {
             HStack(spacing: 12) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(mosque.name)
-                        .font(.system(size: 15, weight: .medium))
+                        .scaledFont(15, weight: .medium)
                         .foregroundStyle(.white)
                         .lineLimit(1)
                     Text(mosque.address.isEmpty ? mosque.distanceText
                                                 : "\(mosque.distanceText) · \(mosque.address)")
-                        .font(.system(size: 12))
+                        .scaledFont(12)
                         .foregroundStyle(.white.opacity(0.5))
                         .lineLimit(1)
                 }
@@ -83,7 +83,7 @@ struct NearbyMosquesMap: View {
                     onSelect(mosque)
                 } label: {
                     Text("Yol tarifi")
-                        .font(.system(size: 13, weight: .semibold))
+                        .scaledFont(13, weight: .semibold)
                         .foregroundStyle(.black.opacity(0.75))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)

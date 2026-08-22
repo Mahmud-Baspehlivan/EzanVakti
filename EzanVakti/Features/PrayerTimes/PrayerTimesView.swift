@@ -29,11 +29,12 @@ struct PrayerTimesView: View {
                 isShowingSettings = true
             } label: {
                 Image(systemName: "bell.badge")
-                    .font(.system(size: 16, weight: .medium))
+                    .scaledFont(16, weight: .medium)
                     .foregroundStyle(.white.opacity(0.75))
                     .padding(12)
             }
             .padding(.trailing, 8)
+            .accessibilityLabel("Bildirim ayarları")
         }
         .sheet(isPresented: $isShowingSettings) {
             NotificationSettingsView(store: preferencesStore, scheduler: scheduler)

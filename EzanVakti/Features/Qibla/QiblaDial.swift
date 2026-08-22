@@ -71,7 +71,7 @@ struct QiblaDial: View {
                 // Ana yönlerde harf zaten var; sayı koyup üst üste bindirmiyoruz.
                 if degree % 90 != 0 {
                     Text("\(degree)")
-                        .font(.system(size: 9, weight: .medium))
+                        .scaledFont(9, weight: .medium)
                         .foregroundStyle(.white.opacity(0.38))
                         .rotationEffect(.degrees(-(Double(degree) - heading)))
                         .offset(y: -(radius - 32))

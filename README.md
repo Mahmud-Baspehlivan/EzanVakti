@@ -485,6 +485,57 @@ Yandex Navigasyon araç navigasyonu olduğu için onda yaya kipi yok.
 - Adres etiketleri OSM'de seyrek (34 caminin 2'sinde `addr:street` var); adres
   satırı çoğu zaman boş kalıyor, ekran bunu zaten kaldırıyor.
 
+## Erişilebilirlik
+
+### VoiceOver
+
+Önceden hiç erişilebilirlik etiketi yoktu; pusula ve takip düğmeleri VoiceOver
+kullanıcısı için tamamen anlaşılmazdı. Şimdi:
+
+- **Kıble pusulası** tek öğede toplanıp durum sözle veriliyor
+  ("60 derece sağa dön" / "Kıble yönündesin"). Kadran, ok ve çentikler
+  görsel olduğu için gizlendi.
+- **Liste satırları** tek cümle okunuyor: "İkindi 16:58, şu anki vakit,
+  bildirim açık". Ayrı ayrı "İkindi", "16:58", "zil" duymak bir şey anlatmıyor.
+- **İmsakiye satırı** altı vakti birlikte okuyor; sütun sütun okunsa hangi
+  sayının hangi vakit olduğu kaybolurdu.
+- **Takip düğmeleri** etiket + değer + ipucu üçlüsü taşıyor: dokundukça durum
+  değiştiği için "ne olduğu, hangi durumda, ne olacağı" gerekiyor.
+- Yalnızca ikon içeren düğmelerin hepsi etiketlendi; dekoratif ikonlar gizlendi.
+
+### Dynamic Type
+
+53 çağrı sabit punto veriyordu (`.font(.system(size:))`), yani kullanıcı yazıyı
+büyütse de uygulamada **hiçbir şey değişmiyordu**. Hepsi `scaledFont`'a çevrildi;
+çarpan ortamdaki `dynamicTypeSize`'dan okunuyor.
+
+`UIFontMetrics` yerine bu yol seçildi çünkü platformdan bağımsız: `ImageRenderer`
+ile istenen boyutta render edip düzeni gözle denetlenebiliyor.
+
+Denetim işe yaradı: **imsakiye tablosu 1.9x puntoda tamamen kırılıyordu** —
+altı sütun 393 pt'ye sığmadığı için bütün saatler "04:…" diye kırpılıyordu.
+Erişilebilirlik boyutlarında satır artık blok düzenine geçiyor (gün başlığı
+üstte, vakitler ikili sütunlarda) ve sütun başlığı gizleniyor.
+
+## Dil
+
+Uygulama **yalnızca Türkçe**. Bu bilinçli: kendisi ve çevresi için yapıldı,
+tek dilli uygulama App Store'da sorun değil.
+
+`EzanVakti/Localizable.xcstrings` kaynak dili `tr` olarak eklendi. Faydası,
+uygulamanın Türkçe yerelleştirmesini beyan etmesi: aksi halde İngilizce cihazda
+bizim metinler Türkçe, sistemin verdiği metinler İngilizce görünüp karışık bir
+arayüz oluyor.
+
+Başka dil eklemek isteyen için bilinmesi gerekenler:
+
+- SwiftUI'da `Text("...")` literalleri zaten `LocalizedStringKey`, yani 32
+  metnin çoğu anahtar olarak hazır. Ancak **11'i interpolasyonlu** — çevirmen
+  için dizim ve çoğullama tuzağı, bunların yeniden yazılması gerekir.
+- `Core` içinde 31 satır sabit Türkçe döndürüyor (`Prayer.title`,
+  `PrayerStatus.title`, `MapApp.title`…). Bunlar `LocalizedStringResource`'a
+  çevrilmeden kataloğa girmiyor.
+
 ## Gizlilik manifestosu
 
 `EzanVakti/PrivacyInfo.xcprivacy` ve `EzanVaktiWidget/PrivacyInfo.xcprivacy`.

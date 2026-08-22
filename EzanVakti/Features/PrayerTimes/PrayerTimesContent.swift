@@ -45,23 +45,25 @@ struct PrayerTimesContent: View {
             Button(action: onSelectLocation) {
                 HStack(spacing: 5) {
                     Text(viewModel.locationName)
-                        .font(.system(size: 17, weight: .semibold))
+                        .scaledFont(17, weight: .semibold)
                     Image(systemName: "chevron.down")
-                        .font(.system(size: 11, weight: .semibold))
+                        .scaledFont(11, weight: .semibold)
                         .foregroundStyle(.white.opacity(0.45))
                 }
                 .foregroundStyle(.white)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityLabel("Konum: \(viewModel.locationName)")
+            .accessibilityHint("Konumu değiştirmek için dokun")
 
             Text("\(viewModel.gregorianDate(for: now))  ·  \(viewModel.hijriDate(for: now))")
-                .font(.system(size: 13))
+                .scaledFont(13)
                 .foregroundStyle(.white.opacity(0.45))
 
             if viewModel.isUsingFallbackLocation {
                 Label("Konum kapalı — İstanbul · değiştirmek için dokun", systemImage: "location.slash")
-                    .font(.system(size: 12))
+                    .scaledFont(12)
                     .foregroundStyle(accent.opacity(0.85))
                     .padding(.top, 3)
             }
@@ -79,7 +81,7 @@ struct PrayerTimesContent: View {
 
                 // Saat kahraman: asıl aranan bilgi bu, geri sayım destek.
                 Text(viewModel.formatted(upcoming.date))
-                    .font(.system(size: 68, weight: .medium, design: .rounded))
+                    .scaledFont(68, weight: .medium, design: .rounded)
                     .foregroundStyle(.white)
                     .padding(.top, 6)
 
@@ -89,7 +91,7 @@ struct PrayerTimesContent: View {
                     Text(viewModel.remainingCaption(at: now))
                         .foregroundStyle(.white.opacity(0.4))
                 }
-                .font(.system(size: 16, weight: .medium))
+                .scaledFont(16, weight: .medium)
                 .monospacedDigit()
                 .foregroundStyle(.white.opacity(0.62))
             }
@@ -97,6 +99,8 @@ struct PrayerTimesContent: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 34)
         .padding(.bottom, 30)
+        // Üç ayrı parça yerine tek cümle: "İkindi 16:58, 1 sa 46 dk kaldı".
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: - Vakit listesi
@@ -120,23 +124,27 @@ struct PrayerTimesContent: View {
                         .padding(.trailing, 13)
 
                     Text(entry.prayer.title)
-                        .font(.system(size: 16, weight: isCurrent ? .semibold : .regular))
+                        .scaledFont(16, weight: isCurrent ? .semibold : .regular)
 
                     Spacer(minLength: 8)
 
                     if preferences.enabled.contains(entry.prayer) {
                         Image(systemName: "bell.fill")
-                            .font(.system(size: 9))
+                            .scaledFont(9)
                             .foregroundStyle(.white.opacity(isPast ? 0.15 : 0.3))
                             .padding(.trailing, 8)
+                            .accessibilityHidden(true)
                     }
 
                     Text(viewModel.formatted(entry.date))
-                        .font(.system(size: 16, weight: isCurrent ? .semibold : .regular))
+                        .scaledFont(16, weight: isCurrent ? .semibold : .regular)
                         .monospacedDigit()
                 }
                 .foregroundStyle(.white.opacity(isCurrent ? 1 : (isPast ? 0.32 : 0.78)))
-                .frame(height: 60)
+                // Sabit yükseklik yerine en az: büyük puntoda metin kırpılmasın.
+                .frame(minHeight: 60)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(rowAccessibilityLabel(entry, isCurrent: isCurrent, isPast: isPast))
 
                 if entry.prayer != day.ordered.last?.prayer {
                     Rectangle()
@@ -146,6 +154,18 @@ struct PrayerTimesContent: View {
                 }
             }
         }
+    }
+
+    /// Satırın tamamı tek cümle olarak okunuyor; ayrı ayrı "İkindi", "16:58",
+    /// "zil" duymak bir şey anlatmıyor.
+    private func rowAccessibilityLabel(
+        _ entry: (prayer: Prayer, date: Date), isCurrent: Bool, isPast: Bool
+    ) -> String {
+        var parts = ["\(entry.prayer.title) \(viewModel.formatted(entry.date))"]
+        if isCurrent { parts.append("şu anki vakit") }
+        else if isPast { parts.append("geçti") }
+        if preferences.enabled.contains(entry.prayer) { parts.append("bildirim açık") }
+        return parts.joined(separator: ", ")
     }
 
     // MARK: - Alt bilgi
@@ -164,7 +184,7 @@ struct PrayerTimesContent: View {
                 EmptyView()
             }
         }
-        .font(.system(size: 12))
+        .scaledFont(12)
         .frame(maxWidth: .infinity)
         .padding(.bottom, 18)
     }

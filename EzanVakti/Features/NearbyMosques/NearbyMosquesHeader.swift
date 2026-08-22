@@ -28,7 +28,7 @@ struct NearbyMosquesHeader: View {
                 }
 
             Text(locationName ?? "Konum bekleniyor")
-                .font(.system(size: 25, weight: .medium))
+                .scaledFont(25, weight: .medium)
                 .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
 
@@ -44,12 +44,13 @@ struct NearbyMosquesHeader: View {
     private var modeButton: some View {
         Button(action: onToggleMode) {
             Image(systemName: mode.symbolName)
-                .font(.system(size: 14))
+                .scaledFont(14)
                 .foregroundStyle(Palette.accent)
                 .frame(width: 34, height: 28)
                 .background { Capsule().fill(.white.opacity(0.07)) }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(mode == .list ? "Haritada göster" : "Listede göster")
     }
 }
 
@@ -68,7 +69,7 @@ struct CapsuleSegments<Option: Identifiable & Equatable>: View {
                     onSelect(option)
                 } label: {
                     Text(option[keyPath: title])
-                        .font(.system(size: 13, weight: .semibold))
+                        .scaledFont(13, weight: .semibold)
                         .monospacedDigit()
                         .foregroundStyle(option == selection
                                          ? .black.opacity(0.75)
@@ -82,6 +83,8 @@ struct CapsuleSegments<Option: Identifiable & Equatable>: View {
                         }
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Arama yarıçapı \(option[keyPath: title])")
+                .accessibilityAddTraits(option == selection ? [.isButton, .isSelected] : .isButton)
             }
         }
     }
@@ -126,9 +129,9 @@ struct MapAppFooterLabel: View {
             Text(app.title)
                 .foregroundStyle(Palette.accent)
             Image(systemName: "chevron.up.chevron.down")
-                .font(.system(size: 9))
+                .scaledFont(9)
                 .foregroundStyle(Palette.accent.opacity(0.7))
         }
-        .font(.system(size: 12))
+        .scaledFont(12)
     }
 }

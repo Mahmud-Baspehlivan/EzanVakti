@@ -43,6 +43,7 @@ struct QadaSetupView: View {
                                 Image(systemName: "arrow.uturn.backward")
                             }
                             .buttonStyle(.borderless)
+                            .accessibilityLabel("\(prayer.title) için son kaza ödemesini geri al")
                             .disabled((log.snapshot.qada.paid[prayer] ?? 0) == 0)
                         }
                     }

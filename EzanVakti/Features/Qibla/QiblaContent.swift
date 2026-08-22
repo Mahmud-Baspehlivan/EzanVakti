@@ -36,11 +36,11 @@ struct QiblaContent: View {
 
             // Yön kısaltma yerine tam adıyla: "GGD" çoğu kişiye bir şey ifade etmiyor.
             Text(viewModel.compassName(for: viewModel.direction))
-                .font(.system(size: 29, weight: .medium))
+                .scaledFont(29, weight: .medium)
                 .foregroundStyle(.white)
 
             Text("\(Int(viewModel.direction.rounded()))°")
-                .font(.system(size: 15))
+                .scaledFont(15)
                 .monospacedDigit()
                 .foregroundStyle(.white.opacity(0.4))
         }
@@ -73,16 +73,33 @@ struct QiblaContent: View {
                 }
             }
             .frame(width: 296, height: 296)
+            // Kadran, ok ve çentikler tümüyle görsel; VoiceOver için tek bir
+            // öğede toplanıp durum sözle anlatılıyor.
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Kıble pusulası")
+            .accessibilityValue(compassAccessibilityValue)
 
             if let heading, heading.needsCalibration {
                 Text("Pusula sapmalı — telefonu havada sekiz çizerek kalibre et, metal ve mıknatıstan uzaklaş.")
-                    .font(.system(size: 12))
+                    .scaledFont(12)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Palette.accent.opacity(0.8))
                     .padding(.horizontal, 12)
             }
         }
         .padding(.top, 18)
+    }
+
+    /// Pusulanın durumu sözle: yön bilgisi yalnızca çizimde olduğu için
+    /// VoiceOver kullanıcısı aksi halde hiçbir şey duyamıyor.
+    private var compassAccessibilityValue: String {
+        guard let heading, heading.isValid else {
+            return isHeadingAvailable ? "Pusula okunuyor" : "Bu cihazda pusula yok"
+        }
+        if isAligned { return "Kıble yönündesin" }
+        let deviation = viewModel.deviation(from: heading.degrees)
+        let yon = deviation > 0 ? "sağa" : "sola"
+        return "\(abs(Int(deviation.rounded()))) derece \(yon) dön"
     }
 
     @ViewBuilder
@@ -95,9 +112,9 @@ struct QiblaContent: View {
         } else {
             VStack(spacing: 6) {
                 Image(systemName: isHeadingAvailable ? "location.north.line" : "location.slash")
-                    .font(.system(size: 26))
+                    .scaledFont(26)
                 Text(isHeadingAvailable ? "Pusula okunuyor…" : "Bu cihazda pusula yok")
-                    .font(.system(size: 14))
+                    .scaledFont(14)
             }
             .foregroundStyle(.white.opacity(isHeadingAvailable ? 0.45 : 0.7))
         }
@@ -120,7 +137,7 @@ struct QiblaContent: View {
             Text(times.isEmpty
                  ? "Bugün güneş kıble yönüne gelmiyor. Bu enlemde her tarihte olmuyor."
                  : "Bu saatte güneş tam kıble yönünde olur; dik bir cismin gölgesi kıblenin tam tersini gösterir. Pusulasız doğrulamanın en güvenilir yolu.")
-                .font(.system(size: 12))
+                .scaledFont(12)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white.opacity(0.45))
                 .fixedSize(horizontal: false, vertical: true)
@@ -139,7 +156,7 @@ struct QiblaContent: View {
         VStack(spacing: 5) {
             SectionLabel(text: label, size: 10, tracking: 1.2)
             Text(value)
-                .font(.system(size: 22, weight: .semibold))
+                .scaledFont(22, weight: .semibold)
                 .monospacedDigit()
                 .foregroundStyle(.white)
         }

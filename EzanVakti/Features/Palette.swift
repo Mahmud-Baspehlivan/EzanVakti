@@ -42,7 +42,7 @@ struct SectionLabel: View {
 
     var body: some View {
         Text(text.uppercased(with: Self.turkish))
-            .font(.system(size: size, weight: .semibold))
+            .scaledFont(size, weight: .semibold)
             .tracking(tracking)
             .foregroundStyle(Palette.accent)
     }
