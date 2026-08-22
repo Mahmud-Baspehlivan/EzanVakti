@@ -485,6 +485,46 @@ Yandex Navigasyon araç navigasyonu olduğu için onda yaya kipi yok.
 - Adres etiketleri OSM'de seyrek (34 caminin 2'sinde `addr:street` var); adres
   satırı çoğu zaman boş kalıyor, ekran bunu zaten kaldırıyor.
 
+## Gizlilik manifestosu
+
+`EzanVakti/PrivacyInfo.xcprivacy` ve `EzanVaktiWidget/PrivacyInfo.xcprivacy`.
+2024'ten beri App Store'a gönderim için zorunlu.
+
+Kod taramasıyla belirlendi — hangi "gerekçe bildirilmesi gereken" API'ler
+gerçekten kullanılıyor:
+
+| Kategori | Kullanılıyor mu |
+|---|---|
+| UserDefaults | **evet** |
+| Dosya zaman damgası | hayır |
+| Disk alanı | hayır |
+| Sistem açılış zamanı | hayır |
+| Etkin klavyeler | hayır |
+
+Gerekçe kodları Apple'ın kendi dokümanından doğrulandı (hafızadan yazılmadı):
+
+- **`CA92.1`** — yalnızca uygulamanın kendisine açık user defaults
+  (`NotificationPreferencesStore`, `UserDefaults.standard`)
+- **`1C8F.1`** — aynı App Group içinde paylaşılan user defaults
+  (`SharedLocationStore`, `LocationPreferenceStore`, `MapAppPreferenceStore`)
+
+Widget yalnızca App Group suite'ini kullandığı için orada sadece `1C8F.1` var.
+Anahtar adının `NSPrivacyAccessedAPITypeReasons` olduğuna dikkat —
+`NSPrivacyAccessedAPIReasons` değil.
+
+### Veri toplama beyanı
+
+`NSPrivacyTracking` = false, `NSPrivacyCollectedDataTypes` boş, üçüncü taraf
+SDK yok.
+
+Bu bir yorum barındırıyor: yurtdışında cami ararken koordinat Overpass'a
+gönderiliyor. Apple'ın "toplama" tanımı, veriyi *isteği gerçek zamanlı
+karşılamak için gerekenden uzun süre* cihaz dışında tutmak; Overpass isteği
+anında işleyip bizim adımıza saklamıyor, dolayısıyla toplama sayılmıyor.
+Yurt içinde veri paketli olduğu için hiçbir şey gönderilmiyor.
+
+**Analitik, çökme raporlama veya hesap sistemi eklenirse bu beyan güncellenmeli.**
+
 ## Konum seçimi
 
 Varsayılan GPS; ana ekranda konum adına dokununca şehir/ilçe aranıp elle seçilebiliyor.
