@@ -50,6 +50,10 @@ struct QiblaContent: View {
     private var compass: some View {
         VStack(spacing: 12) {
             ZStack {
+                // Kadran tümüyle görsel; bilgiyi ortadaki TurnIndicator taşıyor.
+                // Erişilebilirliği burada toplamak, yön güncellemesi hızında
+                // (saniyede onlarca kez) erişilebilirlik ağacını yeniden
+                // kurdurup takılmaya yol açıyordu.
                 QiblaDial(
                     qiblaDirection: viewModel.direction,
                     heading: heading?.degrees ?? 0,
@@ -60,6 +64,7 @@ struct QiblaContent: View {
                 )
                 .animation(.interpolatingSpring(stiffness: 120, damping: 14),
                            value: heading?.degrees ?? 0)
+                .accessibilityHidden(true)
 
                 // Talimat kadranla dönmesin diye kadranın üstünde, ayrı katmanda.
                 compassCenter
@@ -73,11 +78,6 @@ struct QiblaContent: View {
                 }
             }
             .frame(width: 296, height: 296)
-            // Kadran, ok ve çentikler tümüyle görsel; VoiceOver için tek bir
-            // öğede toplanıp durum sözle anlatılıyor.
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel("Kıble pusulası")
-            .accessibilityValue(compassAccessibilityValue)
 
             if let heading, heading.needsCalibration {
                 Text("Pusula sapmalı — telefonu havada sekiz çizerek kalibre et, metal ve mıknatıstan uzaklaş.")
@@ -99,7 +99,10 @@ struct QiblaContent: View {
         if isAligned { return "Kıble yönündesin" }
         let deviation = viewModel.deviation(from: heading.degrees)
         let yon = deviation > 0 ? "sağa" : "sola"
-        return "\(abs(Int(deviation.rounded()))) derece \(yon) dön"
+        // 15°'lik kademeye yuvarlanıyor: her derecede değişen bir değer,
+        // erişilebilirlik ağacını saniyede onlarca kez yeniden kurduruyor.
+        let kademe = max(15, Int((abs(deviation) / 15).rounded()) * 15)
+        return "yaklaşık \(kademe) derece \(yon) dön"
     }
 
     @ViewBuilder
@@ -109,6 +112,9 @@ struct QiblaContent: View {
                 deviation: viewModel.deviation(from: heading.degrees),
                 isAligned: isAligned
             )
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Kıble pusulası")
+            .accessibilityValue(compassAccessibilityValue)
         } else {
             VStack(spacing: 6) {
                 Image(systemName: isHeadingAvailable ? "location.north.line" : "location.slash")

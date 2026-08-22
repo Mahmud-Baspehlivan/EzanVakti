@@ -61,7 +61,7 @@
 				Core/PrayerTimesCalculator.swift,
 				Core/SharedLocationStore.swift,
 				Core/SolarMath.swift,
-			);
+				Features/Palette.swift,);
 			target = 99335464303906FE007C5ED0 /* EzanVaktiWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */

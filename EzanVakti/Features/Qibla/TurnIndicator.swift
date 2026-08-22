@@ -11,6 +11,8 @@ struct TurnIndicator: View {
     let deviation: Double
     let isAligned: Bool
 
+    // Derece saniyede onlarca kez değişiyor; `contentTransition(.numericText())`
+    // her değişimde geçiş animasyonu kuruyor ve boşa maliyet çıkarıyordu.
     @State private var nudge = false
 
     private var clockwise: Bool { deviation > 0 }
@@ -43,7 +45,6 @@ struct TurnIndicator: View {
                         .scaledFont(30, weight: .semibold, design: .rounded)
                         .monospacedDigit()
                         .foregroundStyle(.white)
-                        .contentTransition(.numericText())
                     Text(clockwise ? "sağa dön" : "sola dön")
                         .scaledFont(15, weight: .medium)
                         .foregroundStyle(.white.opacity(0.6))

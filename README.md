@@ -365,6 +365,20 @@ provisioning'de kısıtlı olabilir) widget İstanbul'a düşüyor — ve bunu
 **"İstanbul (varsayılan)"** yazıp konum-kapalı simgesiyle ekranda söylüyor.
 Sessizce yanlış şehrin vakitlerini göstermiyor.
 
+### Tasarım
+
+Widget'lar uygulamanın diliyle aynı: `Palette` widget hedefine de bağlı, sıradaki
+vakit altın vurguda, vakit adı Türkçe-güvenli büyük harfle. Ana ekran
+widget'larının altında ilerleme çubuğu var — hem boşluğu dolduruyor hem geçen
+oranı gösteriyor.
+
+Kilit ekranı görünümleri **renk kullanmıyor**: sistem onları tek renge tonluyor,
+altın vurgu orada kaybolurdu.
+
+Geri sayım her yerde `Text(timerInterval:)`. Uygulamadaki sakin biçim
+("1 sa 46 dk") burada kullanılamıyor: çizelge yalnızca vakit geçişlerinde girdi
+ürettiği için durağan bir metin bir dakika içinde yanlış olurdu.
+
 ### Zaman çizelgesi
 
 Vakitler belirlenimci olduğu için çizelge bir gün ileriye kadar baştan üretiliyor —
@@ -486,6 +500,27 @@ Yandex Navigasyon araç navigasyonu olduğu için onda yaya kipi yok.
   satırı çoğu zaman boş kalıyor, ekran bunu zaten kaldırıyor.
 
 ## Erişilebilirlik
+
+### Pusula performansı
+
+Çentikler, yön harfleri ve derece yazıları tek bir `Canvas` ile çiziliyor.
+Önce her çentik ayrı bir `Rectangle` + `offset` + `rotationEffect` idi; 72 çentik
+ve yazılarla karede 81 dönüşüm katmanı hesaplanıyordu. Pusula ekranı yön
+güncellemesi hızında yeniden çizildiği için bu gözle görülür takılmaya yol
+açıyordu.
+
+Ölçüm (`Tools` altındaki render altyapısıyla, 40 kare):
+
+| | ms/kare |
+|---|---|
+| Ayrı görünümler | **2.14** |
+| Canvas | **0.45** |
+
+İki şey daha kaldırıldı: erişilebilirlik etiketi kadran konteynerinden alınıp
+ortadaki göstergeye taşındı (konteynerde toplamak, yön her değiştiğinde
+erişilebilirlik ağacını yeniden kurduruyordu) ve değer 15°'lik kademeye
+yuvarlandı. Hızla değişen derece yazısındaki `contentTransition(.numericText())`
+da kaldırıldı.
 
 ### VoiceOver
 

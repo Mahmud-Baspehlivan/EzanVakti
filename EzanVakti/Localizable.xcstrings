@@ -1,7 +1,242 @@
 {
   "sourceLanguage" : "tr",
   "strings" : {
+    "%@  ·  %@" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@  ·  %2$@"
+          }
+        }
+      }
+    },
+    "%@ için son kaza ödemesini geri al" : {
 
+    },
+    "%@ kazası kıldım" : {
+
+    },
+    "%@ uygulama paketinde yok, sistem sesi kullanılacak." : {
+
+    },
+    "%@, %lld / 5 kılındı" : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@, %2$lld / 5 kılındı"
+          }
+        }
+      }
+    },
+    "%lld" : {
+
+    },
+    "%lld bildirim planlandı" : {
+
+    },
+    "%lld dk önce" : {
+
+    },
+    "%lld günlük seri" : {
+
+    },
+    "%lld°" : {
+
+    },
+    "Arama için internet gerekiyor. Seçtikten sonra vakitler çevrimdışı hesaplanır." : {
+
+    },
+    "Arama yarıçapı %@" : {
+
+    },
+    "Aranıyor…" : {
+
+    },
+    "Bildirim ayarları" : {
+
+    },
+    "Bildirim izni kapalı" : {
+
+    },
+    "Bildirim izni kapalı. Ayarlar › Ezan Vakti › Bildirimler'den açman gerekiyor." : {
+
+    },
+    "Bildirimler" : {
+
+    },
+    "Birikmiş borç" : {
+
+    },
+    "Birikmiş borcu düzenle" : {
+
+    },
+    "Bitti" : {
+
+    },
+    "Bu cihazda pusula yok" : {
+
+    },
+    "Bu konum ve tarih için vakitler hesaplanamıyor. Yüksek enlemlerde sabah ve yatsı için ayrı bir yöntem seçilmesi gerekir." : {
+
+    },
+    "Bu saatte güneş tam kıble yönünde olur; dik bir cismin gölgesi kıblenin tam tersini gösterir. Pusulasız doğrulamanın en güvenilir yolu." : {
+
+    },
+    "bugün" : {
+
+    },
+    "Bugün" : {
+
+    },
+    "Bugün güneş kıble yönüne gelmiyor. Bu enlemde her tarihte olmuyor." : {
+
+    },
+    "Cami verisi © OpenStreetMap katkıcıları" : {
+
+    },
+    "Camiler" : {
+
+    },
+    "Camiler aranıyor…" : {
+
+    },
+    "Güncel borç" : {
+
+    },
+    "günlük seri" : {
+
+    },
+    "Haritada göster" : {
+
+    },
+    "Hatırlatma" : {
+
+    },
+    "Henüz özel ses eklenmemiş. Ses dosyasını EzanVakti/ klasörünün köküne koyup projeyi yeniden derlemen gerekiyor. Biçim: .caf, .aiff veya .wav (MP3 çalışmaz), en fazla 30 saniye." : {
+
+    },
+    "İmsakiye" : {
+
+    },
+    "iOS bir uygulamaya en fazla 64 bekleyen bildirim veriyor ve vakitler her gün değiştiği için her biri tek tek planlanıyor. Uygulamayı iki haftada bir açmazsan bildirimler kesilir." : {
+
+    },
+    "Kapat" : {
+
+    },
+    "Kaza" : {
+
+    },
+    "Kıble" : {
+
+    },
+    "Kıble pusulası" : {
+
+    },
+    "Kıble yönünde" : {
+
+    },
+    "Kıldım" : {
+
+    },
+    "Konum" : {
+
+    },
+    "Konum kapalı — İstanbul · değiştirmek için dokun" : {
+
+    },
+    "Konum: %@" : {
+
+    },
+    "Konumu değiştirmek için dokun" : {
+
+    },
+    "Konumumu kullan" : {
+
+    },
+    "Listede göster" : {
+
+    },
+    "Ne zaman" : {
+
+    },
+    "Önceki ay" : {
+
+    },
+    "Örn. Eyüpsultan, Konya, Berlin" : {
+
+    },
+    "Özel bildirim sesleri en fazla 30 saniye olabilir; daha uzun dosyalarda iOS sistem sesine düşer." : {
+
+    },
+    "Planlanan bildirim" : {
+
+    },
+    "Pusula okunuyor…" : {
+
+    },
+    "Pusula sapmalı — telefonu havada sekiz çizerek kalibre et, metal ve mıknatıstan uzaklaş." : {
+
+    },
+    "sağa dön" : {
+
+    },
+    "Şehir veya ilçe ara" : {
+
+    },
+    "seri yok" : {
+
+    },
+    "Seri yok" : {
+
+    },
+    "Ses" : {
+
+    },
+    "Sesi dinle" : {
+
+    },
+    "Sıradaki duruma geçmek için dokun: %@" : {
+
+    },
+    "sola dön" : {
+
+    },
+    "Sonraki ay" : {
+
+    },
+    "Şu an elle seçilmiş konum kullanılıyor: %@" : {
+
+    },
+    "Takip" : {
+
+    },
+    "Tekrar dene" : {
+
+    },
+    "Uygulamayı kullanmaya başlamadan önceki borcun. Günlük takipte \"Kılmadım\" işaretlediklerin buna otomatik ekleniyor, buraya elle yazman gerekmiyor." : {
+
+    },
+    "Vakitler" : {
+
+    },
+    "Vakitler bulunduğun yere göre hesaplanıyor." : {
+
+    },
+    "Vaktinde" : {
+
+    },
+    "Yanlışlıkla düştüğün bir kazayı geri almak için ok tuşunu kullan." : {
+
+    },
+    "Yol tarifi" : {
+
+    },
+    "Yol tarifi için dokun" : {
+
+    }
   },
   "version" : "1.0"
 }
