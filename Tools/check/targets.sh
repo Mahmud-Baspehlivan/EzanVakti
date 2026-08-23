@@ -30,6 +30,9 @@ for f in glob.glob(sys.argv[1] + "/*.swift"):
     s = re.sub(r"MapAppLauncher\.openDirections\([^)]*\)", "()", s)
     s = s.replace("availableMapApps = MapAppLauncher.available",
                   "availableMapApps = MapApp.allCases")
+    # Saat komplikasyon aileleri ve kilit ekrani widget aileleri platforma ozel
+    s = s.replace(".accessoryCircular, .accessoryCorner,", "")
+    s = s.replace(".accessoryRectangular, .accessoryInline,", "")
     # Kilit ekrani widget aileleri ve .accessory* dallari iOS'a ozel
     s = s.replace(".accessoryInline, .accessoryCircular, .accessoryRectangular,\n", "")
     s = re.sub(r"case \.accessory\w+:\n(\s+.*\n)+?(?=\s+case |\s+default)", "", s)
@@ -74,3 +77,25 @@ prepare /tmp/check-app EzanVakti/Core/*.swift EzanVakti/Services/*.swift \
 rm -f /tmp/check-app/MapAppLauncher.swift   # UIKit, macOS'ta yok
 ( cd /tmp/check-app && swiftc -typecheck -target arm64-apple-macosx14.0 *.swift )
 echo "  OK ($(ls /tmp/check-app/*.swift | wc -l | tr -d ' ') dosya)"
+
+# Saat hedefleri projede henuz yok (Xcode'da olusturulacak); dosya kumeleri
+# WatchSources + paylasilan Core'dan elle kuruluyor. Iki @main ayri hedeflere
+# gittigi icin ayri ayri deriliyor.
+WATCH_SHARED="EzanVakti/Core/SolarMath.swift EzanVakti/Core/Prayer.swift \
+EzanVakti/Core/PrayerCalculationParameters.swift EzanVakti/Core/PrayerTimesCalculator.swift \
+EzanVakti/Core/Geo.swift EzanVakti/Core/SharedLocationStore.swift \
+EzanVakti/Features/Palette.swift EzanVakti/Features/ScaledFont.swift"
+
+echo "== saat uygulamasi =="
+prepare /tmp/check-watch-app $WATCH_SHARED \
+    WatchSources/WatchApp.swift WatchSources/WatchPrayerTimesView.swift \
+    WatchSources/WatchPrayerTimesModel.swift WatchSources/WatchLocationProvider.swift
+( cd /tmp/check-watch-app && swiftc -typecheck -target arm64-apple-macosx14.0 *.swift )
+echo "  OK ($(ls /tmp/check-watch-app/*.swift | wc -l | tr -d ' ') dosya)"
+
+echo "== saat komplikasyonu =="
+prepare /tmp/check-watch-comp $WATCH_SHARED \
+    WatchSources/WatchComplication.swift WatchSources/WatchComplicationViews.swift \
+    EzanVaktiWidget/PrayerWidgetEntry.swift
+( cd /tmp/check-watch-comp && swiftc -typecheck -target arm64-apple-macosx14.0 *.swift )
+echo "  OK ($(ls /tmp/check-watch-comp/*.swift | wc -l | tr -d ' ') dosya)"

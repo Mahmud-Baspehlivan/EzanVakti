@@ -757,6 +757,59 @@ Xcode dışında yapılacaklar (App Store Connect):
 Kalan tek teknik engel: **ezan sesi telifi**. Commons'taki "own work" beyanları
 yükleyenin kendi ifadesi, bağımsız doğrulanamıyor.
 
+## Apple Watch
+
+Kaynaklar `WatchSources/` altında hazır; **hedefler Xcode'da oluşturulmalı**
+(widget'ta olduğu gibi, elle `pbxproj` düzenlemek doğrulanamıyor).
+
+### Kapsam
+
+- **Vakitler ekranı**: konum, sıradaki vakit, geri sayım, altında kaydırılan liste
+- **Komplikasyonlar**: dairesel, köşe, dikdörtgen, satır içi
+
+Saat **telefonla veri paylaşmıyor**. Vakitler hesaplanabilir olduğu için saat
+kendi konumunu alıp kendi hesaplıyor; telefon yanında olmasa da çalışıyor.
+App Group iOS uygulamasıyla saat arasında paylaşılmıyor (ayrı cihazlar), saatteki
+`SharedLocationStore` yalnızca saat uygulaması ile komplikasyonu arasında.
+
+### Kıble neden yok
+
+Bileği kıbleye çevirmek için kolu tuhaf bir açıda sabitlemek gerekiyor ve pusula
+bilekte manyetik olarak daha az güvenilir. Daha önemlisi kıble **tekrarlanan bir
+iş değil** — bir konumda bir kez bulunuyor. Saatin değeri bir bakışta alınan
+tekrarlı bilgide; kıble oraya uymuyor, telefonda kalıyor.
+
+### Namaz takibi neden yok
+
+Saatten işaretlemek mantıklı olurdu ama telefonla senkron olmadan iki ayrı
+kayıt oluşurdu. `WatchConnectivity` ayrı bir iş, v2'ye bırakıldı.
+
+### Telefondaki `LocationProvider` neden kullanılmadı
+
+O sınıf pusula yönü, elle konum seçimi ve App Group paylaşımı taşıyor; saatte
+hiçbiri gerekmiyor ve pusula API'lerinin watchOS'taki durumu ayrı bir
+belirsizlik. Saat için tek işi olan ayrı bir sağlayıcı yazıldı.
+
+### Xcode kurulumu
+
+1. **File → New → Target… → watchOS → App**, adı `EzanVaktiWatch`.
+   "Include Complication"/widget uzantısını da işaretle.
+2. Xcode'un ürettiği şablon `.swift` dosyalarını sil (`@main` çakışır).
+3. `WatchSources/` içindekileri hedeflere dağıt:
+   - Uygulama: `WatchApp`, `WatchPrayerTimesView`, `WatchPrayerTimesModel`,
+     `WatchLocationProvider`
+   - Komplikasyon: `WatchComplication`, `WatchComplicationViews`
+4. Paylaşılan dosyaları her iki saat hedefine ekle (Target Membership):
+   `Core/SolarMath`, `Core/Prayer`, `Core/PrayerCalculationParameters`,
+   `Core/PrayerTimesCalculator`, `Core/Geo`, `Core/SharedLocationStore`,
+   `Features/Palette`, `Features/ScaledFont`; komplikasyona ayrıca
+   `EzanVaktiWidget/PrayerWidgetEntry`.
+5. Konum izni metni saat hedefine de gerekiyor
+   (`NSLocationWhenInUseUsageDescription`).
+
+`Tools/check/targets.sh` dört hedefi de (iOS uygulama, iOS widget, saat
+uygulaması, saat komplikasyonu) kendi dosya kümesiyle deriyor.
+
 ## v1 kapsamı
 
 Tamam: vakitler ekranı, bildirimler, kıble, imsakiye, namaz takibi & kaza sayacı, widget.

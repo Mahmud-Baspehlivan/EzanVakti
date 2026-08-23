@@ -20,6 +20,19 @@
     "%@ uygulama paketinde yok, sistem sesi kullanılacak." : {
 
     },
+    "%@ vaktine %lld dakika kaldı." : {
+      "localizations" : {
+        "tr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ vaktine %2$lld dakika kaldı."
+          }
+        }
+      }
+    },
+    "%@ yaklaşıyor" : {
+
+    },
     "%@, %lld / 5 kılındı" : {
       "localizations" : {
         "tr" : {
@@ -40,6 +53,9 @@
 
     },
     "%lld günlük seri" : {
+
+    },
+    "%lld saat" : {
 
     },
     "%lld°" : {
@@ -102,6 +118,9 @@
     "Camiler aranıyor…" : {
 
     },
+    "Geri sayım" : {
+
+    },
     "Güncel borç" : {
 
     },
@@ -162,6 +181,9 @@
     "Listede göster" : {
 
     },
+    "Ne kadar önce" : {
+
+    },
     "Ne zaman" : {
 
     },
@@ -204,7 +226,7 @@
     "Sıradaki duruma geçmek için dokun: %@" : {
 
     },
-    "Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Uygulama her açıldığında sıradaki vakte kurulur; vakit girdikten sonra bir sonrakinin görünmesi için uygulamayı yeniden açman gerekir (arka planda kurulması sunucu gerektiriyor)." : {
+    "Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Vakte daha çok varsa görünmez: saatlerce asılı bir sayaç bilgi vermiyor. Uygulama her açıldığında kurulur; arka planda kurulması sunucu gerektirdiği için vakit girdikten sonra uygulamayı yeniden açman gerekir." : {
 
     },
     "sola dön" : {

@@ -1,8 +1,6 @@
 import SwiftUI
 import WidgetKit
 
-extension PrayerEntry: TimelineEntry {}
-
 struct PrayerTimesProvider: TimelineProvider {
     private var timeZone: TimeZone { .current }
 

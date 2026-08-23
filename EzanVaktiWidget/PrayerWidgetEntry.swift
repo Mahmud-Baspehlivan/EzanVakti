@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 
 struct PrayerSlot: Identifiable {
     let prayer: Prayer
@@ -8,9 +9,10 @@ struct PrayerSlot: Identifiable {
 
 /// Widget'ın bir andaki içeriği.
 ///
-/// `TimelineEntry` uyumu bilerek burada değil, WidgetKit dosyasında: bu tip saf
-/// Foundation kaldığı için görünümler WidgetKit olmadan render edilip denenebiliyor.
-struct PrayerEntry {
+/// `TimelineEntry` uyumu burada: hem iOS widget'ı hem saat komplikasyonu bu
+/// dosyayı paylaşıyor, uyum tek yerde durmalı. (Önce iOS widget dosyasındaydı
+/// ve saat hedefi derlenmiyordu.)
+struct PrayerEntry: TimelineEntry {
     let date: Date
     let locationName: String
     let slots: [PrayerSlot]
