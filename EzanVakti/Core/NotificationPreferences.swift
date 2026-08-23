@@ -12,13 +12,21 @@ struct NotificationPreferences: Codable, Equatable {
     var soundID: String
     /// Kilit ekranı ve Dinamik Ada geri sayımı.
     var liveActivityEnabled: Bool
+    /// Geri sayım vaktin kaç dakika öncesinden görünsün.
+    ///
+    /// Eşik olmadan gün boyu bir sayaç asılı kalıyor. Ölçüldü: vakitler arası
+    /// sürenin yarısı 3 saatten uzun ve Yatsı–İmsak kışın 11.5 saate çıkıyor —
+    /// hem 6 saatlik bir geri sayım kimseye bir şey söylemiyor hem de Live
+    /// Activity'nin 8 saatlik ömür sınırı aşılıyor.
+    var liveActivityLeadMinutes: Int
 
     init(enabled: Set<Prayer>, minutesBefore: Int, soundID: String,
-         liveActivityEnabled: Bool = true) {
+         liveActivityEnabled: Bool = true, liveActivityLeadMinutes: Int = 120) {
         self.enabled = enabled
         self.minutesBefore = minutesBefore
         self.soundID = soundID
         self.liveActivityEnabled = liveActivityEnabled
+        self.liveActivityLeadMinutes = liveActivityLeadMinutes
     }
 
     init(from decoder: Decoder) throws {
@@ -29,13 +37,16 @@ struct NotificationPreferences: Codable, Equatable {
             ?? NotificationSound.system.id
         liveActivityEnabled = try container
             .decodeIfPresent(Bool.self, forKey: .liveActivityEnabled) ?? true
+        liveActivityLeadMinutes = try container
+            .decodeIfPresent(Int.self, forKey: .liveActivityLeadMinutes) ?? 120
     }
 
     static let `default` = NotificationPreferences(
         enabled: Set(Prayer.allCases.filter(\.isPrayer)),
         minutesBefore: 0,
         soundID: NotificationSound.system.id,
-        liveActivityEnabled: true
+        liveActivityEnabled: true,
+        liveActivityLeadMinutes: 120
     )
 }
 

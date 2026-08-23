@@ -74,7 +74,8 @@ struct PrayerTimesView: View {
                 locationName: viewModel.locationName,
                 timeZone: viewModel.timeZone
             ),
-            enabled: preferencesStore.preferences.liveActivityEnabled
+            enabled: preferencesStore.preferences.liveActivityEnabled,
+            leadMinutes: preferencesStore.preferences.liveActivityLeadMinutes
         )
     }
 

@@ -647,6 +647,30 @@ Widget'ta bu **gerçek bir hataydı**: zaman çizelgesi yalnızca vakit
 geçişlerinde girdi ürettiği için ilerleme girdi oluşturulduğu anda her zaman 0
 oluyordu; çubuk saatlerce %0'da donuk kalıp sonra sıçrıyordu.
 
+### Eşik: vakte çok varsa görünmüyor
+
+Varsayılan **2 saat**; ayarlanabilir (1 / 2 / 3 saat).
+
+Ölçüm bunu iki ayrı sebeple gerektirdi. İstanbul'da yıl boyunca vakitler arası
+süre:
+
+| Geçiş | en kısa | en uzun |
+|---|---|---|
+| Akşam → Yatsı | 79 dk | 111 dk |
+| İmsak → Güneş | 84 dk | 120 dk |
+| Öğle → İkindi | 139 dk | 240 dk |
+| İkindi → Akşam | 142 dk | 217 dk |
+| Güneş → Öğle | 290 dk | 466 dk |
+| **Yatsı → İmsak** | 286 dk | **691 dk** |
+
+1. Geçişlerin **yarısı 3 saatten uzun**. Altı saatlik bir geri sayım kimseye bir
+   şey söylemiyor, sadece adayı ve kilit ekranını işgal ediyor.
+2. Yatsı–İmsak kışın **11.5 saate** çıkıyor ve Live Activity'nin **8 saatlik**
+   ömür sınırını aşıyor; etkinlik vakit gelmeden sistemce bayatlatılırdı.
+
+2 saatlik eşikle kısa geçişler (İmsak–Güneş, Akşam–Yatsı) tümüyle kapsanıyor,
+uzunlarda yalnızca son iki saat görünüyor.
+
 ### Bilinen sınır
 
 **Live Activity arka planda kendiliğinden başlatılamıyor** — sunucudan push

@@ -15,9 +15,16 @@ enum LiveActivityController {
     }
 
     /// Öne gelişte çağrılıyor: eskisini kapatıp sıradaki vakit için yenisini kurar.
-    static func refresh(with content: PrayerActivityContent?, enabled: Bool) async {
+    static func refresh(with content: PrayerActivityContent?, enabled: Bool,
+                        leadMinutes: Int) async {
         await endAll()
-        guard enabled, isAvailable, let content, content.prayerTime > Date() else { return }
+        guard enabled, isAvailable, let content else { return }
+
+        // Vakte çok varsa etkinlik kurulmuyor: saatlerce asılı bir geri sayım
+        // bilgi vermiyor, üstelik Yatsı–İmsak kışın 11.5 saate çıkıp Live
+        // Activity'nin 8 saatlik ömür sınırını aşıyor.
+        let remaining = content.prayerTime.timeIntervalSince(Date())
+        guard remaining > 0, remaining <= Double(leadMinutes) * 60 else { return }
 
         do {
             _ = try Activity.request(

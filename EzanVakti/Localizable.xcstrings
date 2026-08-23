@@ -129,6 +129,9 @@
     "Kaza" : {
 
     },
+    "Kilit ekranında geri sayım" : {
+
+    },
     "Kıble" : {
 
     },
@@ -199,6 +202,9 @@
 
     },
     "Sıradaki duruma geçmek için dokun: %@" : {
+
+    },
+    "Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Uygulama her açıldığında sıradaki vakte kurulur; vakit girdikten sonra bir sonrakinin görünmesi için uygulamayı yeniden açman gerekir (arka planda kurulması sunucu gerektiriyor)." : {
 
     },
     "sola dön" : {

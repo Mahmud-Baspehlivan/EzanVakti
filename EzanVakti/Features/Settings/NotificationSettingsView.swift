@@ -44,8 +44,17 @@ struct NotificationSettingsView: View {
 
                 Section {
                     Toggle("Kilit ekranında geri sayım", isOn: $store.preferences.liveActivityEnabled)
+                    if store.preferences.liveActivityEnabled {
+                        Picker("Ne kadar önce", selection: $store.preferences.liveActivityLeadMinutes) {
+                            ForEach([60, 120, 180], id: \.self) { minutes in
+                                Text("\(minutes / 60) saat").tag(minutes)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Geri sayım")
                 } footer: {
-                    Text("Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Uygulama her açıldığında sıradaki vakte kurulur; vakit girdikten sonra bir sonrakinin görünmesi için uygulamayı yeniden açman gerekir (arka planda kurulması sunucu gerektiriyor).")
+                    Text("Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Vakte daha çok varsa görünmez: saatlerce asılı bir sayaç bilgi vermiyor. Uygulama her açıldığında kurulur; arka planda kurulması sunucu gerektirdiği için vakit girdikten sonra uygulamayı yeniden açman gerekir.")
                 }
 
                 soundSection
