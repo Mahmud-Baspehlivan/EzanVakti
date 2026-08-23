@@ -16,20 +16,23 @@ private let timeFormatter: DateFormatter = {
 
 private func shortTime(_ date: Date) -> String { timeFormatter.string(from: date) }
 
-/// Geçen/kalan oranı — ana ekran widget'larında boşluğu dolduran tek görsel öge.
+/// Geçen/kalan oranı.
+///
+/// `timerInterval` alan sürüm kullanılıyor çünkü zaman çizelgesi yalnızca vakit
+/// geçişlerinde girdi üretiyor: girdi oluşturulduğu anda ilerleme her zaman 0
+/// oluyor ve durağan bir çubuk saatlerce %0'da donuk kalıyordu. Bu sürüm kendi
+/// kendine ilerliyor.
 private struct ProgressBar: View {
-    let progress: Double
+    let range: ClosedRange<Date>
 
     var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule().fill(.white.opacity(0.14))
-                Capsule()
-                    .fill(Palette.accent)
-                    .frame(width: max(2, geo.size.width * progress))
-            }
+        ProgressView(timerInterval: range, countsDown: false) {
+            EmptyView()
+        } currentValueLabel: {
+            EmptyView()
         }
-        .frame(height: 3)
+        .progressViewStyle(.linear)
+        .tint(Palette.accent)
     }
 }
 
@@ -76,9 +79,15 @@ struct RectangularWidgetView: View {
                     .font(.caption)
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
-                ProgressView(value: entry.progress)
+                if let previous = entry.previous {
+                    ProgressView(timerInterval: previous...upcoming.date, countsDown: false) {
+                        EmptyView()
+                    } currentValueLabel: {
+                        EmptyView()
+                    }
                     .progressViewStyle(.linear)
                     .scaleEffect(y: 0.6, anchor: .center)
+                }
             } else {
                 Text("Vakit hesaplanamadı").font(.caption)
             }
@@ -149,7 +158,9 @@ struct SmallWidgetView: View {
                     .foregroundStyle(.white.opacity(0.6))
 
                 Spacer(minLength: 6)
-                ProgressBar(progress: entry.progress)
+                if let previous = entry.previous {
+                    ProgressBar(range: previous...upcoming.date)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -200,7 +211,9 @@ struct MediumWidgetView: View {
                 }
             }
 
-            ProgressBar(progress: entry.progress)
+            if let upcoming = entry.upcoming, let previous = entry.previous {
+                ProgressBar(range: previous...upcoming.date)
+            }
         }
     }
 }

@@ -34,8 +34,19 @@ for f in glob.glob(sys.argv[1] + "/*.swift"):
     s = s.replace(".accessoryInline, .accessoryCircular, .accessoryRectangular,\n", "")
     s = re.sub(r"case \.accessory\w+:\n(\s+.*\n)+?(?=\s+case |\s+default)", "", s)
     s = s.replace(".containerBackground(.clear, for: .widget)", "")
+    # ActivityKit dosyalari denetimden cikariliyor; onlara yapilan referans da
+    s = re.sub(r"\n\s*PrayerLiveActivity\(\)", "", s)
+    s = re.sub(r"\n\s*await refreshLiveActivity\(\)", "", s)
+    s = re.sub(r"(?s)\n\s*/// Live Activity arka planda.*?\n    \}\n", "\n", s)
     open(f, "w").write(s)
 PY
+
+    # ActivityKit yalnizca iOS'ta var; bu dosyalar macOS denetiminden cikariliyor.
+    # Onlari tuketen gorunumler (PrayerLiveActivityViews) saf SwiftUI oldugu
+    # icin denetimde kaliyor.
+    for f in "$dir"/*.swift; do
+        if grep -q "import ActivityKit" "$f" 2>/dev/null; then rm -f "$f"; fi
+    done
 }
 
 echo "== widget hedefi =="

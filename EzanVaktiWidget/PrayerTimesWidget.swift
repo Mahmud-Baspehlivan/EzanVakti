@@ -119,5 +119,6 @@ struct PrayerTimesWidget: Widget {
 struct EzanVaktiWidgetBundle: WidgetBundle {
     var body: some Widget {
         PrayerTimesWidget()
+        PrayerLiveActivity()
     }
 }

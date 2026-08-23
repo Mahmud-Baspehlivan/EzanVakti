@@ -624,6 +624,44 @@ Yurt içinde veri paketli olduğu için hiçbir şey gönderilmiyor.
 
 **Analitik, çökme raporlama veya hesap sistemi eklenirse bu beyan güncellenmeli.**
 
+## Live Activity (kilit ekranı + Dinamik Ada)
+
+Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünüyor.
+Ayrı hedef gerekmedi: ActivityKit arayüzü var olan widget uzantısının içinde.
+
+| Sunum | İçerik |
+|---|---|
+| Kompakt sol | Vakit ikonu (altın) |
+| Kompakt sağ | Canlı geri sayım |
+| Minimal | Vakit ikonu |
+| Genişletilmiş | Vakit adı · saati · ilerleme çubuğu · konum + kalan |
+| Kilit ekranı kartı | Küçük widget'a yakın: etiket, saat, geri sayım, ilerleme |
+
+### Kendi kendine ilerleyen bileşenler
+
+Geri sayım ve ilerleme çubuğu `timerInterval` alan sürümlerle kuruluyor. Sebep
+her ikisinde de aynı: sistem bu görünümleri yalnızca içerik güncellendiğinde
+yeniden çiziyor.
+
+Widget'ta bu **gerçek bir hataydı**: zaman çizelgesi yalnızca vakit
+geçişlerinde girdi ürettiği için ilerleme girdi oluşturulduğu anda her zaman 0
+oluyordu; çubuk saatlerce %0'da donuk kalıp sonra sıçrıyordu.
+
+### Bilinen sınır
+
+**Live Activity arka planda kendiliğinden başlatılamıyor** — sunucudan push
+göndermek gerekiyor, bizde sunucu yok. Etkinlik uygulama öne geldiğinde
+sıradaki vakit için kuruluyor ve o vakit gelince bayatlıyor; bir sonrakinin
+görünmesi için uygulamanın yeniden açılması gerekiyor. Ayarlarda kapatılabilir.
+
+### Doğrulanamayan
+
+`ProgressView` macOS'ta `ImageRenderer` ile render edilmiyor (düz `value:`
+alan sürümü de dahil — ortam kısıtı, API sorunu değil). Çubuğun cihazdaki
+görünümü denetlenmedi. ActivityKit da iOS'a özel olduğu için
+`PrayerActivityAttributes`, `PrayerLiveActivity` ve `LiveActivityController`
+macOS tip denetiminin dışında.
+
 ## Konum seçimi
 
 Varsayılan GPS; ana ekranda konum adına dokununca şehir/ilçe aranıp elle seçilebiliyor.

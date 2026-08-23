@@ -10,11 +10,15 @@ struct NotificationPreferences: Codable, Equatable {
     var minutesBefore: Int
     /// `NotificationSoundCatalog` içindeki ses kimliği.
     var soundID: String
+    /// Kilit ekranı ve Dinamik Ada geri sayımı.
+    var liveActivityEnabled: Bool
 
-    init(enabled: Set<Prayer>, minutesBefore: Int, soundID: String) {
+    init(enabled: Set<Prayer>, minutesBefore: Int, soundID: String,
+         liveActivityEnabled: Bool = true) {
         self.enabled = enabled
         self.minutesBefore = minutesBefore
         self.soundID = soundID
+        self.liveActivityEnabled = liveActivityEnabled
     }
 
     init(from decoder: Decoder) throws {
@@ -23,12 +27,15 @@ struct NotificationPreferences: Codable, Equatable {
         minutesBefore = try container.decode(Int.self, forKey: .minutesBefore)
         soundID = try container.decodeIfPresent(String.self, forKey: .soundID)
             ?? NotificationSound.system.id
+        liveActivityEnabled = try container
+            .decodeIfPresent(Bool.self, forKey: .liveActivityEnabled) ?? true
     }
 
     static let `default` = NotificationPreferences(
         enabled: Set(Prayer.allCases.filter(\.isPrayer)),
         minutesBefore: 0,
-        soundID: NotificationSound.system.id
+        soundID: NotificationSound.system.id,
+        liveActivityEnabled: true
     )
 }
 

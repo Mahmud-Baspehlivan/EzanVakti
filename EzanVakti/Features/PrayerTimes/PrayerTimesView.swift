@@ -45,6 +45,7 @@ struct PrayerTimesView: View {
         .task {
             await scheduler.requestAuthorizationIfNeeded()
             await reschedule()
+            await refreshLiveActivity()
         }
         .onChange(of: descriptor(of: location.state)) { _, _ in
             viewModel.apply(location.state)
@@ -59,8 +60,22 @@ struct PrayerTimesView: View {
             Task {
                 await scheduler.refreshAuthorization()
                 await reschedule()
+                await refreshLiveActivity()
             }
         }
+    }
+
+    /// Live Activity arka planda kurulamıyor; her öne gelişte sıradaki vakte
+    /// yeniden kuruluyor.
+    private func refreshLiveActivity() async {
+        await LiveActivityController.refresh(
+            with: PrayerActivityContent.make(
+                coordinate: viewModel.coordinate,
+                locationName: viewModel.locationName,
+                timeZone: viewModel.timeZone
+            ),
+            enabled: preferencesStore.preferences.liveActivityEnabled
+        )
     }
 
     private func reschedule() async {

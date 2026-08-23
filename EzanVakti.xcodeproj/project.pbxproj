@@ -62,7 +62,9 @@
 				Core/SharedLocationStore.swift,
 				Core/SolarMath.swift,
 				Features/Palette.swift,
-				Features/ScaledFont.swift,);
+				Features/ScaledFont.swift,
+				Core/PrayerActivityContent.swift,
+				Core/PrayerActivityAttributes.swift,);
 			target = 99335464303906FE007C5ED0 /* EzanVaktiWidgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */

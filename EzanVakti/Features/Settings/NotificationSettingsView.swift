@@ -42,6 +42,12 @@ struct NotificationSettingsView: View {
                     }
                 }
 
+                Section {
+                    Toggle("Kilit ekranında geri sayım", isOn: $store.preferences.liveActivityEnabled)
+                } footer: {
+                    Text("Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Uygulama her açıldığında sıradaki vakte kurulur; vakit girdikten sonra bir sonrakinin görünmesi için uygulamayı yeniden açman gerekir (arka planda kurulması sunucu gerektiriyor).")
+                }
+
                 soundSection
 
                 Section {
