@@ -671,12 +671,21 @@ süre:
 2 saatlik eşikle kısa geçişler (İmsak–Güneş, Akşam–Yatsı) tümüyle kapsanıyor,
 uzunlarda yalnızca son iki saat görünüyor.
 
-### Bilinen sınır
+### Arka planda başlatma
 
-**Live Activity arka planda kendiliğinden başlatılamıyor** — sunucudan push
-göndermek gerekiyor, bizde sunucu yok. Etkinlik uygulama öne geldiğinde
-sıradaki vakit için kuruluyor ve o vakit gelince bayatlıyor; bir sonrakinin
-görünmesi için uygulamanın yeniden açılması gerekiyor. Ayarlarda kapatılabilir.
+**iOS 26+:** etkinlikler ileri tarihe zamanlanıyor
+(`Activity.request(..., start:)`) ve sistem uygulama arka plandayken bile
+başlatıyor — **sunucu gerekmiyor**. Sıradaki 3 vakit için önceden kuruluyor.
+Apple bu API'de `alertConfiguration` şart koşuyor: kullanıcı etkinliğin
+başladığını bilmeli.
+
+**iOS 26 öncesi:** `Activity.request` yalnızca uygulama öndeyken çalışıyor.
+Tek istisna `LiveActivityIntent` (App Intents) — o da kullanıcı etkileşimi
+gerektiriyor, zamanlanamıyor. Bu sürümlerde yalnızca uygulama açıldığında ve
+vakit lead penceresindeyse etkinlik kuruluyor.
+
+Zamanlanmış etkinlikler sistemin eşzamanlı etkinlik sınırına sayıldığı için
+aynı anda 3 vakit kuruluyor.
 
 ### Doğrulanamayan
 

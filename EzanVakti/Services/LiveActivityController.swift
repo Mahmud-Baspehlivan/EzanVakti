@@ -3,40 +3,63 @@ import Foundation
 
 /// Kilit ekranı ve Dinamik Ada geri sayımını yönetir.
 ///
-/// **Bilinen sınır:** Live Activity arka planda kendiliğinden başlatılamıyor.
-/// Sunucudan push göndermek gerekiyor, bizde sunucu yok. Bu yüzden etkinlik
-/// uygulama öne geldiğinde sıradaki vakit için kuruluyor ve o vakit gelince
-/// bayatlıyor; bir sonraki vaktin görünmesi için uygulamanın tekrar açılması
-/// gerekiyor.
+/// iOS 26'dan itibaren etkinlikler **ileri bir tarihe zamanlanabiliyor** ve
+/// sistem uygulama arka plandayken bile başlatıyor — sunucu gerekmiyor.
+/// Daha eski sürümlerde `Activity.request` yalnızca uygulama öndeyken
+/// çalıştığı için sıradaki vakit ancak lead penceresine girmişse kuruluyor;
+/// oradan sonrası bir sonraki açılışa kalıyor.
 @MainActor
 enum LiveActivityController {
+    /// Aynı anda kaç vakit için kurulacağı. Zamanlanmış etkinlikler de sistemin
+    /// eşzamanlı etkinlik sınırına sayılıyor, o yüzden az tutuluyor.
+    private static let scheduleCount = 3
+
     static var isAvailable: Bool {
         ActivityAuthorizationInfo().areActivitiesEnabled
     }
 
-    /// Öne gelişte çağrılıyor: eskisini kapatıp sıradaki vakit için yenisini kurar.
-    static func refresh(with content: PrayerActivityContent?, enabled: Bool,
+    static func refresh(with contents: [PrayerActivityContent], enabled: Bool,
                         leadMinutes: Int) async {
         await endAll()
-        guard enabled, isAvailable, let content else { return }
+        guard enabled, isAvailable, !contents.isEmpty else { return }
 
-        // Vakte çok varsa etkinlik kurulmuyor: saatlerce asılı bir geri sayım
-        // bilgi vermiyor, üstelik Yatsı–İmsak kışın 11.5 saate çıkıp Live
-        // Activity'nin 8 saatlik ömür sınırını aşıyor.
-        let remaining = content.prayerTime.timeIntervalSince(Date())
-        guard remaining > 0, remaining <= Double(leadMinutes) * 60 else { return }
+        let lead = Double(leadMinutes) * 60
+        let now = Date()
 
-        do {
-            _ = try Activity.request(
-                attributes: PrayerActivityAttributes(),
-                // Vakit girdikten sonra içerik anlamını yitiriyor; sistem bunu
-                // bayat olarak işaretlesin diye staleDate veriliyor.
-                content: ActivityContent(state: content, staleDate: content.prayerTime),
-                pushType: nil
-            )
-        } catch {
-            // İzin kapalıysa veya kota dolduysa sessizce vazgeçiliyor;
-            // bu bir yan özellik, uygulamanın çalışmasını engellememeli.
+        for content in contents.prefix(scheduleCount) {
+            let startAt = content.prayerTime.addingTimeInterval(-lead)
+            let activityContent = ActivityContent(state: content, staleDate: content.prayerTime)
+
+            if startAt <= now {
+                // Pencere zaten açık: hemen kur.
+                guard content.prayerTime > now else { continue }
+                _ = try? Activity.request(
+                    attributes: PrayerActivityAttributes(),
+                    content: activityContent,
+                    pushType: nil
+                )
+                continue
+            }
+
+            if #available(iOS 26.0, *) {
+                // Sistem belirtilen anda başlatıyor, uygulama arka plandayken de.
+                // `alertConfiguration` zorunlu: kullanıcı etkinliğin başladığını
+                // bilsin diye Apple şart koşuyor.
+                _ = try? Activity.request(
+                    attributes: PrayerActivityAttributes(),
+                    content: activityContent,
+                    pushType: nil,
+                    style: .standard,
+                    alertConfiguration: AlertConfiguration(
+                        title: "\(content.prayer.title) yaklaşıyor",
+                        body: "\(content.prayer.title) vaktine \(leadMinutes) dakika kaldı.",
+                        sound: .default
+                    ),
+                    start: startAt
+                )
+            }
+            // iOS 26 öncesi: zamanlama yok. Yalnızca pencere açıkken kurulan
+            // etkinlik gösterilir, gerisi bir sonraki uygulama açılışına kalır.
         }
     }
 

@@ -69,7 +69,8 @@ struct PrayerTimesView: View {
     /// yeniden kuruluyor.
     private func refreshLiveActivity() async {
         await LiveActivityController.refresh(
-            with: PrayerActivityContent.make(
+            with: PrayerActivityContent.upcoming(
+                count: 3,
                 coordinate: viewModel.coordinate,
                 locationName: viewModel.locationName,
                 timeZone: viewModel.timeZone

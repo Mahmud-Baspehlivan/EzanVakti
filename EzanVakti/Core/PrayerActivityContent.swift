@@ -19,6 +19,35 @@ struct PrayerActivityContent: Codable, Hashable {
         return min(1, max(0, now.timeIntervalSince(previousTime) / total))
     }
 
+    /// Sıradaki `count` vakit için içerik üretir.
+    ///
+    /// Birden fazlası gerekiyor çünkü iOS 26'da etkinlikler ileri tarihe
+    /// zamanlanabiliyor; uygulama açılmasa bile sonraki vakitler görünüyor.
+    static func upcoming(count: Int, coordinate: Coordinate, locationName: String,
+                         timeZone: TimeZone, now: Date = Date()) -> [PrayerActivityContent] {
+        let calculator = PrayerTimesCalculator(coordinate: coordinate, parameters: .diyanet)
+        var slots: [(prayer: Prayer, date: Date)] = []
+        for dayOffset in 0...2 {
+            let day = now.addingTimeInterval(Double(dayOffset) * 24 * 3600)
+            guard let times = calculator.times(for: day, in: timeZone) else { continue }
+            slots.append(contentsOf: times.ordered)
+        }
+        slots.sort { $0.date < $1.date }
+
+        var result: [PrayerActivityContent] = []
+        for (index, slot) in slots.enumerated() where slot.date > now {
+            // Önceki vakit ilerleme oranının başlangıcı; ilk kayıtta yoksa
+            // aralığı bir saatlik varsayıyoruz, çubuk yine de dolar.
+            let previous = index > 0 ? slots[index - 1].date
+                                     : slot.date.addingTimeInterval(-3600)
+            result.append(PrayerActivityContent(prayer: slot.prayer, prayerTime: slot.date,
+                                                previousTime: previous,
+                                                locationName: locationName))
+            if result.count == count { break }
+        }
+        return result
+    }
+
     /// Uygulamanın o anki durumundan üretir. Sıradaki vakit yoksa nil.
     static func make(coordinate: Coordinate, locationName: String,
                      timeZone: TimeZone, now: Date = Date()) -> PrayerActivityContent? {
