@@ -759,8 +759,10 @@ yükleyenin kendi ifadesi, bağımsız doğrulanamıyor.
 
 ## Apple Watch
 
-Kaynaklar `WatchSources/` altında hazır; **hedefler Xcode'da oluşturulmalı**
-(widget'ta olduğu gibi, elle `pbxproj` düzenlemek doğrulanamıyor).
+Saat uygulaması hedefi kuruldu (`EzanVaktiWatch Watch App`). **Komplikasyon
+hedefi henüz yok**; kaynakları `WatchComplicationSources/` altında bekliyor —
+watchOS Widget Extension hedefi açılıp oraya taşınmalı. Ayrı hedef şart:
+komplikasyon kendi `@main`'ini taşıyor, saat uygulamasıyla aynı hedefte olamaz.
 
 ### Kapsam
 
@@ -790,22 +792,21 @@ O sınıf pusula yönü, elle konum seçimi ve App Group paylaşımı taşıyor;
 hiçbiri gerekmiyor ve pusula API'lerinin watchOS'taki durumu ayrı bir
 belirsizlik. Saat için tek işi olan ayrı bir sağlayıcı yazıldı.
 
-### Xcode kurulumu
+### Kalan Xcode adımı: komplikasyon hedefi
 
-1. **File → New → Target… → watchOS → App**, adı `EzanVaktiWatch`.
-   "Include Complication"/widget uzantısını da işaretle.
-2. Xcode'un ürettiği şablon `.swift` dosyalarını sil (`@main` çakışır).
-3. `WatchSources/` içindekileri hedeflere dağıt:
-   - Uygulama: `WatchApp`, `WatchPrayerTimesView`, `WatchPrayerTimesModel`,
-     `WatchLocationProvider`
-   - Komplikasyon: `WatchComplication`, `WatchComplicationViews`
-4. Paylaşılan dosyaları her iki saat hedefine ekle (Target Membership):
-   `Core/SolarMath`, `Core/Prayer`, `Core/PrayerCalculationParameters`,
-   `Core/PrayerTimesCalculator`, `Core/Geo`, `Core/SharedLocationStore`,
-   `Features/Palette`, `Features/ScaledFont`; komplikasyona ayrıca
-   `EzanVaktiWidget/PrayerWidgetEntry`.
-5. Konum izni metni saat hedefine de gerekiyor
-   (`NSLocationWhenInUseUsageDescription`).
+1. **File → New → Target… → watchOS → Widget Extension**, saat uygulamasına gömülü.
+2. Şablonun ürettiği `.swift` dosyalarını sil.
+3. `WatchComplicationSources/` içindeki ikisini yeni hedefin klasörüne taşı.
+4. Şu dosyaları komplikasyon hedefine de ekle: saat uygulamasına eklenen yedi
+   paylaşılan dosya + `EzanVaktiWidget/PrayerWidgetEntry.swift`.
+
+Saat uygulamasının kendi hedefine paylaşılan yedi dosya zaten bağlandı:
+`Core/SolarMath`, `Core/Prayer`, `Core/PrayerCalculationParameters`,
+`Core/PrayerTimesCalculator`, `Core/SharedLocationStore`, `Features/Palette`,
+`Features/ScaledFont`. (`Core/Geo` gerekmiyor, ölçüldü.)
+
+Konum izni metni saat hedefine de gerekiyor
+(`NSLocationWhenInUseUsageDescription`).
 
 `Tools/check/targets.sh` dört hedefi de (iOS uygulama, iOS widget, saat
 uygulaması, saat komplikasyonu) kendi dosya kümesiyle deriyor.

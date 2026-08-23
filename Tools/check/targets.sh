@@ -78,24 +78,30 @@ rm -f /tmp/check-app/MapAppLauncher.swift   # UIKit, macOS'ta yok
 ( cd /tmp/check-app && swiftc -typecheck -target arm64-apple-macosx14.0 *.swift )
 echo "  OK ($(ls /tmp/check-app/*.swift | wc -l | tr -d ' ') dosya)"
 
-# Saat hedefleri projede henuz yok (Xcode'da olusturulacak); dosya kumeleri
-# WatchSources + paylasilan Core'dan elle kuruluyor. Iki @main ayri hedeflere
-# gittigi icin ayri ayri deriliyor.
-WATCH_SHARED="EzanVakti/Core/SolarMath.swift EzanVakti/Core/Prayer.swift \
-EzanVakti/Core/PrayerCalculationParameters.swift EzanVakti/Core/PrayerTimesCalculator.swift \
-EzanVakti/Core/Geo.swift EzanVakti/Core/SharedLocationStore.swift \
-EzanVakti/Features/Palette.swift EzanVakti/Features/ScaledFont.swift"
-
+# Saat uygulamasi projede var; paylasilan dosyalari pbxproj'dan okuyoruz.
+# Komplikasyon hedefi henuz olusturulmadi, kaynaklari WatchComplicationSources'ta
+# bekliyor ve elle kuruluyor.
 echo "== saat uygulamasi =="
-prepare /tmp/check-watch-app $WATCH_SHARED \
-    WatchSources/WatchApp.swift WatchSources/WatchPrayerTimesView.swift \
-    WatchSources/WatchPrayerTimesModel.swift WatchSources/WatchLocationProvider.swift
+WATCH_SHARED=$(python3 - <<'PYEOF'
+import json, subprocess
+j = json.loads(subprocess.check_output(
+    ["plutil", "-convert", "json", "-o", "-", "EzanVakti.xcodeproj/project.pbxproj"]))
+o = j["objects"]
+for v in o.values():
+    if v.get("isa") != "PBXFileSystemSynchronizedBuildFileExceptionSet": continue
+    t = v.get("target")
+    if t not in o or "Watch App" not in (o[t].get("name") or ""): continue
+    for path in v.get("membershipExceptions") or []:
+        if path.endswith(".swift"):
+            print("EzanVakti/" + path)
+PYEOF
+)
+prepare /tmp/check-watch-app $WATCH_SHARED "EzanVaktiWatch Watch App"/*.swift
 ( cd /tmp/check-watch-app && swiftc -typecheck -target arm64-apple-macosx14.0 *.swift )
 echo "  OK ($(ls /tmp/check-watch-app/*.swift | wc -l | tr -d ' ') dosya)"
 
-echo "== saat komplikasyonu =="
+echo "== saat komplikasyonu (hedef bekliyor) =="
 prepare /tmp/check-watch-comp $WATCH_SHARED \
-    WatchSources/WatchComplication.swift WatchSources/WatchComplicationViews.swift \
-    EzanVaktiWidget/PrayerWidgetEntry.swift
+    WatchComplicationSources/*.swift EzanVaktiWidget/PrayerWidgetEntry.swift
 ( cd /tmp/check-watch-comp && swiftc -typecheck -target arm64-apple-macosx14.0 *.swift )
 echo "  OK ($(ls /tmp/check-watch-comp/*.swift | wc -l | tr -d ' ') dosya)"

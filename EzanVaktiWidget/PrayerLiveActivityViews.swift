@@ -7,6 +7,11 @@ import SwiftUI
 /// sistem Live Activity'yi yalnızca içerik güncellendiğinde yeniden çiziyor,
 /// durağan bir çubuk saatlerce donuk kalırdı. Bu sürümler kendi kendine
 /// ilerliyor, güncelleme göndermeye gerek kalmıyor.
+///
+/// `isStale` vakit girdikten sonra doğru oluyor. O andan itibaren geri sayım
+/// göstermek anlamsız — donmuş bir "0:00" bozuk görünüyordu. Bunun yerine
+/// vaktin girdiği söyleniyor. Etkinliğin kendisi uygulama açılana kadar
+/// duruyor; bitirmek uygulamanın çalışmasını gerektiriyor (bkz. README).
 
 private let activityTimeFormatter: DateFormatter = {
     let formatter = DateFormatter()
@@ -29,13 +34,21 @@ struct ActivityCompactLeading: View {
 /// Dinamik Ada, kompakt sağ: bakışta sorulan tek soru — ne kadar kaldı.
 struct ActivityCompactTrailing: View {
     let content: PrayerActivityContent
+    var isStale = false
 
     var body: some View {
-        Text(timerInterval: content.previousTime...content.prayerTime, countsDown: true)
-            .font(.system(size: 13, weight: .medium))
-            .monospacedDigit()
-            .foregroundStyle(Palette.accent)
-            .frame(width: 52)
+        Group {
+            if isStale {
+                // Vakit girdi: saatin kendisi donmuş bir sayaçtan anlamlı.
+                Text(hhmm(content.prayerTime))
+            } else {
+                Text(timerInterval: content.previousTime...content.prayerTime, countsDown: true)
+            }
+        }
+        .font(.system(size: 13, weight: .medium))
+        .monospacedDigit()
+        .foregroundStyle(Palette.accent)
+        .frame(width: 52)
     }
 }
 
@@ -80,8 +93,25 @@ struct ActivityExpandedTrailing: View {
 
 struct ActivityExpandedBottom: View {
     let content: PrayerActivityContent
+    var isStale = false
 
     var body: some View {
+        if isStale {
+            HStack {
+                Text("\(content.prayer.title) vakti girdi")
+                    .foregroundStyle(.white.opacity(0.75))
+                Spacer(minLength: 8)
+                Text(content.locationName)
+                    .foregroundStyle(.white.opacity(0.45))
+            }
+            .font(.system(size: 12))
+            .padding(.horizontal, 4)
+        } else {
+            expanded
+        }
+    }
+
+    private var expanded: some View {
         VStack(spacing: 6) {
             ProgressView(timerInterval: content.previousTime...content.prayerTime,
                          countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
@@ -106,8 +136,34 @@ struct ActivityExpandedBottom: View {
 /// Kilit ekranında ve Dinamik Ada'sı olmayan cihazlarda görünen kart.
 struct ActivityLockScreenView: View {
     let content: PrayerActivityContent
+    var isStale = false
 
     var body: some View {
+        if isStale { stale } else { live }
+    }
+
+    /// Vakit girdikten sonra: geri sayım ve ilerleme kaldırılıyor.
+    private var stale: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            SectionLabel(text: content.prayer.title, size: 11, tracking: 1.8)
+            HStack(alignment: .firstTextBaseline, spacing: 10) {
+                Text(hhmm(content.prayerTime))
+                    .font(.system(size: 30, weight: .medium, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                Text("vakti girdi")
+                    .font(.system(size: 14))
+                    .foregroundStyle(.white.opacity(0.6))
+                Spacer(minLength: 0)
+            }
+            Text(content.locationName)
+                .font(.system(size: 11))
+                .foregroundStyle(.white.opacity(0.45))
+        }
+        .padding(16)
+    }
+
+    private var live: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
                 SectionLabel(text: content.prayer.title, size: 11, tracking: 1.8)

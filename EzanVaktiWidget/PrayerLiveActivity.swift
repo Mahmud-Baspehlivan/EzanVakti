@@ -5,7 +5,7 @@ import WidgetKit
 struct PrayerLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: PrayerActivityAttributes.self) { context in
-            ActivityLockScreenView(content: context.state)
+            ActivityLockScreenView(content: context.state, isStale: context.isStale)
                 .activityBackgroundTint(Color(red: 0.07, green: 0.09, blue: 0.20))
                 .activitySystemActionForegroundColor(Palette.accent)
         } dynamicIsland: { context in
@@ -17,12 +17,12 @@ struct PrayerLiveActivity: Widget {
                     ActivityExpandedTrailing(content: context.state)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    ActivityExpandedBottom(content: context.state)
+                    ActivityExpandedBottom(content: context.state, isStale: context.isStale)
                 }
             } compactLeading: {
                 ActivityCompactLeading(content: context.state)
             } compactTrailing: {
-                ActivityCompactTrailing(content: context.state)
+                ActivityCompactTrailing(content: context.state, isStale: context.isStale)
             } minimal: {
                 ActivityMinimal(content: context.state)
             }
