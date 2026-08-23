@@ -663,6 +663,29 @@ Sütun genişlikleri `ImsakiyeLayout` üzerinden paylaşılıyor: sabit başlık
 satırlar iki ayrı görünüm olduğu için genişlik iki yerde tanımlanırsa hizalama
 sessizce kayar — tek kaynak bunu engelliyor.
 
+## App Store gönderimi
+
+Projede hazır olanlar: uygulama ikonu (paketten doğrulandı), gizlilik
+manifestosu, `ITSAppUsesNonExemptEncryption = false` (ihracat uyumluluğu sorusunu
+atlatıyor), Türkçe konum izni metni, her iki hedefte "Ezan Vakti" görünen adı.
+
+Projede **eksik olan**: `DEVELOPMENT_TEAM` boş — dağıtım için ücretli üyelik ve
+takım kimliği gerekiyor.
+
+Xcode dışında yapılacaklar (App Store Connect):
+
+- Apple Developer Program üyeliği (yıllık $99)
+- App Store Connect kaydı ve bundle kimliğinin kaydı
+- Ekran görüntüleri (6.9" ve 6.5" zorunlu)
+- Açıklama, alt başlık, anahtar kelimeler, destek URL'si
+- **Gizlilik politikası URL'si** — konum eriştiği için zorunlu
+- Yaş sınırı anketi
+- App Privacy beyanı (nutrition labels) — `PrivacyInfo.xcprivacy`'den ayrı,
+  App Store Connect'te elle doldurulan bir form
+
+Kalan tek teknik engel: **ezan sesi telifi**. Commons'taki "own work" beyanları
+yükleyenin kendi ifadesi, bağımsız doğrulanamıyor.
+
 ## v1 kapsamı
 
 Tamam: vakitler ekranı, bildirimler, kıble, imsakiye, namaz takibi & kaza sayacı, widget.
