@@ -774,6 +774,30 @@ kendi konumunu alıp kendi hesaplıyor; telefon yanında olmasa da çalışıyor
 App Group iOS uygulamasıyla saat arasında paylaşılmıyor (ayrı cihazlar), saatteki
 `SharedLocationStore` yalnızca saat uygulaması ile komplikasyonu arasında.
 
+### Ekran düzeni: neden iki sütun
+
+Altı vakit alt alta en küçük ekrana (40 mm, durum çubuğu düşünce ~167 pt)
+sığmıyordu; liste iki sütuna katlandı ve gün tamamı kaydırmadan görünüyor.
+
+Ölçüler (punto, satır yüksekliği, kahraman saatin boyu) tek sabit set değil:
+`GeometryReader`'ın bildirdiği **yüksekliğe** göre üç kademe var — 40 mm'de
+kompakt (154 pt), 41 mm'de orta (174 pt), 45 mm ve üstünde ferah (204 pt).
+Karar genişliğe bakmıyor: ekran boyu ile durum çubuğu payı modelden modele
+değiştiği için genişlik ancak dolaylı bir gösterge, yükseklik ise gerçekten
+kalan yeri söylüyor. Genişliğe bakan ilk sürümde 40 mm kenar boşluksuz gelince
+orta kademeye düşüp taşma sınırına geliyordu.
+
+`ScrollView` yalnızca erişilebilirlik puntolarında devrede; normal puntolarda
+kabuk yok, çünkü ScrollView sonsuz yükseklik önerip `GeometryReader`'ın gerçek
+yeri görmesini engelliyor.
+
+İki tuzak, ikisi de render denetiminde yakalandı:
+
+- Vakit saatlerinde `lineLimit(1)` yoktu; dar ekranda `04:4 / 2` diye ikiye
+  bölünüp satır yüksekliğini katlıyor, içeriği 45 pt şişiriyordu.
+- İsimle saat arasındaki `Spacer`, ismi yeri paylaşmaya zorlayıp 40 mm'de
+  `Akşa…` diye kırpıyordu. Spacer kalktı, artan genişlik doğrudan isme verildi.
+
 ### Kıble neden yok
 
 Bileği kıbleye çevirmek için kolu tuhaf bir açıda sabitlemek gerekiyor ve pusula
