@@ -850,29 +850,31 @@ kenarda yer var, hangi vakit olduğunu da içerideki simge söylüyor.
 Komplikasyonlar sistem tarafından tek renge tonlandığı için altın vurgu
 kullanılmıyor.
 
-### Kalan Xcode adımı: komplikasyon hedefi
+### Komplikasyon hedefi
 
-1. **File → New → Target… → watchOS → Widget Extension**, saat uygulamasına gömülü.
-2. Şablonun ürettiği `.swift` dosyalarını sil.
-3. `WatchComplicationSources/` içindeki ikisini yeni hedefin klasörüne taşı.
-4. Şu dosyaları komplikasyon hedefine de ekle: saat uygulamasına eklenen yedi
-   paylaşılan dosya + `EzanVaktiWidget/PrayerWidgetEntry.swift`.
+Hedef `watch widgetExtension`, kaynakları `watch widget/` klasöründe. Paylaşılan
+altı dosya `membershipExceptions` ile bağlandı — beşi `EzanVakti/Core`'dan
+(`Prayer`, `PrayerCalculationParameters`, `PrayerTimesCalculator`,
+`SharedLocationStore`, `SolarMath`), biri `EzanVaktiWidget`'ten
+(`PrayerWidgetEntry`). `Palette` ile `ScaledFont` gerekmiyor: komplikasyonlar
+sistemce tonlandığı için altın vurgu kullanılmıyor (ölçüldü).
 
-Saat uygulamasının kendi hedefine paylaşılan yedi dosya zaten bağlandı:
-`Core/SolarMath`, `Core/Prayer`, `Core/PrayerCalculationParameters`,
-`Core/PrayerTimesCalculator`, `Core/SharedLocationStore`, `Features/Palette`,
-`Features/ScaledFont`. (`Core/Geo` gerekmiyor, ölçüldü.)
+Konum paylaşımı için **App Group yetkisi iki saat hedefine de gerekiyor**:
+saat uygulaması `SharedLocationStore`'a yazıyor, komplikasyon okuyor. Yetki
+olmasa derleme yine geçerdi ama `UserDefaults(suiteName:)` boş dönüp
+komplikasyon hep İstanbul gösterirdi — sessiz bir hata.
+(`EzanVaktiWatch.entitlements`, `WatchWidgetExtension.entitlements`)
 
 Konum izni metni saat hedefine de gerekiyor
 (`NSLocationWhenInUseUsageDescription`).
 
-`Tools/check/targets.sh` dört hedefi de (iOS uygulama, iOS widget, saat
-uygulaması, saat komplikasyonu) kendi dosya kümesiyle **ve kendi SDK'sıyla**
-deriyor. Önceki sürüm her şeyi macOS'a karşı deriyordu; macOS'ta olmayan her şey
-(ActivityKit, `.accessory*` aileleri, `widgetLabel`, UIKit) ya kaynaktan
-kırpılıyor ya da dosya tamamen atılıyordu — yani en platforma özel kod, en çok
-denetime muhtaç olan kod, hiç denetlenmiyordu. Gerçek SDK'lara geçince kırpma
-tamamen kalktı ve kapsam 46+12 dosyadan 49+14'e çıktı.
+### Denetimin kaçırdığı hata: MemberImportVisibility
+
+`WatchComplicationViews.swift` `widgetLabel` kullanıyordu ama `WidgetKit`'i
+import etmiyordu. Aynı modüldeki başka bir dosya import ettiği için `swiftc`
+varsayılan ayarla sorun görmüyor, Xcode ise patlıyordu — proje
+`SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES` ile derliyor.
+`Tools/check/targets.sh` artık aynı bayrağı açıyor.
 
 ## v1 kapsamı
 

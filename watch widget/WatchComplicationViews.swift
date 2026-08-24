@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 /// Kadran komplikasyonları. Saf SwiftUI — `Tools/render` ile denetlenebiliyor.
 ///

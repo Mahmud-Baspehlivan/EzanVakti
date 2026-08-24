@@ -25,6 +25,10 @@ WATCH_MIN=$(grep -o "WATCHOS_DEPLOYMENT_TARGET = [0-9.]*" EzanVakti.xcodeproj/pr
             | awk '{print $3}' | sort -V | head -1)
 
 # pbxproj'dan bir hedefin paylasilan dosyalarini oku (membershipExceptions).
+#
+# Yol oneki sabit degil: her istisna kumesi onu referans eden senkron kok
+# grubun klasorune goredir. Komplikasyon hedefi hem EzanVakti hem
+# EzanVaktiWidget klasorunden dosya aliyor.
 shared_for() {   # <hedef-adi-parcasi>
     python3 - "$1" <<'PY'
 import json, subprocess, sys
@@ -32,13 +36,20 @@ needle = sys.argv[1]
 j = json.loads(subprocess.check_output(
     ["plutil", "-convert", "json", "-o", "-", "EzanVakti.xcodeproj/project.pbxproj"]))
 o = j["objects"]
+owner = {}   # istisna kumesi id -> klasor yolu
 for v in o.values():
+    if v.get("isa") != "PBXFileSystemSynchronizedRootGroup": continue
+    for e in v.get("exceptions") or []:
+        owner[e] = v.get("path")
+for k, v in o.items():
     if v.get("isa") != "PBXFileSystemSynchronizedBuildFileExceptionSet": continue
     t = v.get("target")
     if t not in o or needle not in (o[t].get("name") or ""): continue
+    folder = owner.get(k)
+    if not folder: continue
     for path in sorted(v.get("membershipExceptions") or []):
         if path.endswith(".swift"):
-            print("EzanVakti/" + path)
+            print(f"{folder}/{path}")
 PY
 }
 
@@ -47,7 +58,13 @@ check() {   # <baslik> <target-triple> <sdk> <dosyalar...>
     dir="/tmp/check-$(echo "$title" | tr ' ' '-')"
     rm -rf "$dir"; mkdir -p "$dir"
     for f in "$@"; do cp "$f" "$dir/"; done
-    ( cd "$dir" && swiftc -typecheck -swift-version 5 -target "$triple" -sdk "$sdk" *.swift )
+    # MemberImportVisibility: Xcode bu tanilamayi aciyor, swiftc varsayilanda
+    # acmiyordu. Aradaki fark gercek bir hatayi kacirdi — WatchComplicationViews
+    # widgetLabel kullaniyordu ama WidgetKit'i import etmiyordu; ayni modulde
+    # baska bir dosya import ettigi icin denetim geciyor, Xcode patliyordu.
+    ( cd "$dir" && swiftc -typecheck -swift-version 5 \
+        -enable-upcoming-feature MemberImportVisibility \
+        -target "$triple" -sdk "$sdk" *.swift )
     echo "  OK ($(ls "$dir"/*.swift | wc -l | tr -d ' ') dosya)"
 }
 
@@ -64,10 +81,6 @@ echo "== saat uygulamasi (watchOS $WATCH_MIN) =="
 check "watch-app" "arm64-apple-watchos$WATCH_MIN" "$WATCH_SDK" \
     "EzanVaktiWatch Watch App"/*.swift $(shared_for "Watch App")
 
-# Komplikasyon hedefi henuz Xcode'da olusturulmadi; kaynaklari
-# WatchComplicationSources'ta bekliyor. Dosya kumesi elle yaziliyor, hedef
-# acilinca membershipExceptions'tan okunacak.
-echo "== saat komplikasyonu (hedef bekliyor) (watchOS $WATCH_MIN) =="
+echo "== saat komplikasyonu (watchOS $WATCH_MIN) =="
 check "watch-comp" "arm64-apple-watchos$WATCH_MIN" "$WATCH_SDK" \
-    WatchComplicationSources/*.swift EzanVaktiWidget/PrayerWidgetEntry.swift \
-    $(shared_for "Watch App")
+    "watch widget"/*.swift $(shared_for "watch widgetExtension")

@@ -11,6 +11,9 @@
 		99335466303906FE007C5ED0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 993354473039068A007C5ED0 /* WidgetKit.framework */; };
 		99335467303906FE007C5ED0 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 993354493039068A007C5ED0 /* SwiftUI.framework */; };
 		99335474303906FF007C5ED0 /* EzanVaktiWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 99335465303906FE007C5ED0 /* EzanVaktiWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		99FD137A303CDBA20058D379 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 993354473039068A007C5ED0 /* WidgetKit.framework */; };
+		99FD137B303CDBA20058D379 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 993354493039068A007C5ED0 /* SwiftUI.framework */; };
+		99FD1388303CDBA30058D379 /* watch widgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 99FD1379303CDBA20058D379 /* watch widgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,6 +30,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 99335464303906FE007C5ED0;
 			remoteInfo = EzanVaktiWidgetExtension;
+		};
+		99FD1386303CDBA30058D379 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E1A000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 99FD1378303CDBA20058D379;
+			remoteInfo = "watch widgetExtension";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -53,6 +63,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		99FD1389303CDBA30058D379 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				99FD1388303CDBA30058D379 /* watch widgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +83,7 @@
 		993354493039068A007C5ED0 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		99335465303906FE007C5ED0 /* EzanVaktiWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = EzanVaktiWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9933548530390BFD007C5ED0 /* EzanVaktiWidgetExtension-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "EzanVaktiWidgetExtension-Info.plist"; sourceTree = "<group>"; };
+		99FD1379303CDBA20058D379 /* watch widgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "watch widgetExtension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1A000000000000000000003 /* EzanVakti.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EzanVakti.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -91,15 +113,40 @@
 		99AA000000000000000000A1 /* Exceptions for "EzanVakti" folder in "EzanVaktiWatch Watch App" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Core/SolarMath.swift,
 				Core/Prayer.swift,
 				Core/PrayerCalculationParameters.swift,
 				Core/PrayerTimesCalculator.swift,
 				Core/SharedLocationStore.swift,
+				Core/SolarMath.swift,
 				Features/Palette.swift,
 				Features/ScaledFont.swift,
 			);
 			target = 99016771303B8C6000D473B2 /* EzanVaktiWatch Watch App */;
+		};
+		99FD138D303CDBA30058D379 /* Exceptions for "watch widget" folder in "watch widgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 99FD1378303CDBA20058D379 /* watch widgetExtension */;
+		};
+		99AA000000000000000000B1 /* Exceptions for "EzanVakti" folder in "watch widgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Core/Prayer.swift,
+				Core/PrayerCalculationParameters.swift,
+				Core/PrayerTimesCalculator.swift,
+				Core/SharedLocationStore.swift,
+				Core/SolarMath.swift,
+			);
+			target = 99FD1378303CDBA20058D379 /* watch widgetExtension */;
+		};
+		99AA000000000000000000B2 /* Exceptions for "EzanVaktiWidget" folder in "watch widgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				PrayerWidgetEntry.swift,
+			);
+			target = 99FD1378303CDBA20058D379 /* watch widgetExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -113,8 +160,17 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				99335475303906FF007C5ED0 /* Exceptions for "EzanVaktiWidget" folder in "EzanVaktiWidgetExtension" target */,
+				99AA000000000000000000B2 /* Exceptions for "EzanVaktiWidget" folder in "watch widgetExtension" target */,
 			);
 			path = EzanVaktiWidget;
+			sourceTree = "<group>";
+		};
+		99FD137C303CDBA20058D379 /* watch widget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				99FD138D303CDBA30058D379 /* Exceptions for "watch widget" folder in "watch widgetExtension" target */,
+			);
+			path = "watch widget";
 			sourceTree = "<group>";
 		};
 		E1A000000000000000000006 /* EzanVakti */ = {
@@ -122,6 +178,7 @@
 			exceptions = (
 				993354843039099A007C5ED0 /* Exceptions for "EzanVakti" folder in "EzanVaktiWidgetExtension" target */,
 				99AA000000000000000000A1 /* Exceptions for "EzanVakti" folder in "EzanVaktiWatch Watch App" target */,
+				99AA000000000000000000B1 /* Exceptions for "EzanVakti" folder in "watch widgetExtension" target */,
 			);
 			path = EzanVakti;
 			sourceTree = "<group>";
@@ -142,6 +199,15 @@
 			files = (
 				99335467303906FE007C5ED0 /* SwiftUI.framework in Frameworks */,
 				99335466303906FE007C5ED0 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		99FD1376303CDBA20058D379 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				99FD137B303CDBA20058D379 /* SwiftUI.framework in Frameworks */,
+				99FD137A303CDBA20058D379 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -172,6 +238,7 @@
 				E1A000000000000000000006 /* EzanVakti */,
 				99335468303906FE007C5ED0 /* EzanVaktiWidget */,
 				99016773303B8C6000D473B2 /* EzanVaktiWatch Watch App */,
+				99FD137C303CDBA20058D379 /* watch widget */,
 				993354463039068A007C5ED0 /* Frameworks */,
 				E1A000000000000000000005 /* Products */,
 			);
@@ -183,6 +250,7 @@
 				E1A000000000000000000003 /* EzanVakti.app */,
 				99335465303906FE007C5ED0 /* EzanVaktiWidgetExtension.appex */,
 				99016772303B8C6000D473B2 /* EzanVaktiWatch Watch App.app */,
+				99FD1379303CDBA20058D379 /* watch widgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -197,10 +265,12 @@
 				9901676E303B8C6000D473B2 /* Sources */,
 				9901676F303B8C6000D473B2 /* Frameworks */,
 				99016770303B8C6000D473B2 /* Resources */,
+				99FD1389303CDBA30058D379 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				99FD1387303CDBA30058D379 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				99016773303B8C6000D473B2 /* EzanVaktiWatch Watch App */,
@@ -232,6 +302,28 @@
 			);
 			productName = EzanVaktiWidgetExtension;
 			productReference = 99335465303906FE007C5ED0 /* EzanVaktiWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		99FD1378303CDBA20058D379 /* watch widgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 99FD138C303CDBA30058D379 /* Build configuration list for PBXNativeTarget "watch widgetExtension" */;
+			buildPhases = (
+				99FD1375303CDBA20058D379 /* Sources */,
+				99FD1376303CDBA20058D379 /* Frameworks */,
+				99FD1377303CDBA20058D379 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				99FD137C303CDBA20058D379 /* watch widget */,
+			);
+			name = "watch widgetExtension";
+			packageProductDependencies = (
+			);
+			productName = "watch widgetExtension";
+			productReference = 99FD1379303CDBA20058D379 /* watch widgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		E1A000000000000000000002 /* EzanVakti */ = {
@@ -276,6 +368,9 @@
 					99335464303906FE007C5ED0 = {
 						CreatedOnToolsVersion = 26.6;
 					};
+					99FD1378303CDBA20058D379 = {
+						CreatedOnToolsVersion = 26.6;
+					};
 					E1A000000000000000000002 = {
 						CreatedOnToolsVersion = 16.0;
 					};
@@ -299,6 +394,7 @@
 				E1A000000000000000000002 /* EzanVakti */,
 				99335464303906FE007C5ED0 /* EzanVaktiWidgetExtension */,
 				99016771303B8C6000D473B2 /* EzanVaktiWatch Watch App */,
+				99FD1378303CDBA20058D379 /* watch widgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -312,6 +408,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		99335463303906FE007C5ED0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		99FD1377303CDBA20058D379 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -342,6 +445,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		99FD1375303CDBA20058D379 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E1A000000000000000000007 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -362,6 +472,11 @@
 			target = 99335464303906FE007C5ED0 /* EzanVaktiWidgetExtension */;
 			targetProxy = 99335472303906FF007C5ED0 /* PBXContainerItemProxy */;
 		};
+		99FD1387303CDBA30058D379 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 99FD1378303CDBA20058D379 /* watch widgetExtension */;
+			targetProxy = 99FD1386303CDBA30058D379 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -376,6 +491,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_ENTITLEMENTS = EzanVaktiWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
@@ -417,6 +533,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_ENTITLEMENTS = EzanVaktiWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -526,6 +643,90 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		99FD138A303CDBA30058D379 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_ENTITLEMENTS = WatchWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "watch widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "watch widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mahmud.ezanvakti.watchkitapp.watch-widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Debug;
+		};
+		99FD138B303CDBA30058D379 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CODE_SIGN_ENTITLEMENTS = WatchWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "watch widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "watch widget";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mahmud.ezanvakti.watchkitapp.watch-widget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.5;
 			};
 			name = Release;
 		};
@@ -705,6 +906,15 @@
 			buildConfigurations = (
 				99335477303906FF007C5ED0 /* Debug */,
 				99335478303906FF007C5ED0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		99FD138C303CDBA30058D379 /* Build configuration list for PBXNativeTarget "watch widgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				99FD138A303CDBA30058D379 /* Debug */,
+				99FD138B303CDBA30058D379 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
