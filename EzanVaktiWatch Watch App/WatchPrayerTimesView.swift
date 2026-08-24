@@ -87,7 +87,12 @@ struct WatchPrayerTimesContent: View {
     private var hero: some View {
         if let upcoming = viewModel.upcoming(at: now) {
             VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                // Vaktin saati adının yanında duruyor: "İKİNDİ 16:56" tek bir
+                // bilgi olarak okunuyor. Aşağıdaki büyük sayı da tek başına
+                // "kalan" oluyor — iki saat biçimli sayı yan yana dursaydı
+                // sayaç bir saatin altına inince (44:54) vaktin saatiyle
+                // (16:56) aynı şekle bürünüp karışırdı.
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(upcoming.prayer.title.uppercased(with: Locale(identifier: "tr_TR")))
                         .font(.system(size: metrics.headerFont - 1, weight: .semibold))
                         .tracking(1.1)
@@ -96,18 +101,23 @@ struct WatchPrayerTimesContent: View {
 
                     Spacer(minLength: 2)
 
-                    // Saatte geri sayım kendi kendine ilerlesin: uygulama arka
-                    // planda dururken de doğru kalıyor.
-                    Text(timerInterval: now...upcoming.date, countsDown: true)
-                        .font(.system(size: metrics.headerFont))
+                    Text(viewModel.formatted(upcoming.date))
+                        .font(.system(size: metrics.headerFont + 1, weight: .semibold))
                         .monospacedDigit()
-                        .foregroundStyle(.secondary)
                         .lineLimit(1)
+                        .fixedSize(horizontal: true, vertical: false)
                 }
 
-                Text(viewModel.formatted(upcoming.date))
+                // Saatte geri sayım kendi kendine ilerlesin: uygulama arka
+                // planda dururken de doğru kalıyor.
+                // Kış gecesi imsağa 10+ saat kalıyor, sayaç "10:41:34" diye
+                // sekiz haneye çıkıyor: en dar ekranda bile sığdığı ölçüldü,
+                // yine de kırpılmaktansa küçülsün.
+                Text(timerInterval: now...upcoming.date, countsDown: true)
                     .font(.system(size: metrics.heroTime, weight: .medium, design: .rounded))
                     .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 2)

@@ -774,6 +774,19 @@ kendi konumunu alıp kendi hesaplıyor; telefon yanında olmasa da çalışıyor
 App Group iOS uygulamasıyla saat arasında paylaşılmıyor (ayrı cihazlar), saatteki
 `SharedLocationStore` yalnızca saat uygulaması ile komplikasyonu arasında.
 
+### Kahraman alanı: büyük olan sayaç
+
+Üstte "İKİNDİ 16:56", altında büyük geri sayım. Vaktin saati **adının yanında**
+duruyor, çünkü iki saat biçimli sayıyı yan yana koymak karıştırıyordu: sayaç bir
+saatin altına inince `44:54` olup vaktin saatiyle (`16:56`) aynı şekle bürünüyor.
+Ada bitişik yazılınca üst satır tek bir bilgi olarak okunuyor, alttaki büyük sayı
+da tek başına "kalan" oluyor.
+
+Sayaç `Text(timerInterval:)`; uygulama arka planda dururken de kendi kendine
+ilerliyor. Kış gecesi imsağa 10+ saat kaldığında sekiz haneye çıkıyor
+(`10:41:34`) — 40 mm'de bile sığdığı ölçüldü, ayrıca `minimumScaleFactor`
+konuldu.
+
 ### Ekran düzeni: neden iki sütun
 
 Altı vakit alt alta en küçük ekrana (40 mm, durum çubuğu düşünce ~167 pt)
