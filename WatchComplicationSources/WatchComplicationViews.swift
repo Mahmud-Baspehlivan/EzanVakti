@@ -43,15 +43,25 @@ struct WatchCircularComplication: View {
     }
 }
 
-/// Kadran köşesi: saat büyük, vakit adı kavisli kenarda.
+/// Kadran köşesi: kalan süre kavisli kenarda, vakit simgesi içeride.
+///
+/// Kalan süre `widgetLabel` ile kenara yazılıyor, köşenin iç alanına değil:
+/// orası dört-beş karakter alıyor ve geri sayım kış gecesi sekiz haneye kadar
+/// çıkıyor ("10:41:34"). Kavisli kenarda yer var; hangi vakit olduğunu da
+/// içerideki simge söylüyor.
+///
+/// Aralığın alt ucu `entry.previous` değil `entry.date`: geri sayım için yalnız
+/// üst uç gerekli, `previous` ise isteğe bağlı ve gereksiz bir nil dalı açıyor.
 struct WatchCornerComplication: View {
     let entry: PrayerEntry
 
     var body: some View {
         if let upcoming = entry.upcoming {
-            Text(hhmm(upcoming.date))
-                .font(.system(size: 15, weight: .semibold))
-                .monospacedDigit()
+            Image(systemName: upcoming.prayer.symbolName)
+                .font(.system(size: 16))
+                .widgetLabel {
+                    Text(timerInterval: entry.date...upcoming.date, countsDown: true)
+                }
         } else {
             Image(systemName: "moon.stars")
         }

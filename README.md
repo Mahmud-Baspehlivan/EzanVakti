@@ -829,6 +829,27 @@ O sınıf pusula yönü, elle konum seçimi ve App Group paylaşımı taşıyor;
 hiçbiri gerekmiyor ve pusula API'lerinin watchOS'taki durumu ayrı bir
 belirsizlik. Saat için tek işi olan ayrı bir sağlayıcı yazıldı.
 
+### Komplikasyonlar
+
+Dört aile destekleniyor. Zaman çizelgesi telefondaki widget ile aynı mantıkta:
+vakitler belirlenimci olduğu için girdiler bir gün ileriye baştan üretiliyor ve
+yalnızca vakit geçişlerinde konuyor — geri sayımlar `timerInterval` ile kendi
+kendine ilerlediği için dakikalık girdiye gerek yok.
+
+| Aile | Ne gösteriyor |
+| --- | --- |
+| `accessoryCorner` | Kavisli kenarda **kalan süre**, köşede vaktin simgesi |
+| `accessoryCircular` | İlerleme halkası + simge + vaktin saati |
+| `accessoryRectangular` | Vakit adı, saati, kalan süre, ilerleme çubuğu |
+| `accessoryInline` | Tek satır: vakit adı + saati |
+
+Köşede kalan süre neden `widgetLabel`'da: köşenin iç alanı dört-beş karakter
+alıyor, geri sayım ise kış gecesi sekiz haneye çıkıyor (`10:41:34`). Kavisli
+kenarda yer var, hangi vakit olduğunu da içerideki simge söylüyor.
+
+Komplikasyonlar sistem tarafından tek renge tonlandığı için altın vurgu
+kullanılmıyor.
+
 ### Kalan Xcode adımı: komplikasyon hedefi
 
 1. **File → New → Target… → watchOS → Widget Extension**, saat uygulamasına gömülü.
@@ -846,7 +867,12 @@ Konum izni metni saat hedefine de gerekiyor
 (`NSLocationWhenInUseUsageDescription`).
 
 `Tools/check/targets.sh` dört hedefi de (iOS uygulama, iOS widget, saat
-uygulaması, saat komplikasyonu) kendi dosya kümesiyle deriyor.
+uygulaması, saat komplikasyonu) kendi dosya kümesiyle **ve kendi SDK'sıyla**
+deriyor. Önceki sürüm her şeyi macOS'a karşı deriyordu; macOS'ta olmayan her şey
+(ActivityKit, `.accessory*` aileleri, `widgetLabel`, UIKit) ya kaynaktan
+kırpılıyor ya da dosya tamamen atılıyordu — yani en platforma özel kod, en çok
+denetime muhtaç olan kod, hiç denetlenmiyordu. Gerçek SDK'lara geçince kırpma
+tamamen kalktı ve kapsam 46+12 dosyadan 49+14'e çıktı.
 
 ## v1 kapsamı
 
