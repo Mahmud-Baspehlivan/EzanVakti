@@ -2,7 +2,9 @@ import SwiftUI
 import WidgetKit
 
 struct PrayerTimesProvider: TimelineProvider {
-    private var timeZone: TimeZone { .current }
+    /// `.autoupdatingCurrent`: kullanıcı uçakla dilim değiştirdiğinde çizelge
+    /// bir sonraki yenilemede doğru dilimi görsün.
+    private var timeZone: TimeZone { .autoupdatingCurrent }
 
     /// Paylaşılan konum yoksa İstanbul'a düşüyoruz ama bunu gizlemiyoruz.
     private func resolveLocation() -> (Coordinate, String, Bool) {

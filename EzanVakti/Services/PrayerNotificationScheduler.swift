@@ -22,6 +22,12 @@ final class PrayerNotificationScheduler {
 
     private let center = UNUserNotificationCenter.current()
 
+    /// Süregelen planlama. Ayar sayfasında altı vakit anahtarını hızlıca açıp
+    /// kapatmak, her biri `removeAllPendingNotificationRequests` + 58'e kadar
+    /// `add` yapan altı örtüşen planlama başlatıyordu. Yenisi geldiğinde önceki
+    /// iptal ediliyor: son istek kazanır.
+    @ObservationIgnored private var pending: Task<Void, Never>?
+
     func refreshAuthorization() async {
         authorization = await center.notificationSettings().authorizationStatus
     }
@@ -45,6 +51,33 @@ final class PrayerNotificationScheduler {
         preferences: NotificationPreferences,
         now: Date = Date()
     ) async {
+        let previous = pending
+        previous?.cancel()
+        let task = Task { @MainActor in
+            // İptal yetmiyor: önceki görev `center.add` üzerinde asılıysa, biz
+            // `removeAllPendingNotificationRequests` yaptıktan sonra uyanıp bir
+            // istek daha ekleyebilir ve o bayat bildirim hayatta kalır. İptal
+            // edilen görev zaten hemen çıkacağı için beklemek ucuz.
+            await previous?.value
+            await self.performReschedule(
+                calculator: calculator,
+                timeZone: timeZone,
+                locationName: locationName,
+                preferences: preferences,
+                now: now
+            )
+        }
+        pending = task
+        await task.value
+    }
+
+    private func performReschedule(
+        calculator: PrayerTimesCalculator,
+        timeZone: TimeZone,
+        locationName: String,
+        preferences: NotificationPreferences,
+        now: Date
+    ) async {
         guard authorization == .authorized || authorization == .provisional else {
             scheduledCount = 0
             return
@@ -59,9 +92,20 @@ final class PrayerNotificationScheduler {
 
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = timeZone
+        // Bildirim kimliğinin gün parçası. `en_US_POSIX` burada da şart:
+        // Gregoryen olmayan bir takvim yereliyle "yyyyMMdd" bambaşka bir dize
+        // üretir, kimlikler kayar ve aynı vakit için mükerrer bildirim kalır.
         let dayKeyFormatter = DateFormatter()
         dayKeyFormatter.timeZone = timeZone
+        dayKeyFormatter.locale = Locale(identifier: "en_US_POSIX")
         dayKeyFormatter.dateFormat = "yyyyMMdd"
+        // Gövdedeki saat için tek formatlayıcı: her bildirimde yeniden kurulunca
+        // 58 kez bedeli ödeniyordu. `en_US_POSIX` şart — locale verilmezse
+        // "24 Saat" ayarı kapalı cihazlarda "HH:mm" 1:30 PM'e dönüşüyor.
+        let timeFormatter = DateFormatter()
+        timeFormatter.timeZone = timeZone
+        timeFormatter.locale = Locale(identifier: "en_US_POSIX")
+        timeFormatter.dateFormat = "HH:mm"
 
         var scheduled = 0
 
@@ -72,6 +116,9 @@ final class PrayerNotificationScheduler {
             else { continue }
 
             for prayer in Prayer.allCases where preferences.enabled.contains(prayer) {
+                // İptal edilmiş görev kalan eklemeleri yapmaya devam etmesin;
+                // yerini alan planlama zaten ufku baştan kuruyor.
+                guard !Task.isCancelled else { return }
                 guard scheduled < Self.budget else { break }
 
                 let fireDate = times[prayer]
@@ -84,7 +131,7 @@ final class PrayerNotificationScheduler {
                 let request = UNNotificationRequest(
                     identifier: "prayer-\(prayer.rawValue)-\(dayKeyFormatter.string(from: day))",
                     content: content(for: prayer, at: times[prayer], place: locationName,
-                                     preferences: preferences, timeZone: timeZone),
+                                     preferences: preferences, formatter: timeFormatter),
                     trigger: UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
                 )
 
@@ -102,12 +149,9 @@ final class PrayerNotificationScheduler {
 
     private func content(
         for prayer: Prayer, at date: Date, place: String,
-        preferences: NotificationPreferences, timeZone: TimeZone
+        preferences: NotificationPreferences, formatter: DateFormatter
     ) -> UNMutableNotificationContent {
         let minutesBefore = preferences.minutesBefore
-        let formatter = DateFormatter()
-        formatter.timeZone = timeZone
-        formatter.dateFormat = "HH:mm"
 
         let content = UNMutableNotificationContent()
         content.title = minutesBefore > 0

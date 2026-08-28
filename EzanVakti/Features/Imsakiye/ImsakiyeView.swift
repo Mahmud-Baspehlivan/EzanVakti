@@ -36,16 +36,8 @@ struct ImsakiyeView: View {
             .padding(.horizontal, 20)
             .padding(.top, 12)
         }
-        .onChange(of: descriptor(of: location.state)) { _, _ in
+        .onChange(of: location.state) { _, _ in
             viewModel.apply(location.state)
         }
-    }
-
-    /// `onChange` için sade bir kimlik: LocationState eşitlenebilir değil.
-    private func descriptor(of state: LocationState) -> String {
-        if case .resolved(let coordinate, _) = state {
-            return "\(coordinate.latitude),\(coordinate.longitude)"
-        }
-        return "unresolved"
     }
 }

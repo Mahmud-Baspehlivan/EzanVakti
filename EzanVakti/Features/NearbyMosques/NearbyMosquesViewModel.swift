@@ -64,6 +64,12 @@ final class NearbyMosquesViewModel {
                 )
                 guard !Task.isCancelled else { return }
                 state = .loaded(mosques)
+            } catch is CancellationError {
+                // Arama iptal edildi (yarıçap değişti ya da yeni bir arama
+                // başladı). `Task.isCancelled` çoğu durumda bunu zaten yakalıyor
+                // ama iptal artık `MosqueFinder`'dan da geliyor; kullanıcıya
+                // "Bu işlem iptal edildi" diye bir hata göstermek yanlış olurdu.
+                return
             } catch {
                 guard !Task.isCancelled else { return }
                 // Yoğunluk, sunucu hatası ve bağlantı yokluğu farklı şeyler;

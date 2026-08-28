@@ -4,10 +4,25 @@ import Observation
 @Observable
 final class QiblaViewModel {
     private(set) var coordinate: Coordinate = .istanbul
-    var timeZone: TimeZone = .current
+    /// `autoupdatingCurrent`: uçakla dilim değiştirmek bu uygulamanın ana
+    /// senaryosu (seyahat, umre/hac). Anlık görüntü alınsaydı kıble saati kalkış
+    /// şehrinde donup kalırdı.
+    var timeZone: TimeZone = .autoupdatingCurrent {
+        didSet { rebuildFormatters(); cachedTimes = nil }
+    }
 
     /// Pusula okumasının kıbleye oturduğu kabul edilen tolerans.
     static let alignmentTolerance: Double = 5
+
+    @ObservationIgnored private var calendar = Calendar(identifier: .gregorian)
+    private let timeFormatter = DateFormatter()
+
+    /// Kıble saati günde bir kez değişir ama ekran pusula okumasına bağlı olduğu
+    /// için saniyede onlarca kez yeniden çiziliyor. `@ObservationIgnored`: bu alan
+    /// gövde çizilirken yazılıyor; izlenseydi her yazma yeni bir çizim doğururdu.
+    @ObservationIgnored private var cachedTimes: (key: String, value: [Date])?
+
+    init() { rebuildFormatters() }
 
     var direction: Double { Qibla.direction(from: coordinate) }
 
@@ -31,30 +46,47 @@ final class QiblaViewModel {
     /// Güneşin kıble yönüne geldiği an(lar). Bazı enlem ve tarihlerde hiç olmuyor,
     /// bazılarında günde iki kez oluyor.
     func qiblaTimes(on day: Date) -> [Date] {
-        Qibla.qiblaTimes(on: day, coordinate: coordinate, timeZone: timeZone)
+        // Hesap günü dakika dakika tarıyor; anahtar gün + koordinat olunca hem
+        // gece yarısında hem konum değişince kendiliğinden geçersizleşiyor.
+        let key = "\(calendar.startOfDay(for: day).timeIntervalSinceReferenceDate)"
+            + "|\(coordinate.latitude),\(coordinate.longitude)"
+        if let cached = cachedTimes, cached.key == key { return cached.value }
+
+        let times = Qibla.qiblaTimes(on: day, coordinate: coordinate, timeZone: timeZone)
+        cachedTimes = (key, times)
+        return times
     }
 
     /// Diyanet kıble saatini dakikaya yukarı yuvarlıyor; ölçtüğümüz 17 günün
     /// 14'ünde bu kural birebir tutuyor, kalanında sapma 1 dakika.
     func formattedMinute(_ date: Date) -> String {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = timeZone
         let seconds = calendar.component(.second, from: date)
         let rounded = seconds > 0 ? date.addingTimeInterval(Double(60 - seconds)) : date
-
-        let formatter = DateFormatter()
-        formatter.timeZone = timeZone
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: rounded)
+        return timeFormatter.string(from: rounded)
     }
 
     var distanceText: String {
         let km = Qibla.distanceToKaaba(from: coordinate)
+        return (Self.distanceFormatter.string(from: NSNumber(value: km)) ?? "\(Int(km))") + " km"
+    }
+
+    /// Saat diliminden bağımsız, yereli sabit: örneği tip düzeyinde bir kez kuruyoruz.
+    private static let distanceFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.locale = Locale(identifier: "tr_TR")
         formatter.maximumFractionDigits = 0
-        return (formatter.string(from: NSNumber(value: km)) ?? "\(Int(km))") + " km"
+        return formatter
+    }()
+
+    private func rebuildFormatters() {
+        calendar.timeZone = timeZone
+
+        timeFormatter.timeZone = timeZone
+        // Sabit biçimde locale zorunlu: kullanıcının "24 Saat" ayarı kapalıyken
+        // sistem "HH:mm"i yeniden yorumlayıp 12 saatlik biçime çevirebiliyor.
+        timeFormatter.locale = Locale(identifier: "en_US_POSIX")
+        timeFormatter.dateFormat = "HH:mm"
     }
 
     /// Kadran üzerindeki kısa etiketler.
@@ -74,6 +106,6 @@ final class QiblaViewModel {
     }
 
     private func sector(for degrees: Double) -> Int {
-        Int(wrap(degrees + 11.25, max: 360) / 22.5)
+        Int(Deg.wrap(degrees + 11.25, max: 360) / 22.5)
     }
 }

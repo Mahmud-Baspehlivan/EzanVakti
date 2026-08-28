@@ -1,5 +1,4 @@
 import Foundation
-import WidgetKit
 
 /// Uygulama ile widget arasında paylaşılan son bilinen konum.
 ///
@@ -20,11 +19,19 @@ enum SharedLocationStore {
 
     static var isAvailable: Bool { suite != nil }
 
-    static func save(coordinate: Coordinate, name: String) {
-        guard let suite else { return }
+    /// Konumu yazar ve **değişip değişmediğini** döner.
+    ///
+    /// Yenilemeyi kendisi tetiklemiyor: bu tip dört hedefe birden derleniyor ve
+    /// bir deponun WidgetKit'i çalıştırması hem sorumluluk karışıklığı hem de
+    /// testte kaçınılmaz bir WidgetKit bağımlılığı demekti. Çizelgeyi yenileme
+    /// kararı, konumun sahibi olan çağırana ait.
+    ///
+    /// Dönen değer önemli: aynı konum tekrar yazıldığında `false` döner ve
+    /// çağıran yenilemeyi atlar — WidgetKit yenileme bütçesi sınırlı.
+    @discardableResult
+    static func save(coordinate: Coordinate, name: String) -> Bool {
+        guard let suite else { return false }
 
-        // Aynı konum tekrar yazılırsa widget'ı boşuna yenilemeyelim; WidgetKit
-        // yenileme bütçesi sınırlı.
         let isSame = suite.object(forKey: latitudeKey) != nil
             && abs(suite.double(forKey: latitudeKey) - coordinate.latitude) < 0.0001
             && abs(suite.double(forKey: longitudeKey) - coordinate.longitude) < 0.0001
@@ -34,10 +41,7 @@ enum SharedLocationStore {
         suite.set(coordinate.longitude, forKey: longitudeKey)
         suite.set(name, forKey: nameKey)
 
-        // Bu çağrı olmadan widget konum değişikliğini bir sonraki zaman çizelgesi
-        // yenilemesine kadar görmez — saatlerce eski şehri gösterebilir.
-        guard !isSame else { return }
-        WidgetCenter.shared.reloadAllTimelines()
+        return !isSame
     }
 
     /// Kayıtlı konum yoksa nil — çağıran taraf varsayılana düşmeye kendi karar verir.

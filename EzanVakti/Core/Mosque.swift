@@ -20,11 +20,23 @@ struct Mosque: Identifiable, Equatable {
         }
 
         let km = distance / 1_000
+        let formatter = distance < 10_000 ? Self.kmOneDecimal : Self.kmWhole
+        return (formatter.string(from: NSNumber(value: km)) ?? "\(Int(km))") + " km"
+    }
+
+    /// Liste kaydırırken her satır için yeniden kurulmasın diye tip düzeyinde
+    /// tutuluyor; yerel sabit olduğu için paylaşmakta sakınca yok. Basamak sayısı
+    /// mesafeye göre değiştiğinden tek örneği her seferinde yeniden ayarlamak
+    /// yerine iki ayrı örnek tutuyoruz.
+    private static let kmOneDecimal = kilometreFormatter(fractionDigits: 1)
+    private static let kmWhole = kilometreFormatter(fractionDigits: 0)
+
+    private static func kilometreFormatter(fractionDigits: Int) -> NumberFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.locale = Locale(identifier: "tr_TR")
-        formatter.maximumFractionDigits = distance < 10_000 ? 1 : 0
-        return (formatter.string(from: NSNumber(value: km)) ?? "\(Int(km))") + " km"
+        formatter.maximumFractionDigits = fractionDigits
+        return formatter
     }
 
     static func == (lhs: Mosque, rhs: Mosque) -> Bool { lhs.id == rhs.id }

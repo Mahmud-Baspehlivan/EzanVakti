@@ -84,6 +84,11 @@ enum MosqueFinder {
 
         var lastError: MosqueSearchError = .network
         for endpoint in endpoints {
+            // Yarıçap her değiştiğinde çağıran taraf görevi iptal ediyor; iptal
+            // tasarımın parçası. Sıradaki sunucuya geçmeden bakıyoruz, yoksa
+            // terk edilmiş arama topluluk sunucularını boşuna yormaya devam ediyor.
+            try Task.checkCancellation()
+
             var request = URLRequest(url: endpoint)
             request.httpMethod = "POST"
             request.timeoutInterval = 20
@@ -101,6 +106,13 @@ enum MosqueFinder {
                     continue
                 }
                 return try JSONDecoder().decode(OverpassResponse.self, from: data).elements
+            } catch is CancellationError {
+                // İptal bir sunucu arızası değil: yedeğe geçmeden çıkıyoruz.
+                throw CancellationError()
+            } catch let error as URLError where error.code == .cancelled {
+                // URLSession iptali de URLError olarak geliyor; ayırmazsak
+                // aşağıdaki genel dal bunu ağ hatası sanıp döngüyü sürdürüyor.
+                throw CancellationError()
             } catch is DecodingError {
                 lastError = .serverBusy
             } catch {

@@ -46,7 +46,7 @@ struct NearbyMosquesView: View {
             availableMapApps = MapAppLauncher.available
         }
         .onDisappear { location.stopHeading() }
-        .onChange(of: descriptor(of: location.state)) { _, _ in
+        .onChange(of: location.state) { _, _ in
             viewModel.apply(location.state)
         }
     }
@@ -91,21 +91,5 @@ struct NearbyMosquesView: View {
     private func retry() {
         location.start()
         viewModel.reload()
-    }
-
-    /// `onChange` için sade bir kimlik: LocationState eşitlenebilir değil.
-    private func descriptor(of state: LocationState) -> String {
-        switch state {
-        case .resolved(let coordinate, let name):
-            return "\(coordinate.latitude),\(coordinate.longitude),\(name)"
-        case .denied:
-            return "denied"
-        case .failed(let message):
-            return "failed:\(message)"
-        case .idle:
-            return "idle"
-        case .requesting:
-            return "requesting"
-        }
     }
 }

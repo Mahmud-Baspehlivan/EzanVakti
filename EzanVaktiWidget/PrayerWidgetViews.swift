@@ -8,12 +8,25 @@ import SwiftUI
 /// vakit geçişlerinde girdi ürettiği için durağan bir metin bir dakika içinde
 /// yanlış olurdu. Sistem biçimi karşılığında canlı kalıyor.
 
+/// Sabit biçimli tarihlerde locale `en_US_POSIX` olmak zorunda: aksi halde
+/// kullanıcının "Ayarlar > Genel > Tarih ve Saat > 24 Saat" anahtarı "HH:mm"
+/// kalıbını yeniden yorumlatıp "1:46 PM" gibi uzun bir metin ürettirebiliyor.
+/// Buradaki düzen sabit genişlik varsayıyor (`monospacedDigit()`, dar
+/// çerçeveler), uzun biçim kırpılırdı. Saat dilimi `.autoupdatingCurrent`:
+/// kullanıcı seyahat ederken vakitler bulunduğu yerin saatiyle yazılsın.
+///
+/// `DateFormatter` Sendable değil; bu yüzden formatter da onu kullanan yardımcı
+/// da `@MainActor`'a bağlı — SwiftUI gövdeleri zaten orada çağırıyor.
+@MainActor
 private let timeFormatter: DateFormatter = {
     let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = .autoupdatingCurrent
     formatter.dateFormat = "HH:mm"
     return formatter
 }()
 
+@MainActor
 private func shortTime(_ date: Date) -> String { timeFormatter.string(from: date) }
 
 /// Geçen/kalan oranı.

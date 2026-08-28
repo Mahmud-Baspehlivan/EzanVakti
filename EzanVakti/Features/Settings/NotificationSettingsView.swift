@@ -5,6 +5,7 @@ import UserNotifications
 struct NotificationSettingsView: View {
     @Bindable var store: NotificationPreferencesStore
     let scheduler: PrayerNotificationScheduler
+    let liveActivity: LiveActivityController
 
     @Environment(\.dismiss) private var dismiss
     @State private var player: AVAudioPlayer?
@@ -49,6 +50,13 @@ struct NotificationSettingsView: View {
                             ForEach([60, 120, 180], id: \.self) { minutes in
                                 Text("\(minutes / 60) saat").tag(minutes)
                             }
+                        }
+                        // Etkinlik kurulamadıysa kilit ekranının neden boş kaldığı
+                        // yoksa hiçbir yerden anlaşılmıyordu.
+                        if let error = liveActivity.lastError {
+                            Label(error, systemImage: "exclamationmark.triangle")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
                         }
                     }
                 } header: {

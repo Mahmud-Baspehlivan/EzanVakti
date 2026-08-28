@@ -76,16 +76,34 @@ struct WatchPrayerTimesContent: View {
     }
 
     private var header: some View {
-        Text(viewModel.locationName)
-            .font(.system(size: metrics.headerFont))
-            .foregroundStyle(.secondary)
-            .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        // Varsayılan şehirle çalışırken bunu söylüyoruz: telefonda ve widget'ta
+        // olduğu gibi, yanlış şehrin vakitlerini sessizce doğruymuş gibi
+        // göstermiyoruz. Ekran metin taşıyamayacak kadar dar; uyarıyı simge ile
+        // turuncu ton taşıyor, VoiceOver için karşılığı aşağıda yazılı.
+        HStack(spacing: 3) {
+            if viewModel.isUsingFallbackLocation {
+                Image(systemName: "location.slash")
+                    .font(.system(size: metrics.headerFont - 1))
+            }
+            Text(viewModel.locationName)
+                .font(.system(size: metrics.headerFont))
+                .lineLimit(1)
+        }
+        .foregroundStyle(viewModel.isUsingFallbackLocation ? Color.orange : Color.secondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(viewModel.isUsingFallbackLocation
+                            ? "Varsayılan şehir: \(viewModel.locationName)"
+                            : "Konum: \(viewModel.locationName)")
     }
 
     @ViewBuilder
     private var hero: some View {
         if let upcoming = viewModel.upcoming(at: now) {
+            // Geri sayımın alt ucu "şu an" değil, içinde bulunulan vaktin anı:
+            // aralık her karede yeniden kurulmasın diye. Vakit hesaplanamazsa
+            // şu ana düşüyoruz — sayaç yine doğru, sadece aralık oynak.
+            let start = viewModel.previousBoundary(at: now) ?? now
             VStack(alignment: .leading, spacing: 0) {
                 // Vaktin saati adının yanında duruyor: "İKİNDİ 16:56" tek bir
                 // bilgi olarak okunuyor. Aşağıdaki büyük sayı da tek başına
@@ -113,7 +131,7 @@ struct WatchPrayerTimesContent: View {
                 // Kış gecesi imsağa 10+ saat kalıyor, sayaç "10:41:34" diye
                 // sekiz haneye çıkıyor: en dar ekranda bile sığdığı ölçüldü,
                 // yine de kırpılmaktansa küçülsün.
-                Text(timerInterval: now...upcoming.date, countsDown: true)
+                Text(timerInterval: start...upcoming.date, countsDown: true)
                     .font(.system(size: metrics.heroTime, weight: .medium, design: .rounded))
                     .monospacedDigit()
                     .lineLimit(1)

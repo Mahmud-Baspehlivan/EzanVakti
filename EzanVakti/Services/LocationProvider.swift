@@ -1,9 +1,14 @@
 import CoreLocation
 import Observation
+import WidgetKit
 
 /// Konum durumu bilerek açıkça modellendi: izin yoksa sessizce varsayılana
 /// düşüp doğru yeri gösteriyormuş gibi yapmıyoruz, ekran bunu kullanıcıya söylüyor.
-enum LocationState {
+///
+/// `Equatable`: ekranlar durumu `onChange` ile izliyor. Bu olmadan her ekran
+/// karşılaştırmak için kendi kimlik dizesini uyduruyordu; üç ayrı gövde, üç ayrı
+/// "değişti mi" tanımı demekti.
+enum LocationState: Equatable {
     case idle
     case requesting
     case resolved(Coordinate, name: String)
@@ -41,8 +46,13 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
 
     func start() {
         // Elle konum seçilmişse GPS'e hiç dokunmuyoruz.
+        //
+        // `publish` ile: uygulama yeniden kurulduğunda veya App Group verisi
+        // temizlendiğinde widget elle seçilen konumu ancak kullanıcı yeniden
+        // seçerse görüyordu. Aynı konum tekrar yazıldığında `save` zaten
+        // yenileme tetiklemiyor, yani bedeli yok.
         if case .manual(let latitude, let longitude, let name) = mode {
-            state = .resolved(Coordinate(latitude: latitude, longitude: longitude), name: name)
+            publish(Coordinate(latitude: latitude, longitude: longitude), name: name)
             return
         }
 
@@ -90,6 +100,19 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
         true
     }
 
+    /// Ekran durumu ile widget'ın okuduğu paylaşılan depoyu birlikte güncelliyor.
+    /// Kaydetme sorumluluğu bir sekmenin görünüm modeline dağılırsa konum widget'a
+    /// ancak o sekme açıldığında ulaşıyor; tek sahip burası.
+    private func publish(_ coordinate: Coordinate, name: String) {
+        state = .resolved(coordinate, name: name)
+        // Yenileme çağrısı burada: bu olmadan widget konum değişikliğini bir
+        // sonraki zaman çizelgesi yenilemesine kadar görmez, saatlerce eski
+        // şehri gösterebilir. `save` değişmediyse false döner, bütçe harcanmaz.
+        if SharedLocationStore.save(coordinate: coordinate, name: name) {
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+
     /// Konum kaynağını değiştirir ve tercihi kalıcılaştırır.
     func setMode(_ newMode: LocationMode) {
         mode = newMode
@@ -98,11 +121,7 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
         switch newMode {
         case .manual(let latitude, let longitude, let name):
             geocoder.cancelGeocode()
-            let coordinate = Coordinate(latitude: latitude, longitude: longitude)
-            state = .resolved(coordinate, name: name)
-            // Doğrudan yazıyoruz: ekranlardan birinin görünür olmasına bağlı
-            // kalırsa widget seçimi kaçırabilir.
-            SharedLocationStore.save(coordinate: coordinate, name: name)
+            publish(Coordinate(latitude: latitude, longitude: longitude), name: name)
         case .automatic:
             state = .idle
             start()
@@ -132,16 +151,24 @@ final class LocationProvider: NSObject, CLLocationManagerDelegate {
             latitude: location.coordinate.latitude,
             longitude: location.coordinate.longitude
         )
+        // Ekran beklemesin diye ara ad hemen görünüyor, ama paylaşılan depoya
+        // yazmıyoruz: ters kodlama saniyeler içinde gerçek adı getirecek ve iki
+        // farklı adla iki kez yazmak iki widget yenilemesi harcıyordu.
         state = .resolved(coordinate, name: "Konum bulundu")
 
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, _ in
-            guard let self else { return }
+            // `mode` yeniden denetleniyor: bu kapanış saniyeler sonra dönüyor ve
+            // arada kullanıcı elle konum seçmiş olabilir. `cancelGeocode()` iptal
+            // edilen isteği de tamamlatıyor (kCLErrorGeocodeCanceled), yani bu dal
+            // denetimsiz bırakılırsa elle seçilen şehri GPS koordinatıyla eziyor —
+            // hem ekranda hem App Group'ta.
+            guard let self, !self.mode.isManual else { return }
             let place = placemarks?.first
             // İlçe varsa onu tercih ediyoruz; Diyanet takvimi de ilçe bazlı.
             let name = [place?.subAdministrativeArea, place?.administrativeArea]
                 .compactMap { $0 }
                 .first ?? "Bilinmeyen konum"
-            self.state = .resolved(coordinate, name: name)
+            self.publish(coordinate, name: name)
         }
     }
 
