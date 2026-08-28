@@ -11,9 +11,15 @@ struct TrackingView: View {
                 .ignoresSafeArea()
 
             ScrollView {
-                TrackingContent(log: log, onEditQada: { isEditingQada = true })
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
+                // Zamanı dakikada bir tazeliyor: uygulama gece yarısını geçerek
+                // açık kalırsa dokunuşlar dünün gününe yazılmasın.
+                TimelineView(.everyMinute) { context in
+                    TrackingContent(log: log,
+                                    now: context.date,
+                                    onEditQada: { isEditingQada = true })
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
             }
         }
         .sheet(isPresented: $isEditingQada) {
@@ -26,12 +32,14 @@ struct TrackingView: View {
 /// basmıyor, bu haliyle ekran Xcode'suz görsel olarak kontrol edilebiliyor.
 struct TrackingContent: View {
     let log: PrayerLogStore
+    /// Dışarıdan veriliyor ki yapı kurulurken sabitlenmesin; varsayılanı olması
+    /// `ImageRenderer` ile tek satırda kurmayı bozmuyor.
+    var now: Date = Date()
     var onEditQada: () -> Void = {}
-
-    private let today = Date()
 
     var body: some View {
         VStack(spacing: 20) {
+            storageNotice
             streakHeader
             todaySection
             weekSection
@@ -42,7 +50,7 @@ struct TrackingContent: View {
     // MARK: - Seri
 
     private var streakHeader: some View {
-        let streak = log.currentStreak(today: today)
+        let streak = log.currentStreak(today: now)
         return VStack(spacing: 4) {
             Text("\(streak)")
                 .scaledFont(46, weight: .semibold, design: .rounded)
@@ -60,12 +68,12 @@ struct TrackingContent: View {
     // MARK: - Bugün
 
     private var todaySection: some View {
-        card(title: "Bugün", trailing: "\(log.performedCount(on: today))/5") {
+        card(title: "Bugün", trailing: "\(log.performedCount(on: now))/5") {
             VStack(spacing: 0) {
                 ForEach(PrayerLogStore.trackedPrayers) { prayer in
-                    let status = log.status(for: prayer, on: today)
+                    let status = log.status(for: prayer, on: now)
                     Button {
-                        log.advanceStatus(for: prayer, on: today)
+                        log.advanceStatus(for: prayer, on: now)
                     } label: {
                         HStack(spacing: 12) {
                             Image(systemName: prayer.symbolName)
@@ -100,7 +108,7 @@ struct TrackingContent: View {
     // MARK: - Son 7 gün
 
     private var weekSection: some View {
-        let days = log.recentDays(count: 7, ending: today)
+        let days = log.recentDays(count: 7, ending: now)
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "tr_TR")
         // Tek harf Türkçe'de ayırt etmiyor: Pazar/Pazartesi/Perşembe hepsi "P".
@@ -108,7 +116,7 @@ struct TrackingContent: View {
 
         return card(title: "Son 7 gün") {
             HStack(alignment: .top, spacing: 0) {
-                ForEach(days, id: \.timeIntervalSince1970) { day in
+                ForEach(days, id: \.self) { day in
                     VStack(spacing: 6) {
                         ForEach(PrayerLogStore.trackedPrayers) { prayer in
                             Circle()
@@ -177,6 +185,26 @@ struct TrackingContent: View {
                 }
                 .buttonStyle(.plain)
             }
+        }
+    }
+
+    // MARK: - Kayıt uyarısı
+
+    /// Kayıt dosyası okunamadıysa ya da yazılamıyorsa kullanıcı bunu bilmeli:
+    /// aylarca birikmiş takip ve kaza borcu bu dosyada duruyor ve sessizce
+    /// kaybolması, kaybolduğunun fark edilmemesi demek.
+    @ViewBuilder
+    private var storageNotice: some View {
+        if let message = log.lastReadError ?? log.lastWriteError {
+            Label(message, systemImage: "exclamationmark.triangle.fill")
+                .font(.caption)
+                .foregroundStyle(.orange)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+                .background {
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(.orange.opacity(0.12))
+                }
         }
     }
 

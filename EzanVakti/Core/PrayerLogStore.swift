@@ -22,7 +22,9 @@ final class PrayerLogStore {
         calendar.timeZone = timeZone
         self.calendar = calendar
         self.fileURL = fileURL ?? Self.defaultFileURL()
-        self.snapshot = Self.load(from: self.fileURL)
+        let loaded = Self.load(from: self.fileURL)
+        self.snapshot = loaded.snapshot
+        self.lastReadError = loaded.readError
     }
 
     // MARK: - Günlük takip
@@ -91,10 +93,33 @@ final class PrayerLogStore {
 
     // MARK: - Kaza
 
+    /// Türetilmiş kaçırılan sayıları bir sonraki yazmaya kadar tutar.
+    ///
+    /// Borç hâlâ kayıttan türetiliyor — sayaç tutulmuyor — sadece aynı tarama
+    /// tekrarlanmıyor. Observation'a kapalı: bu bir görünüm durumu değil,
+    /// snapshot'ın kendisinden hesaplanan geçici bir ara sonuç.
+    @ObservationIgnored private var missedCache: [Prayer: Int]?
+
     /// Günlük takipte "kılmadım" işaretlenenler; kayıttan türetiliyor, ayrıca
     /// sayaç tutulmuyor ki işaret geri alındığında borç da kendiliğinden düşsün.
+    ///
+    /// Tek bir ekran çizimi bu sorguyu onlarca kez yapıyor (qadaBalance →
+    /// totalQada → her vakit için ayrı ayrı) ve kayıtlar budanmadığı için tarama
+    /// yıllarla birlikte büyüyor. Bu yüzden tüm vakitler tek geçişte sayılıyor.
     func missedCount(for prayer: Prayer) -> Int {
-        snapshot.days.values.filter { $0[prayer] == .missed }.count
+        // Önbellek dolu olsa bile snapshot'a dokunuyoruz: Observation bağımlılığı
+        // okuma anında kuruluyor, dokunmazsak kayıt değişince görünüm yenilenmez.
+        let days = snapshot.days
+        if let missedCache { return missedCache[prayer] ?? 0 }
+
+        var counts: [Prayer: Int] = [:]
+        for statuses in days.values {
+            for (missed, status) in statuses where status == .missed {
+                counts[missed, default: 0] += 1
+            }
+        }
+        missedCache = counts
+        return counts[prayer] ?? 0
     }
 
     func qadaBalance(for prayer: Prayer) -> Int {
@@ -136,6 +161,10 @@ final class PrayerLogStore {
     }
 
     private func persist() {
+        // Kayıt değişti; türetilmiş sayılar artık geçersiz. Snapshot private(set)
+        // ve onu değiştiren her yol (setStatus, setOpeningQada, payQada,
+        // undoQadaPayment) buraya uğradığı için geçersizleştirme tek noktada duruyor.
+        missedCache = nil
         do {
             let data = try JSONEncoder().encode(snapshot)
             try FileManager.default.createDirectory(
@@ -151,11 +180,45 @@ final class PrayerLogStore {
 
     private(set) var lastWriteError: String?
 
-    private static func load(from url: URL) -> PrayerLogSnapshot {
-        guard let data = try? Data(contentsOf: url),
-              let decoded = try? JSONDecoder().decode(PrayerLogSnapshot.self, from: data)
-        else { return PrayerLogSnapshot() }
-        return decoded
+    /// Okuma hatası da yazma hatası kadar görünür olmalı: kullanıcı geçmişinin
+    /// neden boş göründüğünü ancak böyle öğrenebilir.
+    private(set) var lastReadError: String?
+
+    /// Kayıt dosyasını okur.
+    ///
+    /// "Dosya yok" ile "dosya var ama çözülemiyor" ayrı sonuçlar; ikisini boş
+    /// kayıtta birleştirmek ölümcüldü: ilk dokunuş persist() çağırıp bozuk
+    /// dosyanın üzerine yazıyor, aylarca birikmiş takip ve kaza borcu geri
+    /// dönülmez biçimde gidiyordu. Bu yüzden çözülemeyen dosya üzerine
+    /// yazılmadan önce kenara alınıyor ve hata yüzeye çıkarılıyor.
+    private static func load(from url: URL) -> (snapshot: PrayerLogSnapshot, readError: String?) {
+        // İlk açılışta dosyanın olmaması hata değil, normal başlangıç.
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            return (PrayerLogSnapshot(), nil)
+        }
+        do {
+            let data = try Data(contentsOf: url)
+            return (try JSONDecoder().decode(PrayerLogSnapshot.self, from: data), nil)
+        } catch {
+            return (PrayerLogSnapshot(), quarantine(url, reason: error))
+        }
+    }
+
+    /// Okunamayan dosyayı yanına taşır; persist() böylece boş kaydı temiz bir
+    /// dosyaya yazar ve elde kalan kopya verinin kurtarılabildiği tek yer olur.
+    private static func quarantine(_ url: URL, reason: Error) -> String {
+        let backup = url.deletingPathExtension().appendingPathExtension("corrupt.json")
+        do {
+            // Önceki bir yedek varsa yerini yenisi alır: ikisi de çözülemiyor,
+            // saklanacaksa en yenisi anlamlı.
+            try? FileManager.default.removeItem(at: backup)
+            try FileManager.default.moveItem(at: url, to: backup)
+            return "Kayıt dosyası okunamadı (\(reason.localizedDescription)). "
+                + "Bozuk dosya \(backup.lastPathComponent) adıyla saklandı."
+        } catch {
+            return "Kayıt dosyası okunamadı (\(reason.localizedDescription)) ve "
+                + "kenara alınamadı (\(error.localizedDescription)); üzerine yazılabilir."
+        }
     }
 
     private static func defaultFileURL() -> URL {

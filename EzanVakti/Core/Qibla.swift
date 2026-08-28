@@ -7,7 +7,7 @@ enum Qibla {
         let term1 = Deg.sin(longitudeDelta)
         let term2 = Deg.cos(coordinate.latitude) * Deg.tan(Coordinate.kaaba.latitude)
         let term3 = Deg.sin(coordinate.latitude) * Deg.cos(longitudeDelta)
-        return wrap(Deg.atan2(term1, term2 - term3), max: 360)
+        return Deg.wrap(Deg.atan2(term1, term2 - term3), max: 360)
     }
 
     /// Kâbe'ye büyük daire uzaklığı (km). Hesap `Coordinate.distance(to:)`'da;
@@ -32,7 +32,7 @@ enum Qibla {
             + Double(parts.minute ?? 0) / 60
             + Double(parts.second ?? 0) / 3600
 
-        let jd = julianDay(year: parts.year!, month: parts.month!, day: parts.day!) + utcHours / 24
+        let jd = Deg.julianDay(year: parts.year!, month: parts.month!, day: parts.day!) + utcHours / 24
         let sun = SunPosition(julianDay: jd)
 
         let solarTime = utcHours + sun.equationOfTime + coordinate.longitude / 15
@@ -48,7 +48,7 @@ enum Qibla {
             Deg.sin(coordinate.latitude) * Deg.sin(sun.declination)
                 + Deg.cos(coordinate.latitude) * Deg.cos(sun.declination) * Deg.cos(hourAngle)
         )
-        return SolarPosition(azimuth: wrap(180 + fromSouth, max: 360), altitude: altitude)
+        return SolarPosition(azimuth: Deg.wrap(180 + fromSouth, max: 360), altitude: altitude)
     }
 
     static func solarAzimuth(at date: Date, from coordinate: Coordinate) -> Double {

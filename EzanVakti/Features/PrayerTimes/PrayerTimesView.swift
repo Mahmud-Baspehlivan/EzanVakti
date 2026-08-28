@@ -2,10 +2,13 @@ import SwiftUI
 
 struct PrayerTimesView: View {
     let location: LocationProvider
+    /// Planlayıcı ve tercihler kökte kuruluyor; burada `@State` olsalardı
+    /// başlangıç ifadeleri her yeniden çizimde boşuna çalışırdı.
+    let scheduler: PrayerNotificationScheduler
+    let preferencesStore: NotificationPreferencesStore
+    let liveActivity: LiveActivityController
 
     @State private var viewModel = PrayerTimesViewModel()
-    @State private var scheduler = PrayerNotificationScheduler()
-    @State private var preferencesStore = NotificationPreferencesStore()
     @State private var isShowingSettings = false
     @State private var isShowingLocationPicker = false
 
@@ -37,7 +40,8 @@ struct PrayerTimesView: View {
             .accessibilityLabel("Bildirim ayarları")
         }
         .sheet(isPresented: $isShowingSettings) {
-            NotificationSettingsView(store: preferencesStore, scheduler: scheduler)
+            NotificationSettingsView(store: preferencesStore, scheduler: scheduler,
+                                     liveActivity: liveActivity)
         }
         .sheet(isPresented: $isShowingLocationPicker) {
             LocationPickerView(location: location)
@@ -47,12 +51,24 @@ struct PrayerTimesView: View {
             await reschedule()
             await refreshLiveActivity()
         }
-        .onChange(of: descriptor(of: location.state)) { _, _ in
+        .onChange(of: location.state) { _, _ in
             viewModel.apply(location.state)
             Task { await reschedule() }
         }
-        .onChange(of: preferencesStore.preferences) { _, _ in
-            Task { await reschedule() }
+        .onChange(of: preferencesStore.preferences) { old, new in
+            // Ayar sayfası bir sheet; kapanması scenePhase'i değiştirmiyor. Etkinliği
+            // burada yenilemezsek kullanıcı "Kilit ekranında geri sayım"ı kapattığında
+            // etkinlik olduğu yerde kalıyor — kapatılamayan bir kilit ekranı bileşeni.
+            //
+            // Ama yalnızca etkinliğin okuduğu iki alan için: yenileme önce hepsini
+            // kapatıp yeniden kuruyor, yani ses ya da vakit anahtarı değiştirmek de
+            // kilit ekranındaki geri sayımı boş yere yıkıp yeniden kurardı.
+            let activityChanged = old.liveActivityEnabled != new.liveActivityEnabled
+                || old.liveActivityLeadMinutes != new.liveActivityLeadMinutes
+            Task {
+                await reschedule()
+                if activityChanged { await refreshLiveActivity() }
+            }
         }
         .onChange(of: scenePhase) { _, phase in
             // Ufuk 64 bildirimle sınırlı; her öne gelişte pencereyi ileri kaydırıyoruz.
@@ -68,7 +84,7 @@ struct PrayerTimesView: View {
     /// Live Activity arka planda kurulamıyor; her öne gelişte sıradaki vakte
     /// yeniden kuruluyor.
     private func refreshLiveActivity() async {
-        await LiveActivityController.refresh(
+        await liveActivity.refresh(
             with: PrayerActivityContent.upcoming(
                 count: 3,
                 coordinate: viewModel.coordinate,
@@ -88,20 +104,13 @@ struct PrayerTimesView: View {
             preferences: preferencesStore.preferences
         )
     }
-
-    /// `onChange` için sade bir kimlik: LocationState eşitlenebilir değil.
-    private func descriptor(of state: LocationState) -> String {
-        switch state {
-        case .idle: return "idle"
-        case .requesting: return "requesting"
-        case .denied: return "denied"
-        case .failed(let message): return "failed:\(message)"
-        case .resolved(let coordinate, let name):
-            return "resolved:\(coordinate.latitude),\(coordinate.longitude),\(name)"
-        }
-    }
 }
 
 #Preview {
-    PrayerTimesView(location: LocationProvider())
+    PrayerTimesView(
+        location: LocationProvider(),
+        scheduler: PrayerNotificationScheduler(),
+        preferencesStore: NotificationPreferencesStore(),
+        liveActivity: LiveActivityController()
+    )
 }

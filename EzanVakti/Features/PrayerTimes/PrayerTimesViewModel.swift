@@ -8,11 +8,23 @@ final class PrayerTimesViewModel {
     /// Konum çözülemediğinde İstanbul'la çalışıyoruz; ekran bunu ayrıca bildiriyor.
     private(set) var isUsingFallbackLocation = true
 
-    var timeZone: TimeZone = .current {
+    /// `autoupdatingCurrent`: uçakla dilim değiştirmek bu uygulamanın ana
+    /// senaryosu (seyahat, umre/hac). Anlık görüntü alınsaydı vakitler kalkış
+    /// şehrinde donup kalırdı.
+    var timeZone: TimeZone = .autoupdatingCurrent {
         didSet { rebuildFormatters(); cache.removeAll() }
     }
 
-    private var cache: [Date: DailyPrayerTimes] = [:]
+    /// Yalnızca ezberleme; gerçek kaynak `coordinate` ve `timeZone`.
+    /// `@ObservationIgnored` şart: `times(for:)` görünüm gövdesi çizilirken
+    /// hem okuyor hem yazıyor, izlenen bir alan olsaydı bu "görünüm
+    /// güncellenirken durum değiştirme" olurdu.
+    ///
+    /// Saat dilimi değişimi için ayrıca bildirim dinlemeye gerek yok: anahtar
+    /// `startOfDay` ve `timeZone` `.autoupdatingCurrent`. Ölçüldü — saklanan
+    /// `Calendar` sistem dilimini izliyor, dolayısıyla dilim değişince anahtar
+    /// da değişiyor ve önbellek kendiliğinden ıskalıyor.
+    @ObservationIgnored private var cache: [Date: DailyPrayerTimes] = [:]
     private let timeFormatter = DateFormatter()
     private let gregorianFormatter = DateFormatter()
     private let hijriFormatter = DateFormatter()
@@ -26,8 +38,6 @@ final class PrayerTimesViewModel {
             self.locationName = name
             self.isUsingFallbackLocation = false
             cache.removeAll()
-            // Widget kendi konum izni isteyemiyor; son bilinen konumu ona bırakıyoruz.
-            SharedLocationStore.save(coordinate: coordinate, name: name)
         case .denied, .failed:
             guard !isUsingFallbackLocation else { return }
             coordinate = .istanbul
@@ -98,6 +108,9 @@ final class PrayerTimesViewModel {
         let turkish = Locale(identifier: "tr_TR")
 
         timeFormatter.timeZone = timeZone
+        // Sabit biçimde locale zorunlu: kullanıcının "24 Saat" ayarı kapalıyken
+        // sistem "HH:mm"i yeniden yorumlayıp 12 saatlik biçime çevirebiliyor.
+        timeFormatter.locale = Locale(identifier: "en_US_POSIX")
         timeFormatter.dateFormat = "HH:mm"
 
         gregorianFormatter.timeZone = timeZone

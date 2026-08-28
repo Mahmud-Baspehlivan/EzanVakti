@@ -8,7 +8,9 @@ import WidgetKit
 /// vakit geçişlerinde konuyor. Geri sayım kendi kendine ilerlediğinden
 /// dakikalık girdiye gerek yok.
 struct WatchComplicationProvider: TimelineProvider {
-    private var timeZone: TimeZone { .current }
+    /// `.autoupdatingCurrent`: kullanıcı uçakla dilim değiştirdiğinde çizelge
+    /// bir sonraki yenilemede doğru dilimi görsün.
+    private var timeZone: TimeZone { .autoupdatingCurrent }
 
     /// Saat kendi konumunu kendisi çözüyor; telefonla veri paylaşmıyor.
     private func resolveLocation() -> (Coordinate, String, Bool) {

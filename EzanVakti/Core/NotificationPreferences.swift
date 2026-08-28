@@ -21,7 +21,7 @@ struct NotificationPreferences: Codable, Equatable {
     var liveActivityLeadMinutes: Int
 
     init(enabled: Set<Prayer>, minutesBefore: Int, soundID: String,
-         liveActivityEnabled: Bool = true, liveActivityLeadMinutes: Int = 60) {
+         liveActivityEnabled: Bool = true, liveActivityLeadMinutes: Int = 120) {
         self.enabled = enabled
         self.minutesBefore = minutesBefore
         self.soundID = soundID
@@ -38,7 +38,7 @@ struct NotificationPreferences: Codable, Equatable {
         liveActivityEnabled = try container
             .decodeIfPresent(Bool.self, forKey: .liveActivityEnabled) ?? true
         liveActivityLeadMinutes = try container
-            .decodeIfPresent(Int.self, forKey: .liveActivityLeadMinutes) ?? 60
+            .decodeIfPresent(Int.self, forKey: .liveActivityLeadMinutes) ?? 120
     }
 
     static let `default` = NotificationPreferences(
@@ -46,7 +46,7 @@ struct NotificationPreferences: Codable, Equatable {
         minutesBefore: 0,
         soundID: NotificationSound.system.id,
         liveActivityEnabled: true,
-        liveActivityLeadMinutes: 60
+        liveActivityLeadMinutes: 120
     )
 }
 
@@ -58,6 +58,10 @@ final class NotificationPreferencesStore {
         didSet { persist() }
     }
 
+    // Kardeşlerinin (LocationPreferenceStore, MapAppPreferenceStore) aksine App Group
+    // suite'i değil `.standard`: bildirim tercihlerini bugün yalnızca uygulama okuyor.
+    // Uzantılardan biri de bakmaya başlarsa (örn. widget "bildirim açık" rozeti
+    // gösterirse) App Group suite'ine taşınması gerekir.
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         if let data = defaults.data(forKey: Self.key),

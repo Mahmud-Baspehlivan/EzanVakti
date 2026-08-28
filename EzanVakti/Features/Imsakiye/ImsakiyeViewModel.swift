@@ -16,24 +16,40 @@ struct ImsakiyeRow: Identifiable {
 final class ImsakiyeViewModel {
     private(set) var coordinate: Coordinate = .istanbul
     private(set) var locationName = "İstanbul"
-    var timeZone: TimeZone = .current
+    /// `autoupdatingCurrent`: uçakla dilim değiştirmek bu uygulamanın ana
+    /// senaryosu (seyahat, umre/hac). Anlık görüntü alınsaydı imsakiye kalkış
+    /// şehrinde donup kalırdı.
+    var timeZone: TimeZone = .autoupdatingCurrent {
+        didSet { rebuildFormatters(); cache.removeAll() }
+    }
 
     /// Görüntülenen ayın ilk günü.
     private(set) var month: Date
 
-    private var cache: [Date: [ImsakiyeRow]] = [:]
+    /// Yalnızca ezberleme; gerçek kaynak `coordinate` ve `timeZone`.
+    /// `@ObservationIgnored` şart: `times(for:)` görünüm gövdesi çizilirken
+    /// hem okuyor hem yazıyor, izlenen bir alan olsaydı bu "görünüm
+    /// güncellenirken durum değiştirme" olurdu.
+    @ObservationIgnored private var cache: [Date: [ImsakiyeRow]] = [:]
 
-    private var calendar: Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = timeZone
-        return calendar
-    }
+    /// Takvim ve biçimleyiciler yalnız saat diliminden türüyor. Tablo bir ayda
+    /// 180 hücre çiziyor; kurulumları hücre başına yapmak `DateFormatter`ın en
+    /// pahalı işini boş yere tekrarlamak olurdu.
+    @ObservationIgnored private var calendar = Calendar(identifier: .gregorian)
+    @ObservationIgnored private var hijriCalendar = Calendar(identifier: .islamicUmmAlQura)
+    private let timeFormatter = DateFormatter()
+    private let monthTitleFormatter = DateFormatter()
+    private let weekdayFormatter = DateFormatter()
+    private let hijriMonthFormatter = DateFormatter()
+    private let hijriYearFormatter = DateFormatter()
 
     init(reference: Date = Date()) {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = .current
-        month = calendar.date(from: calendar.dateComponents([.year, .month], from: reference))
+        // Saklanan takvim henüz kurulmadığı için ilk ayı yerel bir kopyayla buluyoruz.
+        var gregorian = Calendar(identifier: .gregorian)
+        gregorian.timeZone = .autoupdatingCurrent
+        month = gregorian.date(from: gregorian.dateComponents([.year, .month], from: reference))
             ?? reference
+        rebuildFormatters()
     }
 
     func apply(_ state: LocationState) {
@@ -59,38 +75,18 @@ final class ImsakiyeViewModel {
         calendar.isDate(month, equalTo: Date(), toGranularity: .month)
     }
 
-    var monthTitle: String {
-        let formatter = DateFormatter()
-        formatter.timeZone = timeZone
-        formatter.locale = Locale(identifier: "tr_TR")
-        formatter.dateFormat = "LLLL yyyy"
-        return formatter.string(from: month)
-    }
+    var monthTitle: String { monthTitleFormatter.string(from: month) }
 
     /// Ayın kapsadığı hicri ay(lar) — başlık altında gösteriliyor.
     var hijriSpan: String {
-        var hijri = Calendar(identifier: .islamicUmmAlQura)
-        hijri.timeZone = timeZone
-        let monthName = DateFormatter()
-        monthName.calendar = hijri
-        monthName.timeZone = timeZone
-        monthName.locale = Locale(identifier: "tr_TR")
-        monthName.dateFormat = "LLLL"
-
-        let yearName = DateFormatter()
-        yearName.calendar = hijri
-        yearName.timeZone = timeZone
-        yearName.locale = Locale(identifier: "tr_TR")
-        yearName.dateFormat = "yyyy"
-
         guard let range = calendar.range(of: .day, in: .month, for: month),
               let last = calendar.date(byAdding: .day, value: range.count - 1, to: month)
         else { return "" }
 
-        let firstMonth = monthName.string(from: month)
-        let lastMonth = monthName.string(from: last)
-        let firstYear = yearName.string(from: month)
-        let lastYear = yearName.string(from: last)
+        let firstMonth = hijriMonthFormatter.string(from: month)
+        let lastMonth = hijriMonthFormatter.string(from: last)
+        let firstYear = hijriYearFormatter.string(from: month)
+        let lastYear = hijriYearFormatter.string(from: last)
 
         if firstMonth == lastMonth { return "\(firstMonth) \(lastYear)" }
         // Yıl aynıysa iki kez yazmıyoruz: "Şaban – Ramazan 1448".
@@ -101,16 +97,15 @@ final class ImsakiyeViewModel {
     // MARK: - Satırlar
 
     func rows() -> [ImsakiyeRow] {
+        // Observation bağımlılığı okuma anında kuruluyor. Önbellek `@ObservationIgnored`
+        // olduğu için, dolu olduğunda erken dönersek bu görünüm hiçbir izlenen alana
+        // dokunmamış olur; konum değişip önbellek temizlendiğinde başlık yenilenir ama
+        // tablo eski şehrin vakitlerinde kalırdı. `month` zaten anahtar olarak okunuyor.
+        let coordinate = self.coordinate
+        let timeZone = self.timeZone
         if let cached = cache[month] { return cached }
 
         let calculator = PrayerTimesCalculator(coordinate: coordinate, parameters: .diyanet)
-        var hijri = Calendar(identifier: .islamicUmmAlQura)
-        hijri.timeZone = timeZone
-
-        let weekdayFormatter = DateFormatter()
-        weekdayFormatter.timeZone = timeZone
-        weekdayFormatter.locale = Locale(identifier: "tr_TR")
-        weekdayFormatter.dateFormat = "EEEEEE"
 
         guard let range = calendar.range(of: .day, in: .month, for: month) else { return [] }
         let today = calendar.startOfDay(for: Date())
@@ -123,7 +118,7 @@ final class ImsakiyeViewModel {
                 day: offset,
                 weekday: weekdayFormatter.string(from: date),
                 times: times,
-                isRamadan: hijri.component(.month, from: date) == 9,
+                isRamadan: hijriCalendar.component(.month, from: date) == 9,
                 isToday: calendar.isDate(date, inSameDayAs: today)
             )
         }
@@ -137,10 +132,39 @@ final class ImsakiyeViewModel {
     /// Ay Ramazan'a değiyorsa imsak ve akşam sütunları öne çıkarılıyor.
     var containsRamadan: Bool { rows().contains(where: \.isRamadan) }
 
-    func formatted(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.timeZone = timeZone
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
+    // MARK: - Biçimleme
+
+    func formatted(_ date: Date) -> String { timeFormatter.string(from: date) }
+
+    private func rebuildFormatters() {
+        let turkish = Locale(identifier: "tr_TR")
+
+        calendar.timeZone = timeZone
+        hijriCalendar.timeZone = timeZone
+
+        timeFormatter.timeZone = timeZone
+        // Sabit biçimde locale zorunlu: kullanıcının "24 Saat" ayarı kapalıyken
+        // sistem "HH:mm"i yeniden yorumlayıp 12 saatlik biçime çevirebiliyor.
+        timeFormatter.locale = Locale(identifier: "en_US_POSIX")
+        timeFormatter.dateFormat = "HH:mm"
+
+        // Ay ve gün adları kullanıcıya gösteriliyor; onlar Türkçe kalıyor.
+        monthTitleFormatter.timeZone = timeZone
+        monthTitleFormatter.locale = turkish
+        monthTitleFormatter.dateFormat = "LLLL yyyy"
+
+        weekdayFormatter.timeZone = timeZone
+        weekdayFormatter.locale = turkish
+        weekdayFormatter.dateFormat = "EEEEEE"
+
+        hijriMonthFormatter.calendar = hijriCalendar
+        hijriMonthFormatter.timeZone = timeZone
+        hijriMonthFormatter.locale = turkish
+        hijriMonthFormatter.dateFormat = "LLLL"
+
+        hijriYearFormatter.calendar = hijriCalendar
+        hijriYearFormatter.timeZone = timeZone
+        hijriYearFormatter.locale = turkish
+        hijriYearFormatter.dateFormat = "yyyy"
     }
 }

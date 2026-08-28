@@ -19,10 +19,20 @@ struct PrayerTimesCalculator {
               let midnight = calendar.date(from: DateComponents(year: year, month: month, day: day))
         else { return nil }
 
+        // Vakitlerin çapası UTC gece yarısı: an = yerelGeceYarısı + güneşSaati + utcOffset
+        // açılımında yerelGeceYarısı = UTCgeceyarısı - utcOffset olduğundan offset
+        // tamamen sadeleşiyor. Yerel gece yarısını çapa almak Mısır/Lübnan/Küba gibi
+        // saati 00:00'da değiştiren bölgelerde çöküyor: o günler yerel 00:00 hiç var
+        // olmadığı için Foundation bir sonraki geçerli anı (01:00) döndürüyor ve altı
+        // vaktin altısı da bir saat kayıyor. UTC'de yaz saati yok, çapa hep var.
+        var utcCalendar = Calendar(identifier: .gregorian)
+        utcCalendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        guard let anchor = utcCalendar.date(from: DateComponents(year: year, month: month, day: day))
+        else { return nil }
+
         // Boylam kaymasını Jülyen günün içine katıyoruz (PrayTimes yaklaşımı).
-        let jd = julianDay(year: year, month: month, day: day) - coordinate.longitude / (15 * 24)
-        let utcOffset = Double(timeZone.secondsFromGMT(for: midnight)) / 3600
-        let shift = utcOffset - coordinate.longitude / 15
+        let jd = Deg.julianDay(year: year, month: month, day: day) - coordinate.longitude / (15 * 24)
+        let shift = -coordinate.longitude / 15
 
         let riseSetAngle = 0.833 + 0.0347 * max(0, parameters.elevation).squareRoot()
 
@@ -54,21 +64,21 @@ struct PrayerTimesCalculator {
         var result: [Prayer: Date] = [:]
         for (prayer, hours) in raw {
             let offset = Double(parameters.adjustments[prayer] ?? 0) * 60
-            result[prayer] = midnight.addingTimeInterval(hours * 3600 + offset)
+            result[prayer] = anchor.addingTimeInterval(hours * 3600 + offset)
         }
 
         return DailyPrayerTimes(
             day: midnight,
             times: result,
-            trueSunrise: midnight.addingTimeInterval(raw[.gunes]! * 3600),
-            trueSunset: midnight.addingTimeInterval(raw[.aksam]! * 3600)
+            trueSunrise: anchor.addingTimeInterval(raw[.gunes]! * 3600),
+            trueSunset: anchor.addingTimeInterval(raw[.aksam]! * 3600)
         )
     }
 
     // MARK: - Astronomi
 
     private func midDay(jd: Double, dayPortion t: Double) -> Double {
-        wrap(12 - SunPosition(julianDay: jd + t).equationOfTime, max: 24)
+        Deg.wrap(12 - SunPosition(julianDay: jd + t).equationOfTime, max: 24)
     }
 
     private func sunAngle(_ angle: Double, jd: Double, dayPortion t: Double, counterClockwise: Bool) -> Double {

@@ -18,6 +18,6 @@ extension Coordinate {
         let y = Deg.sin(dLon) * Deg.cos(other.latitude)
         let x = Deg.cos(latitude) * Deg.sin(other.latitude)
             - Deg.sin(latitude) * Deg.cos(other.latitude) * Deg.cos(dLon)
-        return wrap(Deg.atan2(y, x), max: 360)
+        return Deg.wrap(Deg.atan2(y, x), max: 360)
     }
 }

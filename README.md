@@ -6,23 +6,32 @@ sunucu yok, uygulama tamamen çevrimdışı çalışır.
 ## Yapı
 
 ```
-EzanVakti/
+EzanVakti/                  iOS uygulaması hedefi
   Core/                     hesaplama çekirdeği (Foundation dışı bağımlılık yok)
-    SolarMath.swift          güneş konumu, zaman denklemi, Jülyen gün
+    SolarMath.swift          Deg ad alanı: derece trigonometrisi, wrap, Jülyen gün
     PrayerTimesCalculator.swift
     PrayerCalculationParameters.swift
-    Prayer.swift
-  Services/
-    LocationProvider.swift
+    Prayer.swift             vakitler + Coordinate + DailyPrayerTimes
+    Qibla.swift              kıble yönü + güneş konumu + kıble saati
+    PrayerLogStore.swift     namaz takibi ve kaza borcu (JSON dosya)
+    SharedLocationStore.swift  App Group üzerinden paylaşılan konum (saf depo)
+  Services/                 platform çerçeveleriyle temas eden katman
+    LocationProvider.swift     konumun tek sahibi; paylaşımı da o yapıyor
     PrayerNotificationScheduler.swift
-  Core/Qibla.swift          kıble yönü + güneş konumu + kıble saati
-  Features/RootView.swift   sekmeler (Vakitler / Kıble)
-  Features/PrayerTimes/     ekran + view model
-  Features/Qibla/           pusula + kıble saati
-  Features/Imsakiye/        aylık vakit çizelgesi
-  Features/NearbyMosques/   yakındaki camiler (liste + harita)
-  Features/Settings/        bildirim ayarları
-Tools/check/targets.sh      her hedefi kendi dosya kümesiyle derler
+    LiveActivityController.swift
+    MosqueFinder.swift / MosqueCache.swift / BundledMosqueSource.swift
+  Features/                 ekran başına klasör: View (kabuk) + Content (saf) + ViewModel
+    DesignSystem/            Palette, ScaledFont, SectionLabel — özellik değil, dil
+    RootView.swift           sekmeler; paylaşılan durumun kurulduğu tek yer
+    PrayerTimes/ Qibla/ Imsakiye/ NearbyMosques/ Settings/ Tracking/
+  PrivacyInfo.xcprivacy
+EzanVaktiWidget/            WidgetKit uzantısı + Live Activity arayüzü
+  PrivacyInfo.xcprivacy
+EzanVaktiWatch Watch App/   watchOS uygulaması (kendi konumunu kendi çözüyor)
+  PrivacyInfo.xcprivacy
+watch widget/               kadran komplikasyonu hedefi
+  PrivacyInfo.xcprivacy
+Tools/check/targets.sh      her hedefi kendi dosya kümesi, SDK'si ve izolasyon ayarıyla derler
 Tools/calibrate/            temkin kalibrasyonu (15 ile karşı ölçüm)
 Tools/mosque-extract/       Overpass karolarını paketlenecek cami dosyasına çevirir
 Tools/icon/main.swift       uygulama ikonu adaylarını 1024px opak PNG olarak üretir
@@ -41,6 +50,11 @@ Diyanet yöntemi: sabah 18°, yatsı 17°, Şâfiî ikindi (gölge çarpanı 1).
 
 Diyanet yayınladığı takvimde astronomik vakte **temkin** payı ekler. `.astronomical`
 preset'i çıplak astronomik değeri verir, `.diyanet` preset'i temkinli değeri.
+
+Gün, yerel gece yarısına değil **UTC gece yarısına** çapalanıyor. Yaz saatine gece
+yarısı geçen ülkelerde (Mısır, Lübnan, Küba, Şili) o gün yerel gece yarısı hiç var
+olmuyor; takvim çapayı bir sonraki güne kaydırdığı için bütün vakitler bir saat
+kayıyordu.
 
 ## Doğrulama
 
@@ -88,8 +102,16 @@ başlarında bir gün sapabilir.
 ## Doğrulamayı çalıştırma
 
 ```sh
-swiftc -O EzanVakti/Core/*.swift Tools/validate/main.swift -o /tmp/validate && /tmp/validate
+swiftc -O EzanVakti/Core/Prayer.swift EzanVakti/Core/Geo.swift \
+       EzanVakti/Core/SolarMath.swift EzanVakti/Core/PrayerCalculationParameters.swift \
+       EzanVakti/Core/PrayerTimesCalculator.swift EzanVakti/Core/Qibla.swift \
+       Tools/validate/main.swift -o /tmp/validate && /tmp/validate
 ```
+
+Dosyalar tek tek sayılıyor, `Core/*.swift` globu değil: `PrayerActivityAttributes.swift`
+ActivityKit'e dayanıyor, o çerçeve macOS'ta yok ve glob derlemeyi kırıyor.
+
+`/tmp/validate qibla` ikinci bir kip: kıble yönünü ve ay boyunca kıble saatlerini döküyor.
 
 ## Bildirimler
 
@@ -173,7 +195,9 @@ olarak doğrulanamıyor. Uygulamayı yayınlamayı düşünüyorsan kaynağı ke
 `Tools/render` bir görünümü `ImageRenderer` ile PNG'ye basıyor:
 
 ```sh
-swiftc -O EzanVakti/Features/Qibla/QiblaDial.swift Tools/render/main.swift -o /tmp/render && /tmp/render
+swiftc -O EzanVakti/Features/Qibla/QiblaDial.swift EzanVakti/Features/Qibla/KaabaGlyph.swift \
+       EzanVakti/Features/DesignSystem/Palette.swift EzanVakti/Features/DesignSystem/ScaledFont.swift \
+       EzanVakti/Core/Prayer.swift Tools/render/main.swift -o /tmp/render && /tmp/render
 ```
 
 Kâbe işaretinin görünmemesi bu yolla teşhis edildi: işaret aslında çiziliyordu ama
@@ -328,36 +352,29 @@ swiftc -O EzanVakti/Core/Prayer.swift EzanVakti/Core/PrayerRecord.swift \
 
 ## Widget
 
-Kaynaklar `WidgetSources/` altında hazır bekliyor. **Hedefin kendisi Xcode'da
-oluşturulmalı** — ayrıntı aşağıda.
+Hedef `EzanVaktiWidgetExtension`, kaynakları `EzanVaktiWidget/` klasöründe.
+Paylaşılan çekirdek dosyaları `membershipExceptions` ile bağlı; `Tools/check/targets.sh`
+bu listeyi okuyup hedefi kendi dosya kümesiyle ayrıca derliyor.
 
-### Neden proje dosyasına elle eklenmedi
+### Neden hedef proje dosyasına elle eklenmedi
 
 Widget ayrı bir uygulama uzantısı hedefi: gömme derleme fazı, hedef bağımlılığı,
 `NSExtension` Info.plist anahtarları, ayrı yetkilendirme. Bunları elle yazılmış bir
-`project.pbxproj`'a eklemek doğrulanamıyor — geçerli bir plist üretmek derlenebilir
-bir hedef üretmek demek değil, ve hata durumunda **çalışan proje bozulur**. Xcode'un
-şablonu bu bağlantıyı doğru kuruyor, üç tıklık iş.
+`project.pbxproj`'a eklemek doğrulanamıyordu — geçerli bir plist üretmek derlenebilir
+bir hedef üretmek demek değil, ve hata durumunda **çalışan proje bozulur**. Hedef
+Xcode'un şablonuyla açıldı, sonra şablonun ürettiği `@main` dosyası silindi.
 
-### Kurulum
+### Widget hedefine bağlı paylaşılan dosyalar
 
-1. **File → New → Target… → Widget Extension**
-   - Product Name: `EzanVaktiWidget`
-   - "Include Live Activity" ve "Include Configuration App Intent" **işaretsiz**
-     (StaticConfiguration kullanıyoruz)
-   - Finish → şema sorulunca Activate
-2. Xcode'un ürettiği şablon `.swift` dosyalarını **sil**. Özellikle `@main` içeren
-   bundle dosyasını: iki `@main` derlenmez.
-3. `WidgetSources/*.swift` dosyalarını yeni `EzanVaktiWidget/` klasörüne taşı.
-4. Şu `Core` dosyalarını widget hedefine de ekle (dosyayı seç → sağ panel →
-   Target Membership → EzanVaktiWidget):
-   `SolarMath.swift`, `Prayer.swift`, `PrayerCalculationParameters.swift`,
-   `PrayerTimesCalculator.swift`, `SharedLocationStore.swift`
-5. **App Group** — her iki hedefe: Signing & Capabilities → + Capability →
-   App Groups → `group.com.mahmud.ezanvakti`
-6. Widget hedefinin deployment target'ını 17.0 yap (uygulamayla aynı).
+`Prayer.swift`, `PrayerCalculationParameters.swift`, `PrayerTimesCalculator.swift`,
+`SolarMath.swift`, `SharedLocationStore.swift`, `PrayerActivityContent.swift`,
+`PrayerActivityAttributes.swift` ve `Features/DesignSystem/` altındaki `Palette.swift`
+ile `ScaledFont.swift`. Bağ `membershipExceptions` üzerinden; tek doğruluk kaynağı
+`project.pbxproj`, denetim betiği de oradan okuyor.
 
-### Kurulumda çıkan tuzaklar
+App Group (`group.com.mahmud.ezanvakti`) dört hedefin hepsinde tanımlı.
+
+### Kurulumda çıkılan tuzaklar
 
 - **`Info.plist`'te anahtar adı.** Xcode'un plist editörü `NSExtension` anahtarını
   ekranda "Application Extension" diye gösteriyor. Bu görünen ad dosyaya ham anahtar
@@ -586,8 +603,10 @@ Başka dil eklemek isteyen için bilinmesi gerekenler:
 
 ## Gizlilik manifestosu
 
-`EzanVakti/PrivacyInfo.xcprivacy` ve `EzanVaktiWidget/PrivacyInfo.xcprivacy`.
-2024'ten beri App Store'a gönderim için zorunlu.
+Dört hedefin dördünde de var: `EzanVakti/`, `EzanVaktiWidget/`,
+`EzanVaktiWatch Watch App/` ve `watch widget/` altında. 2024'ten beri App Store'a
+gönderim için zorunlu ve **paket başına** gerekiyor — saat hedefleri de ayrı paket
+olduğu için kendi bildirimlerini taşımak zorundalar.
 
 Kod taramasıyla belirlendi — hangi "gerekçe bildirilmesi gereken" API'ler
 gerçekten kullanılıyor:
@@ -607,7 +626,8 @@ Gerekçe kodları Apple'ın kendi dokümanından doğrulandı (hafızadan yazıl
 - **`1C8F.1`** — aynı App Group içinde paylaşılan user defaults
   (`SharedLocationStore`, `LocationPreferenceStore`, `MapAppPreferenceStore`)
 
-Widget yalnızca App Group suite'ini kullandığı için orada sadece `1C8F.1` var.
+Widget ve iki saat hedefi yalnızca App Group suite'ini kullandığı için onlarda
+sadece `1C8F.1` var.
 Anahtar adının `NSPrivacyAccessedAPITypeReasons` olduğuna dikkat —
 `NSPrivacyAccessedAPIReasons` değil.
 
@@ -620,7 +640,10 @@ Bu bir yorum barındırıyor: yurtdışında cami ararken koordinat Overpass'a
 gönderiliyor. Apple'ın "toplama" tanımı, veriyi *isteği gerçek zamanlı
 karşılamak için gerekenden uzun süre* cihaz dışında tutmak; Overpass isteği
 anında işleyip bizim adımıza saklamıyor, dolayısıyla toplama sayılmıyor.
-Yurt içinde veri paketli olduğu için hiçbir şey gönderilmiyor.
+Yurt içinde cami verisi paketli olduğu için oraya hiçbir şey gönderilmiyor. Ancak
+konum adının çözümü (`CLGeocoder` / watchOS'ta `MKReverseGeocodingRequest`) her
+konum düzeltmesinde, her ülkede Apple'ın harita servisine gidiyor — izin metinleri
+bunu açıkça söylüyor.
 
 **Analitik, çökme raporlama veya hesap sistemi eklenirse bu beyan güncellenmeli.**
 
@@ -759,10 +782,10 @@ yükleyenin kendi ifadesi, bağımsız doğrulanamıyor.
 
 ## Apple Watch
 
-Saat uygulaması hedefi kuruldu (`EzanVaktiWatch Watch App`). **Komplikasyon
-hedefi henüz yok**; kaynakları `WatchComplicationSources/` altında bekliyor —
-watchOS Widget Extension hedefi açılıp oraya taşınmalı. Ayrı hedef şart:
-komplikasyon kendi `@main`'ini taşıyor, saat uygulamasıyla aynı hedefte olamaz.
+Saat uygulaması hedefi (`EzanVaktiWatch Watch App`) ve komplikasyon hedefi
+(`watch widgetExtension`) kurulu. İkisi ayrı hedef olmak zorunda: komplikasyon
+kendi `@main`'ini taşıyor, saat uygulamasıyla aynı hedefte olamaz. Ayrıntı
+aşağıda, "Komplikasyon hedefi".
 
 ### Kapsam
 
@@ -865,8 +888,9 @@ olmasa derleme yine geçerdi ama `UserDefaults(suiteName:)` boş dönüp
 komplikasyon hep İstanbul gösterirdi — sessiz bir hata.
 (`EzanVaktiWatch.entitlements`, `WatchWidgetExtension.entitlements`)
 
-Konum izni metni saat hedefine de gerekiyor
-(`NSLocationWhenInUseUsageDescription`).
+Konum izni metni (`NSLocationWhenInUseUsageDescription`) ve gizlilik bildirimi
+saat hedeflerine de eklendi: saat kendi konumunu kendisi aldığı için iOS hedefinin
+metnini devralmıyor, izni kendi adına sorması gerekiyor.
 
 ### Denetimin kaçırdığı hata: MemberImportVisibility
 
