@@ -58,11 +58,21 @@ struct NotificationSettingsView: View {
                                 .font(.caption)
                                 .foregroundStyle(.orange)
                         }
+                        // Ayrı uyarı, ayrı sonuç: yukarıdaki etkinliğin hiç
+                        // kurulamadığını, bu yalnız vakit girince kendiliğinden
+                        // kalkmayacağını söylüyor. En sık sebebi "Arka Planda
+                        // Yenileme"nin kapalı olması, ve bu kullanıcının
+                        // düzeltebileceği bir şey.
+                        if let error = liveActivity.cleanupError {
+                            Label(error, systemImage: "clock.badge.exclamationmark")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 } header: {
                     Text("Geri sayım")
                 } footer: {
-                    Text("Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Vakte daha çok varsa görünmez: saatlerce asılı bir sayaç bilgi vermiyor. Uygulama her açıldığında kurulur; arka planda kurulması sunucu gerektirdiği için vakit girdikten sonra uygulamayı yeniden açman gerekir.")
+                    Text("Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Vakte daha çok varsa görünmez: saatlerce asılı bir sayaç bilgi vermiyor. Vakit girince sayaç kendiliğinden kalkar; sistem bunu uygun gördüğü anda yaptığı için bazen gecikebilir, uygulamayı açmak her hâlükârda temizler.")
                 }
 
                 soundSection
@@ -90,10 +100,17 @@ struct NotificationSettingsView: View {
         let available = NotificationSoundCatalog.available
 
         Section {
-            Picker("Ses", selection: $store.preferences.soundID) {
-                ForEach(available) { sound in
-                    Text(sound.title).tag(sound.id)
+            // Tek seçenek varken seçici göstermek, olmayan bir seçim sunmak
+            // olurdu. Sesin ne olduğu yine yazıyor — bölümü tamamen kaldırmak
+            // kullanıcıyı "hangi sesle çalacak" sorusuyla baş başa bırakırdı.
+            if available.count > 1 {
+                Picker("Ses", selection: $store.preferences.soundID) {
+                    ForEach(available) { sound in
+                        Text(sound.title).tag(sound.id)
+                    }
                 }
+            } else {
+                LabeledContent("Ses", value: selectedSound.title)
             }
 
             if selectedSound.fileName != nil {

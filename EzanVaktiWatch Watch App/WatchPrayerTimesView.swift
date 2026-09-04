@@ -8,14 +8,20 @@ import SwiftUI
 /// kaydırma gerektirmeden tek bakışta görünüyor.
 struct WatchPrayerTimesView: View {
     let viewModel: WatchPrayerTimesModel
+    let tracking: WatchTrackingStore
     let now: Date
+
+    /// Seçim sayfası kabukta duruyor: `sheet` kaydırma alanının içinden
+    /// sunulursa erişilebilirlik puntolarında sayfayı kaydırma kapsıyor.
+    @State private var picking: Prayer?
 
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         GeometryReader { geo in
             let content = WatchPrayerTimesContent(
-                viewModel: viewModel, now: now, height: geo.size.height)
+                viewModel: viewModel, now: now, height: geo.size.height,
+                tracking: tracking, onSelect: { picking = $0 })
             // Normal puntolarda kaydırma yok, içerik ekrana sığıyor.
             // Erişilebilirlik puntolarında sığması mümkün değil, orada kaydırılsın.
             if typeSize.isAccessibilitySize {
@@ -23,6 +29,17 @@ struct WatchPrayerTimesView: View {
             } else {
                 content
             }
+        }
+        .sheet(item: $picking) { prayer in
+            WatchStatusPicker(
+                prayer: prayer,
+                time: viewModel.times(for: now).map { viewModel.formatted($0[prayer]) } ?? "",
+                current: tracking.entry(for: prayer, on: now).status,
+                onSelect: { status in
+                    tracking.mark(status, for: prayer, on: now)
+                    picking = nil
+                }
+            )
         }
     }
 }
@@ -62,6 +79,10 @@ struct WatchPrayerTimesContent: View {
     let viewModel: WatchPrayerTimesModel
     let now: Date
     let height: CGFloat
+    /// İşaretleme isteğe bağlı: `ImageRenderer` ile basılırken `WCSession`
+    /// kurmaya gerek kalmasın, ekran tek satırda kurulabilsin.
+    var tracking: WatchTrackingStore?
+    var onSelect: (Prayer) -> Void = { _ in }
 
     private var metrics: WatchMetrics { .forHeight(height) }
 
@@ -105,41 +126,83 @@ struct WatchPrayerTimesContent: View {
             // şu ana düşüyoruz — sayaç yine doğru, sadece aralık oynak.
             let start = viewModel.previousBoundary(at: now) ?? now
             VStack(alignment: .leading, spacing: 0) {
-                // Vaktin saati adının yanında duruyor: "İKİNDİ 16:56" tek bir
-                // bilgi olarak okunuyor. Aşağıdaki büyük sayı da tek başına
-                // "kalan" oluyor — iki saat biçimli sayı yan yana dursaydı
-                // sayaç bir saatin altına inince (44:54) vaktin saatiyle
-                // (16:56) aynı şekle bürünüp karışırdı.
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                // Vaktin saati adına **bitişik**: "İKİNDİ 16:56" tek bir bilgi
+                // olarak okunuyor. Aralarına Spacer koyup iki kenara itmek bu
+                // bağı bozuyordu — sağ kenarda tek başına duran "16:56" neyin
+                // saati olduğunu söylemiyor, ekrandaki üçüncü etiketsiz sayı
+                // oluyordu.
+                HStack(alignment: .firstTextBaseline, spacing: 5) {
                     Text(upcoming.prayer.title.uppercased(with: Locale(identifier: "tr_TR")))
                         .font(.system(size: metrics.headerFont - 1, weight: .semibold))
                         .tracking(1.1)
                         .foregroundStyle(Palette.accent)
                         .lineLimit(1)
 
-                    Spacer(minLength: 2)
-
                     Text(viewModel.formatted(upcoming.date))
                         .font(.system(size: metrics.headerFont + 1, weight: .semibold))
                         .monospacedDigit()
                         .lineLimit(1)
                         .fixedSize(horizontal: true, vertical: false)
+
+                    Spacer(minLength: 0)
                 }
 
-                // Saatte geri sayım kendi kendine ilerlesin: uygulama arka
-                // planda dururken de doğru kalıyor.
-                // Kış gecesi imsağa 10+ saat kalıyor, sayaç "10:41:34" diye
-                // sekiz haneye çıkıyor: en dar ekranda bile sığdığı ölçüldü,
-                // yine de kırpılmaktansa küçülsün.
-                Text(timerInterval: start...upcoming.date, countsDown: true)
-                    .font(.system(size: metrics.heroTime, weight: .medium, design: .rounded))
-                    .monospacedDigit()
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
+                // Bir saatin üstünde sözcüklü biçim, son 10 dakikada saniyeli
+                // sayaç. Gerekçe `remainingReadout`'ta yazılı.
+                if let readout = viewModel.remainingReadout(at: now) {
+                    countdownRow {
+                        HStack(alignment: .firstTextBaseline, spacing: 5) {
+                            ForEach(readout.parts) { part in
+                                HStack(alignment: .firstTextBaseline, spacing: 1) {
+                                    Text(part.value)
+                                        .font(.system(size: metrics.heroTime, weight: .medium,
+                                                      design: .rounded))
+                                        .monospacedDigit()
+                                    Text(part.unit)
+                                        .font(.system(size: metrics.headerFont + 1, weight: .medium))
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    }
+                    // Parçalara bölünmüş metni VoiceOver "6 sa 21 dk" diye
+                    // okuyor; kısaltmalar ekran için, ses için değil.
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("\(readout.spoken) kaldı")
+                } else {
+                    // Son 10 dakikada sayaç sistemin kendi metni: uygulama arka
+                    // planda dururken de kendi kendine ilerliyor.
+                    countdownRow {
+                        Text(timerInterval: start...upcoming.date, countsDown: true)
+                            .font(.system(size: metrics.heroTime, weight: .medium, design: .rounded))
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 2)
             .padding(.bottom, metrics.heroBottom)
+        }
+    }
+
+    /// Geri sayım satırı: biçim hangisi olursa olsun yanında "kaldı" duruyor.
+    ///
+    /// Telefonda da geri sayımın yanında bu sözcük var. Birim ("dk") ne kadar
+    /// olduğunu söylüyor, "kaldı" ise geçen mi kalan mı olduğunu — ikisi ayrı
+    /// soru, ikisi de bir satır yer tutmuyor.
+    private func countdownRow<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 5) {
+            content()
+            Text("kaldı")
+                .font(.system(size: metrics.headerFont))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
+            Spacer(minLength: 0)
         }
     }
 
@@ -154,7 +217,7 @@ struct WatchPrayerTimesContent: View {
                 ForEach(rows.indices, id: \.self) { row in
                     HStack(spacing: metrics.rowSpacing) {
                         ForEach(rows[row], id: \.prayer.id) { entry in
-                            cell(entry, current: current)
+                            cell(entry, current: current, times: day)
                         }
                     }
                 }
@@ -163,7 +226,28 @@ struct WatchPrayerTimesContent: View {
         }
     }
 
-    private func cell(_ entry: (prayer: Prayer, date: Date), current: Prayer?) -> some View {
+    /// Güneş bir namaz vakti değil; işaretlenecek bir şey yok, dokunulmuyor da.
+    /// Vakti girmemiş namaz da dokunulmuyor — kural `PrayerMarking`'te ve
+    /// telefonla ortak, iki yerde ayrı yazılırsa bir gün ayrışırlar.
+    @ViewBuilder
+    private func cell(_ entry: (prayer: Prayer, date: Date), current: Prayer?,
+                      times: DailyPrayerTimes) -> some View {
+        if let tracking, entry.prayer.isPrayer,
+           PrayerMarking.isMarkable(entry.prayer, on: now, times: times,
+                                    now: now, calendar: tracking.calendar) {
+            let marked = tracking.entry(for: entry.prayer, on: now)
+            Button { onSelect(entry.prayer) } label: {
+                cellBody(entry, current: current, marked: marked)
+            }
+            .buttonStyle(.plain)
+            .accessibilityHint("Durumu seçmek için dokun")
+        } else {
+            cellBody(entry, current: current, marked: (.unmarked, false))
+        }
+    }
+
+    private func cellBody(_ entry: (prayer: Prayer, date: Date), current: Prayer?,
+                          marked: (status: PrayerStatus, isPending: Bool)) -> some View {
         let isCurrent = entry.prayer == current
         let isPast = entry.date <= now && !isCurrent
         let weight: Font.Weight = isCurrent ? .semibold : .regular
@@ -192,6 +276,33 @@ struct WatchPrayerTimesContent: View {
             RoundedRectangle(cornerRadius: 6)
                 .fill(Palette.accent.opacity(isCurrent ? 0.20 : 0.07))
         )
-        .accessibilityElement(children: .combine)
+        // Durum kenarlıkta duruyor, hücrenin içinde değil: 40 mm'de ada + saat
+        // zaten genişliği tüketiyor, araya bir simge sıkıştırmak adı kırpardı.
+        // `strokeBorder` içeri çiziyor, düzen bir nokta bile kaymıyor.
+        // Kesikli kenarlık "telefona henüz ulaşmadı" demek.
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .strokeBorder(marked.status.tint, style: StrokeStyle(
+                    lineWidth: 1.5, dash: marked.isPending ? [2.5, 2.5] : []))
+                .opacity(marked.status == .unmarked ? 0 : 1)
+        )
+        // Renk tek başına durumu anlatmıyor (kenarlık küçük, renk körlüğü var);
+        // VoiceOver için durum açıkça yazılıyor.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(cellAccessibilityLabel(entry, isCurrent: isCurrent,
+                                                   isPast: isPast, marked: marked))
+    }
+
+    private func cellAccessibilityLabel(
+        _ entry: (prayer: Prayer, date: Date), isCurrent: Bool, isPast: Bool,
+        marked: (status: PrayerStatus, isPending: Bool)
+    ) -> String {
+        var parts = ["\(entry.prayer.title) \(viewModel.formatted(entry.date))"]
+        if isCurrent { parts.append("şu anki vakit") }
+        else if isPast { parts.append("geçti") }
+        if marked.status != .unmarked {
+            parts.append(marked.isPending ? "\(marked.status.title), gönderiliyor" : marked.status.title)
+        }
+        return parts.joined(separator: ", ")
     }
 }

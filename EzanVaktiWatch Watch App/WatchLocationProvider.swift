@@ -71,23 +71,21 @@ final class WatchLocationProvider: NSObject, CLLocationManagerDelegate {
     /// Konumun adını çözüp paylaşılan depoya yazar.
     ///
     /// `CLGeocoder` watchOS 26'da kullanımdan kalktı, yerine MapKit'in isteği
-    /// geçti. Kazancı sadece uyarıyı susturmak değil: istek `async` olduğu için
-    /// geri çağrı ve `[weak self]` dansı gerekmiyor. (Telefon tarafı iOS 17'yi
-    /// desteklediği için orada hâlâ `CLGeocoder` duruyor — bu API iOS 26+.)
+    /// geçti. Yenisi `async` olduğu için geri çağrı ve `[weak self]` dansı da
+    /// gerekmiyor.
+    ///
+    /// Ama **koşulsuz kullanılamaz**: bu API watchOS 26+ ve tek başına bütün
+    /// saat hedefini oraya çiviliyordu — en son güncellemeyi yüklememiş her
+    /// saati dışarıda bırakan bir maliyet, üstelik yalnız başlıktaki şehir adı
+    /// için. Altında `CLGeocoder`'a düşülüyor; telefon tarafı zaten onu
+    /// kullanıyor (iOS 17'yi desteklediği için).
     ///
     /// Depoya yazma ada bağlanmadı ama adı bekliyor: koordinat çözülür çözülmez
     /// yazsaydık, saniyeler sonra gelen adla ikinci kez yazıp komplikasyonu iki
     /// kez yeniletiyorduk.
     @MainActor
     private func resolveName(for location: CLLocation) async {
-        // MapKit ilçe/il ayrımı vermiyor, tek bir şehir adı veriyor. Diyanet
-        // takvimi ilçe bazlı olsa da vakit farkı komşu ilçeler arasında saniyeler
-        // mertebesinde; başlıktaki ad için bu ayrım kayba değmiyor.
-        if let request = MKReverseGeocodingRequest(location: location),
-           let items = try? await request.mapItems,
-           let city = items.first?.addressRepresentations?.cityName {
-            name = city
-        }
+        if let resolved = await Self.cityName(for: location) { name = resolved }
 
         // Ad çözülemese de koordinat paylaşılıyor: komplikasyon vakitleri
         // koordinattan hesaplıyor, ad yalnızca başlıkta duruyor.
@@ -98,6 +96,26 @@ final class WatchLocationProvider: NSObject, CLLocationManagerDelegate {
         if SharedLocationStore.save(coordinate: coordinate, name: name) {
             WidgetCenter.shared.reloadAllTimelines()
         }
+    }
+
+    /// Konumun şehir adı. İki API, aynı sonuç.
+    ///
+    /// MapKit ilçe/il ayrımı vermiyor, tek bir şehir adı veriyor; `CLGeocoder`
+    /// veriyor ve orada telefonla aynı tercih uygulanıyor (ilçe varsa ilçe,
+    /// Diyanet takvimi de ilçe bazlı). İki sürüm arasında adın bu kadar
+    /// değişmesi kabul edilen bir fark: vakit farkı komşu ilçeler arasında
+    /// saniyeler mertebesinde, ad yalnızca başlıkta duruyor.
+    private static func cityName(for location: CLLocation) async -> String? {
+        if #available(watchOS 26.0, *) {
+            guard let request = MKReverseGeocodingRequest(location: location),
+                  let items = try? await request.mapItems else { return nil }
+            return items.first?.addressRepresentations?.cityName
+        }
+        guard let places = try? await CLGeocoder().reverseGeocodeLocation(location) else { return nil }
+        let place = places.first
+        return [place?.subAdministrativeArea, place?.administrativeArea]
+            .compactMap { $0 }
+            .first
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {

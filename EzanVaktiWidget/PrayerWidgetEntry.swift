@@ -22,6 +22,13 @@ struct PrayerEntry: TimelineEntry {
     /// Konum paylaşımı kurulmamışsa varsayılan şehir gösteriliyor demektir.
     let isUsingFallbackLocation: Bool
 
+    /// İçinde bulunulan vakit — zemin tonu buna göre seçiliyor, uygulamadaki
+    /// gibi. İmsaktan önce nil; `Palette` orada gece tonuna düşüyor, yani
+    /// uygulamayla aynı sonuç.
+    var currentPrayer: Prayer? {
+        slots.last { $0.date <= date }?.prayer
+    }
+
     var progress: Double {
         guard let upcoming, let previous else { return 0 }
         let total = upcoming.date.timeIntervalSince(previous)

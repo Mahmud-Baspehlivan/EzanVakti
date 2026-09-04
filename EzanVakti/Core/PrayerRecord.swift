@@ -53,4 +53,24 @@ struct PrayerLogSnapshot: Codable, Equatable {
     /// Gün anahtarı "yyyy-MM-dd".
     var days: [String: [Prayer: PrayerStatus]] = [:]
     var qada = QadaLedger()
+    /// Her işaretin en son ne zaman konduğu — saatten gelen gecikmiş işaretin
+    /// telefondaki daha yeni kararı ezmemesi için tutuluyor. Aynı anahtarlarla
+    /// `days`'e paralel duruyor; işaret kaldırılınca da silinmiyor, yoksa
+    /// "kaldırdım" kararı kuyrukta bekleyen eski bir işarete yenik düşerdi.
+    var markedAt: [String: [Prayer: Date]] = [:]
+
+    init() {}
+
+    /// Elle yazılmış çözücü, alan eklenebilsin diye.
+    ///
+    /// Swift'in sentezlediği çözücü eksik anahtarı hata sayıyor — varsayılan
+    /// değerlere bakmıyor. Yani `markedAt` alanını eklemek, eski kayıt
+    /// dosyalarının tamamını "çözülemedi" durumuna düşürür, karantinaya aldırır
+    /// ve kullanıcı aylarca birikmiş takibini boş bir ekranda bulurdu.
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        days = try container.decodeIfPresent([String: [Prayer: PrayerStatus]].self, forKey: .days) ?? [:]
+        qada = try container.decodeIfPresent(QadaLedger.self, forKey: .qada) ?? QadaLedger()
+        markedAt = try container.decodeIfPresent([String: [Prayer: Date]].self, forKey: .markedAt) ?? [:]
+    }
 }

@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "tr",
   "strings" : {
+    "" : {
+
+    },
     "%@  ·  %@" : {
       "localizations" : {
         "tr" : {
@@ -94,6 +97,9 @@
     "Bu cihazda pusula yok" : {
 
     },
+    "Bu günü işaretlemek için dokun" : {
+
+    },
     "Bu konum ve tarih için vakitler hesaplanamıyor. Yüksek enlemlerde sabah ve yatsı için ayrı bir yöntem seçilmesi gerekir." : {
 
     },
@@ -118,6 +124,9 @@
     "Camiler aranıyor…" : {
 
     },
+    "Geçmiş günler işaretlenebilir; uygulamayı açmadığın bir gün böylece çözümsüz kalmıyor. Vakti henüz girmemiş namazlar kapalı." : {
+
+    },
     "Geri sayım" : {
 
     },
@@ -140,6 +149,9 @@
 
     },
     "iOS bir uygulamaya en fazla 64 bekleyen bildirim veriyor ve vakitler her gün değiştiği için her biri tek tek planlanıyor. Uygulamayı iki haftada bir açmazsan bildirimler kesilir." : {
+
+    },
+    "kaldı" : {
 
     },
     "Kapat" : {
@@ -226,7 +238,7 @@
     "Sıradaki duruma geçmek için dokun: %@" : {
 
     },
-    "Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Vakte daha çok varsa görünmez: saatlerce asılı bir sayaç bilgi vermiyor. Uygulama her açıldığında kurulur; arka planda kurulması sunucu gerektirdiği için vakit girdikten sonra uygulamayı yeniden açman gerekir." : {
+    "Sıradaki vakte kalan süre kilit ekranında ve Dinamik Ada'da görünür. Vakte daha çok varsa görünmez: saatlerce asılı bir sayaç bilgi vermiyor. Vakit girince sayaç kendiliğinden kalkar; sistem bunu uygun gördüğü anda yaptığı için bazen gecikebilir, uygulamayı açmak her hâlükârda temizler." : {
 
     },
     "sola dön" : {
@@ -251,6 +263,9 @@
 
     },
     "Vakitler bulunduğun yere göre hesaplanıyor." : {
+
+    },
+    "vakti girmedi" : {
 
     },
     "Vaktinde" : {

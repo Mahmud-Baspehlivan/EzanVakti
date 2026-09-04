@@ -31,13 +31,19 @@ struct NotificationSound: Identifiable, Hashable {
 /// `.wav` konteynerde. MP3 ve M4A çalışmaz. Süre 30 saniyeyi geçerse iOS yine
 /// varsayılan sese düşer. Dosyalar `EzanVakti/` klasörünün köküne konmalı.
 enum NotificationSoundCatalog {
-    static let all: [NotificationSound] = [
-        .system,
-        NotificationSound(id: "tekbir", title: "Tekbir (8 sn)", fileName: "tekbir.caf"),
-        NotificationSound(id: "ezan-kisa", title: "Ezan (12 sn)", fileName: "ezan-kisa.caf"),
-        NotificationSound(id: "ezan-orta", title: "Ezan (23 sn)", fileName: "ezan-orta.caf"),
-        NotificationSound(id: "ezan-tam", title: "Ezan (29 sn)", fileName: "ezan-tam.caf"),
-    ]
+    /// Şu an yalnız sistem sesi.
+    ///
+    /// Pakette dört ezan/tekbir kaydı vardı ve **gönderim öncesi çıkarıldı.**
+    /// Hepsi Wikimedia Commons'tan "own work" beyanıyla CC0/PD-self olarak
+    /// alınmıştı; o beyan yükleyenin kendi ifadesi ve bağımsız doğrulanamıyor.
+    /// Yayınlanmış bir uygulamada doğrulanamayan telif, sonradan kaldırılma
+    /// riski demek — kaynağı teyit edilmiş ya da kendi kaydedilmiş bir ses
+    /// bulunana kadar bekliyor.
+    ///
+    /// Geri eklemek: `Tools/make-sound.sh` ile dönüştür, `EzanVakti/` köküne
+    /// koy, buraya bir satır ekle. Katalog zaten çalışma zamanında süzülüyor,
+    /// başka hiçbir yere dokunmak gerekmiyor.
+    static let all: [NotificationSound] = [.system]
 
     static var available: [NotificationSound] { all.filter(\.isBundled) }
 

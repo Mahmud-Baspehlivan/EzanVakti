@@ -64,21 +64,32 @@ struct WatchComplicationProvider: TimelineProvider {
 
 struct WatchComplicationEntryView: View {
     @Environment(\.widgetFamily) private var family
+    /// Sistemin uygulayacağı pay. `contentMarginsDisabled()` onu kapatıyor ama
+    /// bu değer okunabilir kalıyor; böylece hangi ailede hangi kenarın payı
+    /// geri verileceğine tek tek karar verilebiliyor.
+    @Environment(\.widgetContentMargins) private var margins
     let entry: PrayerEntry
 
     var body: some View {
         switch family {
         case .accessoryCircular:
             WatchCircularComplication(entry: entry)
+                .padding(margins)
                 .containerBackground(.clear, for: .widget)
         case .accessoryCorner:
             WatchCornerComplication(entry: entry)
+                .padding(margins)
                 .containerBackground(.clear, for: .widget)
         case .accessoryInline:
             WatchInlineComplication(entry: entry)
+                .padding(margins)
                 .containerBackground(.clear, for: .widget)
         default:
+            // Dikdörtgende yalnız yatay pay geri veriliyor. Dikey payı sistem
+            // içeriğin altına ve üstüne ölü bant olarak koyuyordu; bu ailede
+            // yuvanın tamamı kullanılıyor, hizayı içeriğin kendisi kuruyor.
             WatchRectangularComplication(entry: entry)
+                .padding(.horizontal, margins.leading)
                 .containerBackground(.clear, for: .widget)
         }
     }
@@ -91,6 +102,10 @@ struct WatchComplication: Widget {
         StaticConfiguration(kind: kind, provider: WatchComplicationProvider()) { entry in
             WatchComplicationEntryView(entry: entry)
         }
+        // Sistem payı kapatılıyor, geri vermek `WatchComplicationEntryView`'in
+        // işi. Ayar bütün ailelere birden uygulanıyor — tek tek kapatılamıyor,
+        // o yüzden karar aile başına orada veriliyor.
+        .contentMarginsDisabled()
         .configurationDisplayName("Namaz Vakti")
         .description("Sıradaki vakti ve kalan süreyi gösterir.")
         .supportedFamilies([

@@ -90,12 +90,20 @@ struct PrayerTimesWidgetEntryView: View {
         }
     }
 
+    /// Ana ekran zemini. `Palette`'ten geliyor, elle yazılmış bir kopyadan
+    /// değil.
+    ///
+    /// Önce burada ayrı bir degrade duruyordu ve değerleri uygulamanınkinden
+    /// farklıydı (0.07/0.09/0.20 → 0.14/0.16/0.31, uygulamada 0.04/0.05/0.13 →
+    /// 0.10/0.10/0.21). Yani widget uygulamadan gözle görülür biçimde daha açık
+    /// ve morumsuydu; yan yana durduklarında ikisi aynı uygulamaya ait
+    /// görünmüyordu. Kopyalanan bir rengin kaynağıyla ayrışması an meselesi —
+    /// tek kaynak `Palette`.
+    ///
+    /// Ton içinde bulunulan vakte göre değişiyor, tıpkı uygulamada olduğu gibi:
+    /// çizelge zaten vakit geçişlerinde girdi ürettiği için bu bedava geliyor.
     private var homeBackground: some View {
-        LinearGradient(
-            colors: [Color(red: 0.07, green: 0.09, blue: 0.20),
-                     Color(red: 0.14, green: 0.16, blue: 0.31)],
-            startPoint: .top, endPoint: .bottom
-        )
+        Palette.background(for: entry.currentPrayer)
     }
 }
 

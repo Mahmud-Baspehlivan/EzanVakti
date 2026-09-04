@@ -53,7 +53,16 @@ struct PrayerTimesView: View {
         }
         .onChange(of: location.state) { _, _ in
             viewModel.apply(location.state)
-            Task { await reschedule() }
+            // Etkinlik de yenileniyor: konum değişince vakitler tamamen
+            // değişiyor ama etkinlik eski şehrin içeriğini taşımaya devam
+            // ediyordu. Elle başka bir şehir seçip uygulamada kalan kullanıcı
+            // için kilit ekranı sessizce yanlış — ya da hiç kurulmamış olarak
+            // kalıyordu; bildirimler yenilenirken etkinliğin atlanması gözden
+            // kaçmış.
+            Task {
+                await reschedule()
+                await refreshLiveActivity()
+            }
         }
         .onChange(of: preferencesStore.preferences) { old, new in
             // Ayar sayfası bir sheet; kapanması scenePhase'i değiştirmiyor. Etkinliği

@@ -80,22 +80,13 @@ final class PrayerTimesViewModel {
 
     /// Kalan süre. Uzakken sakin ("1 sa 46 dk"), son 10 dakikada saniyeye
     /// inip canlanıyor — ekran hem huzurlu duruyor hem yaklaşınca canlı hissettiriyor.
-    func remaining(at now: Date) -> String {
-        guard let upcoming = upcoming(at: now) else { return "—" }
-        let seconds = max(0, Int(upcoming.date.timeIntervalSince(now)))
-
-        if seconds < 600 {
-            return String(format: "%d:%02d", seconds / 60, seconds % 60)
-        }
-        let hours = seconds / 3600
-        let minutes = (seconds % 3600) / 60
-        return hours > 0 ? "\(hours) sa \(minutes) dk" : "\(minutes) dk"
-    }
-
-    /// Geri sayımın yanındaki sözcük. "1 sa 46 dk sonra" Türkçede tuhaf duruyor,
-    /// her durumda "kaldı".
-    func remainingCaption(at now: Date) -> String {
-        upcoming(at: now) == nil ? "" : "kaldı"
+    /// Sıradaki vakte kalan sürenin sözcüklü hâli.
+    ///
+    /// Telefon saniyede bir yenilendiği için eşiğin altında saniye de
+    /// gösteriliyor; biçimin gerekçesi `RemainingTime`'da.
+    func remainingReadout(at now: Date) -> RemainingReadout? {
+        guard let upcoming = upcoming(at: now) else { return nil }
+        return RemainingTime.readout(to: upcoming.date, at: now, showsSeconds: true)
     }
 
     // MARK: - Biçimleme

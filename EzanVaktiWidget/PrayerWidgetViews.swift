@@ -165,10 +165,20 @@ struct SmallWidgetView: View {
                     .monospacedDigit()
                     .foregroundStyle(.white)
 
-                Text(timerInterval: entry.date...upcoming.date, countsDown: true)
-                    .font(.system(size: 12))
+                // Sayaç `.relative`, ham `timerInterval` değil. Büyütülünce
+                // fark önemli oluyor: sistemin sayaç biçimi saat hanesi sıfırken
+                // onu düşürüyor, yani `6:21` altı saat de olabilir altı dakika
+                // da. `.relative` "1 sa. 46 dk." yazıyor — belirsizlik kalmıyor.
+                // İkisi de kendi kendine ilerliyor, yani çizelgeye girdi
+                // eklemiyor; durağan metnin yasak olduğu yerde tek fark
+                // okunurluk.
+                Text(upcoming.date, style: .relative)
+                    .font(.system(size: 19, weight: .medium))
                     .monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.6))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .foregroundStyle(.white.opacity(0.75))
+                    .padding(.top, 1)
 
                 Spacer(minLength: 6)
                 if let previous = entry.previous {
@@ -191,11 +201,17 @@ struct MediumWidgetView: View {
                 if let upcoming = entry.upcoming {
                     HStack(spacing: 5) {
                         SectionLabel(text: upcoming.prayer.title, size: 10, tracking: 1.4)
-                        Text(timerInterval: entry.date...upcoming.date, countsDown: true)
+                        // Kare widget'la aynı biçim: ikisi aynı ana ekranda yan
+                        // yana durabiliyor, birinin "5 sa. 2 dk." diğerinin
+                        // "5:02:31" demesi tek uygulamaya ait görünmüyordu.
+                        // Genişlik 62'den 92'ye çıktı; sözcüklü biçim daha uzun.
+                        Text(upcoming.date, style: .relative)
                             .font(.system(size: 12, weight: .medium))
                             .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
                             .foregroundStyle(.white.opacity(0.8))
-                            .frame(maxWidth: 62, alignment: .trailing)
+                            .frame(maxWidth: 92, alignment: .trailing)
                     }
                 }
             }

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ezan Vakti Mimari İncelemesi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap">
+
+<style>
+:root{
+  --paper:#FBFAF7; --raise:#F3F1EA; --ink:#16182A; --ink-soft:#3A3D52;
+  --muted:#6C6F85; --line:#E3E1DA; --line-firm:#CFCCC2;
+  --gold:#8A6A1E; --gold-soft:#F0E4C4;
+  --p0:#A3121E; --p1:#B4530F; --p2:#3F5F94; --p3:#70728A;
+  --good:#2F6B43;
+  --d:'Archivo',system-ui,sans-serif;
+  --b:'Source Serif 4',Georgia,serif;
+  --m:'JetBrains Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#111220; --raise:#1A1B2C; --ink:#EDEBE4; --ink-soft:#C6C4D2;
+    --muted:#918FA3; --line:#2A2B3F; --line-firm:#3D3E55;
+    --gold:#E3C577; --gold-soft:#332B16;
+    --p0:#E8686F; --p1:#E39355; --p2:#89A9DC; --p3:#9B99AE;
+    --good:#6FBF89;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#111220; --raise:#1A1B2C; --ink:#EDEBE4; --ink-soft:#C6C4D2;
+  --muted:#918FA3; --line:#2A2B3F; --line-firm:#3D3E55;
+  --gold:#E3C577; --gold-soft:#332B16;
+  --p0:#E8686F; --p1:#E39355; --p2:#89A9DC; --p3:#9B99AE;
+  --good:#6FBF89;
+}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--b);
+  font-size:16.5px;line-height:1.62;margin:0;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px 120px}
+
+/* masthead */
+.mast{padding:56px 0 0}
+.eyebrow{font-family:var(--m);font-size:11px;font-weight:500;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+.mast h1{font-family:var(--d);font-weight:700;font-size:clamp(34px,5.4vw,52px);
+  line-height:1.04;letter-spacing:-.022em;margin:0;text-wrap:balance;max-width:19ch}
+.dek{font-size:18px;color:var(--ink-soft);max-width:62ch;margin:18px 0 0}
+.meta{font-family:var(--m);font-size:11.5px;color:var(--muted);margin:26px 0 0;
+  display:flex;flex-wrap:wrap;gap:8px 22px}
+.rule{height:2px;background:var(--gold);margin:34px 0 0;max-width:104px}
+
+/* scoreboard */
+.board{margin:44px 0 0;border-top:1px solid var(--line-firm);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr))}
+.sc{padding:18px 20px 20px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.sc h4{font-family:var(--d);font-size:12px;font-weight:600;letter-spacing:.03em;
+  color:var(--muted);margin:0 0 10px;text-transform:none}
+.sc .n{font-family:var(--m);font-weight:700;font-size:26px;line-height:1;
+  font-variant-numeric:tabular-nums;display:flex;align-items:baseline;gap:3px}
+.sc .n span{font-size:13px;font-weight:400;color:var(--muted)}
+.bar{height:3px;background:var(--line);margin-top:11px;position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--gold);display:block}
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:0;border-bottom:1px solid var(--line-firm)}
+.verdict div{padding:20px;border-right:1px solid var(--line)}
+.verdict .k{font-family:var(--m);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.verdict .v{font-family:var(--d);font-size:21px;font-weight:600;margin:0}
+
+/* layout */
+.cols{display:grid;grid-template-columns:1fr;gap:0;margin-top:56px}
+@media(min-width:1000px){.cols{grid-template-columns:200px 1fr;gap:56px;align-items:start}}
+nav.toc{display:none}
+@media(min-width:1000px){
+  nav.toc{display:block;position:sticky;top:24px;font-family:var(--d);font-size:13px}
+  nav.toc a{display:block;padding:5px 0;color:var(--muted);text-decoration:none;
+    border-left:2px solid var(--line);padding-left:13px;transition:color .15s,border-color .15s}
+  nav.toc a:hover,nav.toc a:focus-visible{color:var(--gold);border-color:var(--gold)}
+  nav.toc .grp{font-family:var(--m);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--line-firm);margin:20px 0 7px;padding-left:15px}
+}
+main{min-width:0;max-width:74ch}
+
+/* headings */
+h2{font-family:var(--d);font-weight:700;font-size:27px;letter-spacing:-.015em;
+  margin:66px 0 6px;padding-top:22px;border-top:2px solid var(--ink);text-wrap:balance}
+h2:first-child{margin-top:0}
+h2 .lt{font-family:var(--m);font-size:12px;font-weight:700;color:var(--gold);
+  display:block;letter-spacing:.14em;margin-bottom:9px}
+h3{font-family:var(--d);font-weight:600;font-size:19px;letter-spacing:-.01em;margin:40px 0 4px}
+h4{font-family:var(--d);font-weight:600;font-size:15.5px;margin:26px 0 4px}
+p{margin:12px 0}
+ul,ol{margin:12px 0;padding-left:22px}
+li{margin:6px 0}
+strong{font-weight:600}
+a{color:var(--gold)}
+code{font-family:var(--m);font-size:.855em;background:var(--raise);
+  padding:1.5px 5px;border:1px solid var(--line);white-space:nowrap}
+h2 code,h3 code,h4 code{background:none;border:none;padding:0;font-size:.86em}
+
+/* findings */
+.find{border-top:1px solid var(--line-firm);padding:24px 0 6px;margin-top:30px}
+.fhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.chip{font-family:var(--m);font-size:10.5px;font-weight:700;letter-spacing:.1em;
+  padding:3.5px 8px;color:var(--paper);white-space:nowrap}
+.c0{background:var(--p0)}.c1{background:var(--p1)}.c2{background:var(--p2)}.c3{background:var(--p3)}
+.fhead h3{margin:0;font-size:19px;flex:1;min-width:220px}
+.fid{font-family:var(--m);font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+dl.f{margin:14px 0 0;display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:640px){dl.f{grid-template-columns:104px 1fr;column-gap:20px}}
+dl.f dt{font-family:var(--m);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);padding-top:7px}
+dl.f dd{margin:0 0 12px;padding-top:2px}
+@media(max-width:639px){dl.f dt{padding-top:12px}}
+
+/* code + diagrams */
+pre{font-family:var(--m);font-size:12.5px;line-height:1.62;background:var(--raise);
+  border:1px solid var(--line);padding:15px 17px;overflow-x:auto;margin:14px 0}
+pre b{color:var(--gold);font-weight:700}
+pre .del{color:var(--p0)}
+pre .add{color:var(--good)}
+.ba{display:grid;grid-template-columns:1fr;gap:12px;margin:16px 0}
+@media(min-width:820px){.ba{grid-template-columns:1fr 1fr}}
+.ba pre{margin:0;height:100%}
+.balabel{font-family:var(--m);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 6px}
+figure{margin:20px 0}
+figcaption{font-family:var(--d);font-size:12.5px;color:var(--muted);margin-top:9px}
+
+/* tables */
+.tw{overflow-x:auto;margin:18px 0;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th{font-family:var(--d);font-size:11.5px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--muted);text-align:left;
+  padding:11px 14px;border-bottom:1px solid var(--line-firm);background:var(--raise)}
+td{padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.n{font-family:var(--m);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lvl{font-family:var(--d);font-weight:600;font-size:13px}
+.hi{color:var(--p0)}.md{color:var(--p1)}.lo{color:var(--muted)}
+
+/* callout */
+.note{border-left:3px solid var(--gold);background:var(--gold-soft);
+  padding:14px 18px;margin:20px 0;font-size:15px}
+.note p{margin:6px 0}
+.note p:first-child{margin-top:0}.note p:last-child{margin-bottom:0}
+.nlabel{font-family:var(--m);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--gold);display:block;margin-bottom:5px}
+
+/* phases */
+.phase{border-top:1px solid var(--line);padding:20px 0 4px}
+.phase .pnum{font-family:var(--m);font-size:11px;letter-spacing:.14em;color:var(--gold)}
+.phase h3{margin:5px 0 0}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">Senior iOS · Mimari &amp; Kod İncelemesi</p>
+  <h1>Ezan Vakti: dört hedefli bir Swift projesinin denetimi</h1>
+  <p class="dek">65 Swift dosyası, ~5.800 satır, dört hedef: iOS uygulaması, WidgetKit uzantısı, watchOS uygulaması ve kadran komplikasyonu. Ortak kod paketle değil, proje dosyasındaki hedef üyeliğiyle paylaşılıyor. Aşağıdaki bulgular okumayla değil, çoğu yerde derleyip çalıştırarak doğrulandı.</p>
+  <div class="rule"></div>
+  <p class="meta">
+    <span>Dal: main @ d3d6049</span>
+    <span>25 Ağustos 2026</span>
+    <span>Swift 5 dili · iOS 17.6 · watchOS 26.5</span>
+    <span>Paket bağımlılığı yok</span>
+  </p>
+</header>
+
+<section class="board" aria-label="Puanlar">
+  <div class="sc"><h4>Mimari</h4><p class="n">7<span>/10</span></p><div class="bar"><i style="width:70%"></i></div></div>
+  <div class="sc"><h4>Kod kalitesi</h4><p class="n">9<span>/10</span></p><div class="bar"><i style="width:90%"></i></div></div>
+  <div class="sc"><h4>Sürdürülebilirlik</h4><p class="n">8<span>/10</span></p><div class="bar"><i style="width:80%"></i></div></div>
+  <div class="sc"><h4>Test edilebilirlik</h4><p class="n">4<span>/10</span></p><div class="bar"><i style="width:40%"></i></div></div>
+  <div class="sc"><h4>Eşzamanlılık</h4><p class="n">6<span>/10</span></p><div class="bar"><i style="width:60%"></i></div></div>
+  <div class="sc"><h4>Performans</h4><p class="n">6<span>/10</span></p><div class="bar"><i style="width:60%"></i></div></div>
+  <div class="sc"><h4>Güvenlik &amp; gizlilik</h4><p class="n">8<span>/10</span></p><div class="bar"><i style="width:80%"></i></div></div>
+  <div class="sc"><h4>Widget mimarisi</h4><p class="n">9<span>/10</span></p><div class="bar"><i style="width:90%"></i></div></div>
+  <div class="sc"><h4>Watch mimarisi</h4><p class="n">5<span>/10</span></p><div class="bar"><i style="width:50%"></i></div></div>
+</section>
+
+<section class="verdict">
+  <div><p class="k">Production'a hazırlık</p><p class="v">Orta</p></div>
+  <div><p class="k">Teknik borç</p><p class="v">Düşük–Orta</p></div>
+  <div><p class="k">Yayını engelleyen</p><p class="v">2 madde (ikisi de yapılandırma)</p></div>
+</section>
+
+<div class="cols">
+<nav class="toc" aria-label="İçindekiler">
+  <p class="grp">Bölümler</p>
+  <a href="#ozet">A · Yönetici özeti</a>
+  <a href="#mimari">Mevcut mimari</a>
+  <a href="#p0">B · Kritik (P0)</a>
+  <a href="#p1">C · Yüksek (P1)</a>
+  <a href="#p2">D · Orta (P2)</a>
+  <a href="#p3">E · Düşük (P3)</a>
+  <a href="#akis">F · Bağımlılık akışı</a>
+  <a href="#plan">G · Refactoring planı</a>
+  <a href="#kod">H · Somut değişiklikler</a>
+  <a href="#dosya">I · Dosya bazlı</a>
+  <a href="#yapi">J · Hedef yapısı</a>
+  <a href="#borc">K · İlk 10 teknik borç</a>
+</nav>
+
+<main>
+<h2 id="ozet"><span class="lt">A</span>Yönetici özeti</h2>
+
+<p>Bu, incelediğim küçük ölçekli Swift projelerinin üst yüzdelik diliminde bir kod tabanı. Yorumlar <em>ne</em> yaptığını değil <em>neden</em> öyle yapıldığını anlatıyor ve çoğu ölçüme dayanıyor — “Eyüpsultan'da 34 kaydın 32'si”, “render 2.14 ms/kare”, “15 ilin medyanı”. Alan çekirdeği (<code>PrayerTimesCalculator</code>, <code>SolarMath</code>, <code>Qibla</code>) saf Foundation; ağ yok, çerçeve bağımlılığı yok, belirlenimci. Widget ve saat hedeflerinin bu kadar sade olabilmesinin sebebi tam olarak bu karar.</p>
+
+<p>Geçersiz durumların temsil edilemez kılınması bilinçli ve tutarlı: <code>DailyPrayerTimes</code> eksik sözlükle kurulamıyor, bu yüzden <code>subscript</code>'teki zorlama açma güvenli; <code>QadaLedger</code> borcu sayaç tutmak yerine üç bileşenden türetiyor, bu yüzden çift sayma mümkün değil; <code>LocationState</code> ve <code>MosqueSearchState</code> “boş liste” ile “hata” ile “yükleniyor”u ayırıyor.</p>
+
+<p>Buna karşılık üç yapısal zayıflık var ve üçü de aynı yerden geliyor — <strong>projenin en yeni parçası olan saat tarafı, iOS tarafındaki titizlikle aynı seviyeye getirilmemiş</strong>. İki yayın engelleyici madde de orada. Her ikisi de kod değil, hedef yapılandırması; toplam düzeltme süresi on dakikanın altında ama ikisi de sessiz başarısızlıkla sonuçlanıyor, yani test cihazında fark edilmeden App Store'a gidebilir.</p>
+
+<div class="note">
+  <span class="nlabel">Özellikle dikkat çeken</span>
+  <p><code>Tools/check/targets.sh</code> her hedefi <em>kendi</em> dosya kümesiyle ve <em>kendi</em> SDK'siyle tip denetiminden geçiriyor, dosya listesini de <code>pbxproj</code>'daki <code>membershipExceptions</code>'tan okuyor. Paket kullanmadan çok hedefli bir projede üyelik hatalarını yakalamanın doğru yolu bu; çoğu ekipte bu denetim hiç yok. <code>MemberImportVisibility</code> bayrağının hem Xcode'da hem betikte açık tutulması ayrıca isabetli.</p>
+</div>
+
+<h3>Güçlü yanlar</h3>
+<ul>
+<li><strong>Alan çekirdeği gerçekten çerçeveden bağımsız.</strong> Bu yüzden <code>Tools/validate</code> ve <code>Tools/tests</code> Xcode olmadan koşabiliyor, doğruluk 15 ile karşı ölçülebiliyor.</li>
+<li><strong>WidgetKit bütçe disiplini örnek düzeyde.</strong> Girdiler yalnızca vakit geçişlerinde üretiliyor; geri sayım ve ilerleme <code>Text(timerInterval:)</code> / <code>ProgressView(timerInterval:)</code> ile kendi kendine ilerliyor. <code>SharedLocationStore.save</code> aynı konumu yeniden yazarken <code>reloadAllTimelines</code> çağırmıyor.</li>
+<li><strong>Görünüm/kabuk ayrımı araca hizmet ediyor.</strong> <code>PrayerTimesContent</code>, <code>QiblaContent</code>, <code>NearbyMosquesContent</code>, <code>TrackingContent</code>, <code>WatchPrayerTimesContent</code> — hepsi servislerden arındırılmış, <code>ImageRenderer</code> ile basılabiliyor. Bu bir stil tercihi değil, kurulmuş bir doğrulama hattı.</li>
+<li><strong>Erişilebilirlik sonradan eklenmiş gibi durmuyor.</strong> Satırlar tek cümlede birleştiriliyor, pusula değeri 15°'ye yuvarlanarak erişilebilirlik ağacının saniyede onlarca kez yeniden kurulması engelleniyor, Dynamic Type için tablo blok düzenine geçiyor.</li>
+<li><strong>Singleton kötüye kullanımı yok.</strong> Hiçbir yerde değişken durum tutan <code>.shared</code> nesnesi yok; paylaşılan her şey ya durumsuz bir ad alanı ya da sahibi belli bir <code>@State</code>.</li>
+</ul>
+
+<h3>Zayıf yanlar</h3>
+<ul>
+<li><strong>Xcode projesinde test hedefi yok.</strong> Gerçek testler var ama proje dışında ve tek bir tipi kapsıyor; <code>xcodebuild test</code> ile CI'ya bağlanamıyor.</li>
+<li><strong>Widget veri senkronizasyonunun sorumluluğu bölünmüş.</strong> Elle seçim <code>LocationProvider.setMode</code>'da, otomatik konum <code>PrayerTimesViewModel.apply</code>'da kaydediliyor — yani bir sekmenin görünüm modeli widget'ın veri kaynağı durumunda.</li>
+<li><strong>Statik ad alanları dikişleri kapatıyor.</strong> <code>MosqueFinder</code>, <code>LiveActivityController</code>, <code>SharedLocationStore</code> ve kardeşleri <code>enum</code> + <code>static</code>; ağ, Live Activity ve paylaşılan depo taklit edilemiyor.</li>
+<li><strong>Swift 5 dil kipi, hedefler arası tutarsız eşzamanlılık ayarı.</strong> Saat hedeflerinde <code>SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor</code> açık, iOS ve widget hedeflerinde değil.</li>
+<li><strong>Saat tarafı yarım.</strong> Konum izni metni yok, gizlilik bildirimi yok, izin reddedildiğinde kullanıcıya hiçbir şey söylenmiyor.</li>
+</ul>
+
+<h2 id="mimari">Mevcut mimari</h2>
+
+<div class="tw"><table>
+<tbody>
+<tr><th style="width:190px">Mimari</th><td>Pragmatik MVVM + durumsuz alan çekirdeği. Clean Architecture katmanı, TCA, VIPER veya biçimsel Repository yok — ve bu ölçekte olmaması doğru.</td></tr>
+<tr><th>Ana katmanlar</th><td><code>Core/</code> (alan + saklama) → <code>Services/</code> (platform entegrasyonları) → <code>Features/</code> (View + Content + ViewModel üçlüsü)</td></tr>
+<tr><th>Durum yönetimi</th><td>Observation çerçevesi (<code>@Observable</code>). Sahiplik görünüm düzeyinde <code>@State</code>. <code>EnvironmentObject</code> yok, Combine yok, <code>ObservableObject</code> yok.</td></tr>
+<tr><th>Bağımlılık yönetimi</th><td>12 adet durumsuz <code>enum</code> ad alanı + iki sınıfta kurucu enjeksiyonu (<code>PrayerLogStore(fileURL:timeZone:)</code>, <code>NotificationPreferencesStore(defaults:)</code>). Container yok.</td></tr>
+<tr><th>Saklama</th><td>Application Support'a JSON (<code>PrayerLogStore</code>, <code>MosqueCache</code>), App Group UserDefaults (konum, harita tercihi), <code>UserDefaults.standard</code> (bildirim tercihleri), pakete konmuş 1,4 MB metin (<code>tr-mosques.txt</code>).</td></tr>
+<tr><th>Ağ</th><td>Çekirdek özellik için <strong>hiç yok</strong>. Yalnızca yurt dışı cami araması (Overpass, <code>URLSession.shared</code>) ve şehir araması (<code>MKLocalSearch</code>). API istemcisi, DTO/mapper katmanı yok.</td></tr>
+<tr><th>Ortak kod</th><td>SPM paketi veya framework <strong>yok</strong>. Aynı <code>.swift</code> dosyaları <code>pbxproj</code>'daki <code>membershipExceptions</code> ile dört hedefe ayrı ayrı derleniyor.</td></tr>
+<tr><th>Widget iletişimi</th><td>App Group UserDefaults, tek yönlü (uygulama → widget) + <code>WidgetCenter.reloadAllTimelines()</code>. Widget vakitleri kendi hesaplıyor.</td></tr>
+<tr><th>Watch iletişimi</th><td><strong>Yok.</strong> <code>WatchConnectivity</code>, <code>WCSession</code>, <code>sendMessage</code> hiç kullanılmıyor. Saat kendi GPS'ini alıp kendi hesaplıyor.</td></tr>
+</tbody>
+</table></div>
+
+<h3>Watch iletişim kararı: doğru</h3>
+<p>Bunu ayrıca vurgulamak istiyorum çünkü çoğu proje burada yanlış yapıyor. Namaz vakitleri <em>koordinat ve tarihten hesaplanabilir</em>; bu yüzden telefondan saate veri taşımanın hiçbir kazancı yok, buna karşılık gerçek bir maliyeti var: <code>WCSession</code> eşleşme durumu, erişilebilirlik, yeniden bağlanma ve senkron dışı kalma. Saatin kendi <code>CLLocationManager</code>'ını kullanması, telefon yanında olmasa bile çalışması demek. <code>WatchConnectivity</code> bu uygulamada yalnızca <strong>namaz takibi</strong> saate taşınırsa gerekir — README bunu zaten v2'ye bırakmış, doğru karar.</p>
+<p>Tek yapısal itirazım şu: saat hedefindeki <code>SharedLocationStore</code> kullanımı iOS'takiyle <em>aynı anahtarları ve aynı App Group kimliğini</em> paylaşıyor. İki cihazda ayrı konteynerler olduğu için bugün çalışıyor, ama ileride gerçek bir iCloud/WatchConnectivity senkronizasyonu eklenirse bu ad çakışması sessiz bir karışıklık kaynağı olur. Anahtarlara platform öneki koymak bugün bedava, sonra değil.</p>
+
+<h2 id="p0"><span class="lt">B</span>Kritik — yayından önce düzeltilmeli</h2>
+<p>İki madde. İkisi de kodda değil hedef yapılandırmasında, ikisi de <strong>sessizce</strong> başarısız oluyor: derleme geçiyor, uygulama açılıyor, hata görünmüyor. Bu yüzden test cihazında fark edilmeden gönderilebilirler.</p>
+
+<div class="find">
+  <div class="fhead"><span class="chip c0">P0</span><h3>Saat uygulaması konum izni isteyemiyor</h3><span class="fid">P0-1</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVakti.xcodeproj/project.pbxproj</code> — <code>EzanVaktiWatch Watch App</code> hedefinin Debug/Release yapılandırmaları (satır 490–563) · <code>EzanVaktiWatch Watch App/WatchLocationProvider.swift:28</code></dd>
+    <dt>Sorun</dt><dd><code>WatchLocationProvider.start()</code> <code>manager.requestWhenInUseAuthorization()</code> çağırıyor, ama saat hedefinde <code>INFOPLIST_KEY_NSLocationWhenInUseUsageDescription</code> <strong>tanımlı değil</strong>. Anahtar yalnızca iOS uygulama hedefinde var (satır 857 ve 880). Saat hedefi <code>GENERATE_INFOPLIST_FILE = YES</code> kullandığı için elle bir <code>Info.plist</code> de yok.</dd>
+    <dt>Önemi</dt><dd>Kullanım metni olmadan sistem izin sorusunu <em>hiç göstermiyor</em>. Yetki <code>.notDetermined</code>'da takılı kalıyor; <code>locationManagerDidChangeAuthorization</code>'daki <code>default: break</code> dalına düşüyor, <code>isDenied</code> bile <code>true</code> olmuyor.</dd>
+    <dt>Sonuç</dt><dd>Saat uygulaması ve komplikasyon <strong>her kullanıcıda, her zaman İstanbul vakitlerini gösterir</strong> ve bunu söylemez. Ankara'daki bir kullanıcı için akşam ezanı ~14 dakika yanlış. Bu, uygulamanın tek işini yanlış yapması demek.</dd>
+    <dt>Düzeltme</dt><dd>Saat hedefinin her iki yapılandırmasına anahtarı ekleyin. README'nin “Komplikasyon hedefi” bölümü bu gereksinimi zaten yazmış — uygulanmamış.</dd>
+  </dl>
+<pre><span class="add">// project.pbxproj — "EzanVaktiWatch Watch App" Debug <b>ve</b> Release</span>
+INFOPLIST_KEY_CFBundleDisplayName = EzanVaktiWatch;
+<span class="add">INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Namaz vakitlerini bulundugunuz yere gore hesaplamak icin konumunuz kullanilir.";</span>
+INFOPLIST_KEY_UISupportedInterfaceOrientations = "...";</pre>
+  <p><strong>Ek olarak</strong>, izin akışı iOS'takiyle aynı özene kavuşmalı: <code>WatchLocationProvider</code> <code>.notDetermined</code> ile <code>.denied</code>'ı ayırmıyor ve <code>WatchPrayerTimesView</code> <code>isDenied</code>'ı hiç okumuyor. Bkz. <a href="#f-p1-4">P1-4</a>.</p>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c0">P0</span><h3>İki saat hedefinde gizlilik bildirimi eksik</h3><span class="fid">P0-2</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVaktiWatch Watch App/</code> ve <code>watch widget/</code> — <code>PrivacyInfo.xcprivacy</code> yok. Mevcut olanlar yalnızca <code>EzanVakti/</code> ve <code>EzanVaktiWidget/</code> içinde.</dd>
+    <dt>Sorun</dt><dd>Her iki saat hedefi de <code>SharedLocationStore</code> üzerinden <code>UserDefaults(suiteName:)</code> kullanıyor — Apple'ın “gerekçe bildirilmesi gereken API” listesinde, <code>1C8F.1</code> koduyla. Gizlilik bildirimi <strong>paket başına</strong> gerekiyor; saat uygulaması ve komplikasyon uzantısı ayrı paketler.</dd>
+    <dt>Önemi</dt><dd>Bu 2024'ten beri App Store gönderimi için zorunlu. Eksikliği derlemeyi bozmaz, App Store Connect yükleme sırasında ITMS uyarısı/reddi üretir.</dd>
+    <dt>Sonuç</dt><dd>Saat hedefleri gönderimde reddedilir. iOS tarafı hazır olduğu için bu, “her şey bitti” sanıldığı anda çıkacak bir engel.</dd>
+    <dt>Düzeltme</dt><dd>Mevcut <code>EzanVaktiWidget/PrivacyInfo.xcprivacy</code> dosyasını iki saat klasörüne kopyalayın — içeriği aynı (<code>NSPrivacyTracking=false</code>, boş <code>NSPrivacyCollectedDataTypes</code>, tek <code>NSPrivacyAccessedAPIType</code> girdisi: <code>NSPrivacyAccessedAPICategoryUserDefaults</code> / <code>1C8F.1</code>). Senkron klasör yapısı sayesinde dosyayı koymak üyeliği kendiliğinden sağlar; <code>membershipExceptions</code>'a dokunmaya gerek yok.</dd>
+  </dl>
+  <div class="note"><span class="nlabel">Not</span><p>Saat uygulaması ayrıca <code>CLLocationManager</code> kullanıyor. Konum, gerekçe bildirilmesi gereken API kategorilerinde değil (izin metniyle örtülüyor), o yüzden bildirim için ek girdi gerekmiyor — ama <code>NSPrivacyCollectedDataTypes</code> boş kaldığı sürece Overpass sorusu (bkz. <a href="#f-p2-8">P2-8</a>) yeniden değerlendirilmeli.</p></div>
+</div>
+
+<h2 id="p1"><span class="lt">C</span>Yüksek öncelik</h2>
+
+<div class="find">
+  <div class="fhead"><span class="chip c1">P1</span><h3>Gece yarısı saat değiştiren ülkelerde vakitler tam bir saat kayıyor</h3><span class="fid">P1-1</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVakti/Core/PrayerTimesCalculator.swift:19</code> ve <code>:57</code></dd>
+    <dt>Sorun</dt><dd>Hesap, yerel gece yarısı anını çapa alıyor: <code>calendar.date(from: DateComponents(year:month:day:))</code> ile <code>midnight</code> bulunuyor, sonuçlar <code>midnight.addingTimeInterval(hours * 3600)</code> ile üretiliyor. Yaz saatine <strong>gece yarısı</strong> geçen bölgelerde yerel 00:00 o gün <em>hiç var olmaz</em>; Foundation bu durumda bir sonraki geçerli anı (01:00) döndürüyor ve bütün gün bir saat kayıyor.</dd>
+    <dt>Önemi</dt><dd>Bu bölgeler egzotik değil: <strong>Mısır</strong> (<code>Africa/Cairo</code>, 24 Nisan 2026), <strong>Lübnan</strong> (<code>Asia/Beirut</code>, 29 Mart 2026), Küba, Şili. Türkiye 2016'dan beri sabit UTC+3 olduğu için yurt içinde görünmüyor — bu yüzden fark edilmemiş.</dd>
+    <dt>Sonuç</dt><dd>Yılda bir gün, o ülkelerdeki her kullanıcı için <strong>altı vaktin altısı da bir saat yanlış</strong>; bildirimler de bir saat geç çalıyor. İftar ve sahur o gün Ramazan'a denk gelirse doğrudan zarar.</dd>
+    <dt>Doğrulama</dt><dd>Çekirdek dosyalar <code>swiftc</code> ile derlenip koşuldu; aşağıdaki çıktı gerçek.</dd>
+  </dl>
+<pre>KAHIRE — Misir yaz saati 24 Nisan 00:00'da basliyor
+  23.04  imsak=03:55  ogle=11:59  aksam=18:36
+  24.04  imsak=<span class="del">05:53</span>  ogle=<span class="del">13:59</span>  aksam=<span class="del">20:36</span>   &lt;-- bir saat ileri
+  25.04  imsak=04:52  ogle=12:59  aksam=19:37
+
+BEYRUT — Lubnan yaz saati 29 Mart 00:00'da basliyor
+  28.03  imsak=04:07  ogle=11:49  aksam=18:04
+  29.03  imsak=<span class="del">06:05</span>  ogle=<span class="del">13:48</span>  aksam=<span class="del">20:05</span>   &lt;-- bir saat ileri
+  30.03  imsak=05:04  ogle=12:48  aksam=19:06</pre>
+  <p><strong>Kök neden ve düzeltme.</strong> Cebiri açtığınızda <code>utcOffset</code>'in zaten sadeleştiği görülüyor:</p>
+<pre>an = midnight + (gunesSaati + utcOffset - boylam/15)
+   = (UTCgeceyarisi - utcOffset) + gunesSaati + utcOffset - boylam/15
+   = UTCgeceyarisi + gunesSaati - boylam/15        <b>← utcOffset hic gerekmiyor</b></pre>
+  <p>Yani doğru çapa UTC gece yarısı; UTC'de yaz saati yok, o an her zaman var. Düzeltme <em>kod ekliyor değil, çıkarıyor</em>:</p>
+  <div class="ba">
+    <div><p class="balabel">Önce</p><pre>let parts = calendar.dateComponents(
+    [.year,.month,.day], from: date)
+guard let year = parts.year,
+      let month = parts.month,
+      let day = parts.day,
+      let midnight = calendar.date(from:
+        DateComponents(year: year,
+                       month: month,
+                       day: day))
+else { return nil }
+
+let jd = julianDay(year: year, month: month,
+        day: day) - coordinate.longitude / (15*24)
+<span class="del">let utcOffset = Double(
+    timeZone.secondsFromGMT(for: midnight)) / 3600</span>
+<span class="del">let shift = utcOffset - coordinate.longitude / 15</span>
+
+// ...
+result[prayer] = <span class="del">midnight</span>
+    .addingTimeInterval(hours * 3600 + offset)</pre></div>
+    <div><p class="balabel">Sonra</p><pre>let parts = calendar.dateComponents(
+    [.year,.month,.day], from: date)
+guard let year = parts.year,
+      let month = parts.month,
+      let day = parts.day,
+      let midnight = calendar.date(from:
+        DateComponents(year: year,
+                       month: month,
+                       day: day))
+else { return nil }
+
+<span class="add">// UTC gece yarisi her zaman var; yerel gece
+// yarisi yaz saati gecisinde atlanabiliyor.
+var utc = Calendar(identifier: .gregorian)
+utc.timeZone = TimeZone(secondsFromGMT: 0)!
+guard let anchor = utc.date(from: DateComponents(
+    year: year, month: month, day: day))
+else { return nil }</span>
+
+let jd = julianDay(year: year, month: month,
+        day: day) - coordinate.longitude / (15*24)
+<span class="add">let shift = -coordinate.longitude / 15</span>
+
+// ...
+result[prayer] = <span class="add">anchor</span>
+    .addingTimeInterval(hours * 3600 + offset)</pre></div>
+  </div>
+  <p><code>trueSunrise</code> / <code>trueSunset</code> de <code>anchor</code>'a bağlanmalı; <code>midnight</code> yalnızca <code>DailyPrayerTimes.day</code> alanı için kalıyor. <strong>Regresyon denetimi yapıldı:</strong> düzeltme sonrası Kahire 24.04 → <code>04:53 / 12:59 / 19:36</code> (komşu günlerle uyumlu), Beyrut 29.03 → <code>05:05 / 12:48 / 19:05</code>. İstanbul ve Berlin çıktıları <strong>bit düzeyinde aynı</strong> kaldı; <code>Tools/validate</code> CSV'si değişmez.</p>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c1">P1</span><h3>Live Activity ayarı kapatılınca hiçbir şey olmuyor</h3><span class="fid">P1-2</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVakti/Features/PrayerTimes/PrayerTimesView.swift:54-56</code></dd>
+    <dt>Sorun</dt><dd><code>.onChange(of: preferencesStore.preferences)</code> yalnızca <code>reschedule()</code> çağırıyor — yani <em>bildirimleri</em> yeniden planlıyor. <code>refreshLiveActivity()</code> çağrılmıyor. Bu fonksiyon sadece <code>.task</code> içinde ve <code>scenePhase == .active</code> olduğunda koşuyor; ayar sayfası bir <code>sheet</code> olduğu için kapanması <code>scenePhase</code>'i değiştirmiyor.</dd>
+    <dt>Önemi</dt><dd>Kullanıcı “Kilit ekranında geri sayım”ı kapattığında kilit ekranındaki etkinlik <strong>olduğu yerde kalıyor</strong>. Aynı şekilde “Ne kadar önce” değişikliği de uygulanmıyor.</dd>
+    <dt>Sonuç</dt><dd>Kapatılamayan bir kilit ekranı bileşeni — kullanıcı ayarı kapatıp etkisini görmeyince ya uygulamayı siler ya da hatalı sanır. Uygulama arka plana alınıp geri getirilene kadar sürer.</dd>
+    <dt>Düzeltme</dt><dd>Tercih değişiminde ikisini de çalıştırın; tek bir yerde toplamak sonraki eklemelerde de kaçırılmasını önler.</dd>
+  </dl>
+  <div class="ba">
+    <div><p class="balabel">Önce</p><pre>.onChange(of: preferencesStore.preferences) { _, _ in
+    Task { await reschedule() }
+}</pre></div>
+    <div><p class="balabel">Sonra</p><pre>.onChange(of: preferencesStore.preferences) { _, _ in
+    Task {
+        await reschedule()
+        <span class="add">await refreshLiveActivity()</span>
+    }
+}</pre></div>
+  </div>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c1">P1</span><h3><code>LiveActivityController.refresh</code> kendisiyle yarışıyor</h3><span class="fid">P1-3</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVakti/Services/LiveActivityController.swift:21-64</code> · çağrı yerleri <code>PrayerTimesView.swift:48</code> ve <code>:63</code></dd>
+    <dt>Sorun</dt><dd><code>refresh</code> önce <code>await endAll()</code> yapıp sonra etkinlikleri yeniden kuruyor — atomik değil. Uygulama açılışında <code>.task</code> ve <code>scenePhase == .active</code> <strong>ikisi birden</strong> tetikleniyor, iki <code>refresh</code> aynı anda başlıyor. İkisi de <code>@MainActor</code> ama her <code>await</code> noktasında araya giriliyor.</dd>
+    <dt>Önemi</dt><dd>Olası sonuçlar: (a) A'nın kurduğu etkinlikleri B'nin <code>endAll</code>'ı siler, hiç etkinlik kalmaz; (b) ikisi de kurar, aynı vakit için iki etkinlik oluşur — Dinamik Ada minimal moda düşer. Hangisinin olacağı zamanlamaya bağlı, yani hata ayıklaması zor.</dd>
+    <dt>Sonuç</dt><dd>Kilit ekranında yinelenen veya hiç görünmeyen geri sayım; sistemin eşzamanlı etkinlik sınırının boşa harcanması (kod zaten <code>scheduleCount = 3</code> ile bilinçli olarak az tutuyor).</dd>
+    <dt>Düzeltme</dt><dd>Yenilemeyi tek bir görev üzerinden seri hale getirin. Ayrıca aynı düzeltme, ayar değişimiyle gelen ardışık çağrıları da (bkz. P1-2) güvenli kılar.</dd>
+  </dl>
+<pre>@MainActor
+enum LiveActivityController {
+    private static let scheduleCount = 3
+    <span class="add">/// Yenilemeler seri: `endAll` + `request` atomik degil, ust uste
+    /// binen iki cagri birbirinin etkinligini silebiliyor.
+    private static var inFlight: Task&lt;Void, Never&gt;?</span>
+
+    static func refresh(with contents: [PrayerActivityContent],
+                        enabled: Bool, leadMinutes: Int) async {
+        <span class="add">let previous = inFlight
+        let task = Task { @MainActor in
+            await previous?.value
+            await apply(contents: contents, enabled: enabled,
+                        leadMinutes: leadMinutes)
+        }
+        inFlight = task
+        await task.value</span>
+    }
+
+    <span class="add">private static func apply(contents: [PrayerActivityContent],
+                              enabled: Bool, leadMinutes: Int) async {</span>
+        await endAll()
+        guard enabled, isAvailable, !contents.isEmpty else { return }
+        // ... mevcut govde aynen
+    }
+}</pre>
+</div>
+
+<div class="find" id="f-p1-4">
+  <div class="fhead"><span class="chip c1">P1</span><h3>Saat, yanlış şehrin vakitlerini sessizce gösteriyor</h3><span class="fid">P1-4</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>WatchPrayerTimesView.swift</code> (tamamı) · <code>WatchLocationProvider.swift:59-61</code> · <code>watch widget/WatchComplicationViews.swift</code> (dört aile)</dd>
+    <dt>Sorun</dt><dd>Saat tarafında geri düşüş <strong>hiçbir yerde belirtilmiyor</strong>. <code>WatchLocationProvider.isDenied</code> hesaplanıyor ama hiçbir görünüm okumuyor; <code>didFailWithError</code> gövdesi boş; komplikasyonlarda <code>PrayerEntry.isUsingFallbackLocation</code> alanı taşınıyor ama dört görünümün hiçbiri kullanmıyor.</dd>
+    <dt>Önemi</dt><dd>Bu, projenin kendi ilkesine aykırı. iOS tarafında <code>PrayerTimesContent</code> “Konum kapalı — İstanbul” yazıyor, widget'ın <code>LocationLabel</code>'ı “(varsayılan)” ekliyor, <code>SharedLocationStore</code>'un yorumunda “sessizce yanlış şehri göstermek yerine” deniyor. Saatte bu duruş yok.</dd>
+    <dt>Sonuç</dt><dd>Kullanıcı doğru vakitlere baktığını sanır. P0-1 düzeltilene kadar bu <em>her</em> kullanıcının durumu; sonrasında da izni reddedenlerin.</dd>
+    <dt>Düzeltme</dt><dd>Saat modeline bir <code>isUsingFallbackLocation</code> bayrağı ekleyip başlık satırına iliştirin; komplikasyonlarda ekran çok dar olduğu için konum adının yanına bir <code>location.slash</code> simgesi yeterli.</dd>
+  </dl>
+<pre>// WatchPrayerTimesContent.header
+private var header: some View {
+    <span class="add">HStack(spacing: 3) {
+        if viewModel.isUsingFallbackLocation {
+            Image(systemName: "location.slash")
+                .font(.system(size: metrics.headerFont - 2))
+        }</span>
+        Text(viewModel.locationName)
+            .font(.system(size: metrics.headerFont))
+            .lineLimit(1)
+    <span class="add">}</span>
+    .foregroundStyle(<span class="add">viewModel.isUsingFallbackLocation ? .orange : .secondary</span>)
+    .frame(maxWidth: .infinity, alignment: .leading)
+}</pre>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c1">P1</span><h3>Sabit biçimli <code>DateFormatter</code>'larda <code>en_US_POSIX</code> yok</h3><span class="fid">P1-5</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd>Sekiz yer: <code>PrayerTimesViewModel.swift:100-101</code>, <code>ImsakiyeViewModel.swift:141-143</code>, <code>QiblaViewModel.swift:45-47</code>, <code>WatchPrayerTimesModel.swift:42-44</code>, <code>PrayerNotificationScheduler.swift:108-110</code>, <code>PrayerWidgetViews.swift:11-15</code>, <code>PrayerLiveActivityViews.swift:16-20</code>, <code>WatchComplicationViews.swift:11-15</code></dd>
+    <dt>Sorun</dt><dd>Hepsinde <code>dateFormat = "HH:mm"</code> atanıyor ama <code>locale</code> ayarlanmıyor, yani cihazın yereli kullanılıyor. Apple'ın belgelenmiş kuralı net: sabit biçimli (kullanıcıya değil makineye/tasarıma göre belirlenmiş) tarihlerde <code>locale</code> mutlaka <code>en_US_POSIX</code> olmalı. Aksi halde biçim dizesi kullanıcının yereline ve <em>Ayarlar › Genel › Tarih ve Saat › 24 Saat</em> anahtarına göre yeniden yorumlanabiliyor.</dd>
+    <dt>Önemi</dt><dd>Aynı dosyada <code>gregorianFormatter</code> ve <code>hijriFormatter</code> için <code>locale</code> <em>bilinçli olarak</em> <code>tr_TR</code> yapılmış — yani kural biliniyor, saat biçimlendiricisinde atlanmış.</dd>
+    <dt>Sonuç</dt><dd>24 saat ayarı kapalı kullanıcılarda saatler <code>1:30 PM</code> gibi çıkabiliyor; <code>monospacedDigit()</code> ve sabit genişlik varsayımlarıyla birleşince widget ve komplikasyonlarda kırpılma. Türkçe arayüzde AM/PM ayrıca yabancı duruyor.</dd>
+    <dt>Düzeltme</dt><dd>Sekiz yere tek satır. Aynı geçişte bu biçimlendiricileri yeniden kullanılabilir hale getirmek P2-2'yi de çözüyor.</dd>
+  </dl>
+<pre>let formatter = DateFormatter()
+formatter.timeZone = timeZone
+<span class="add">formatter.locale = Locale(identifier: "en_US_POSIX")   // sabit bicim</span>
+formatter.dateFormat = "HH:mm"</pre>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c1">P1</span><h3>Bozuk kayıt dosyası tüm namaz geçmişini sessizce siliyor</h3><span class="fid">P1-6</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVakti/Core/PrayerLogStore.swift:154-159</code></dd>
+    <dt>Sorun</dt><dd><code>load(from:)</code> hem “dosya yok” hem “dosya var ama çözülemiyor” durumunu <code>try?</code> ile aynı sonuca indiriyor: boş <code>PrayerLogSnapshot()</code>. Ardından kullanıcının ilk dokunuşu <code>persist()</code>'i çağırıyor ve bozuk dosyanın <strong>üzerine yazıyor</strong> — kurtarma şansı kalmıyor.</dd>
+    <dt>Önemi</dt><dd>Bu, uygulamadaki tek gerçek kullanıcı verisi: aylarca birikmiş namaz takibi ve kaza borcu. Kısmi yazma (disk dolu, düşük pil kesintisi) veya ileride şema değişikliği bu yolu tetikleyebilir. Dosya <code>.atomic</code> yazıldığı için risk düşük ama sıfır değil — ve bedeli geri dönüşsüz.</dd>
+    <dt>Sonuç</dt><dd>Kullanıcı serisinin ve kaza borcunun sıfırlandığını görüyor, neden olduğunu öğrenemiyor, geri alamıyor. <code>lastWriteError</code> alanı yazma için zaten var; okuma için karşılığı yok.</dd>
+    <dt>Düzeltme</dt><dd>İki durumu ayırın, bozuk dosyayı silmek yerine kenara alın ve durumu yüzeye çıkarın.</dd>
+  </dl>
+<pre>private static func load(from url: URL) -&gt; (PrayerLogSnapshot, <span class="add">String?</span>) {
+    guard let data = try? Data(contentsOf: url) else {
+        return (PrayerLogSnapshot(), nil)          <span class="add">// dosya yok: normal ilk acilis</span>
+    }
+    do {
+        return (try JSONDecoder().decode(PrayerLogSnapshot.self, from: data), nil)
+    } catch {
+        <span class="add">// Dosya VAR ama okunamiyor. Uzerine yazip yok etmeden once
+        // kenara al; kullanici en azindan neden oldugunu gorsun.
+        let backup = url.deletingPathExtension()
+            .appendingPathExtension("corrupt.json")
+        try? FileManager.default.removeItem(at: backup)
+        try? FileManager.default.moveItem(at: url, to: backup)
+        return (PrayerLogSnapshot(),
+                "Kayit dosyasi okunamadi, yedegi \(backup.lastPathComponent) olarak saklandi.")</span>
+    }
+}</pre>
+</div>
+
+<h2 id="p2"><span class="lt">D</span>Orta öncelik</h2>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Kıble saati her pusula okumasında yeniden hesaplanıyor</h3><span class="fid">P2-1</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVakti/Features/Qibla/QiblaContent.swift:130</code> → <code>QiblaViewModel.qiblaTimes(on:)</code> → <code>Core/Qibla.swift:63-101</code></dd>
+    <dt>Sorun</dt><dd><code>qiblaTimeCard</code> gövdesinde <code>viewModel.qiblaTimes(on: now)</code> çağrılıyor. Bu fonksiyon günü <strong>dakika dakika tarıyor</strong>: 1440 kez <code>solarAzimuth</code> (her biri bir <code>SunPosition</code> kurulumu + yarım düzine trigonometri), üstüne kesişim başına 24 adım ikiye bölme. <code>QiblaView.body</code> ise <code>location.heading</code>'i okuduğu için <strong>her pusula güncellemesinde</strong> yeniden değerlendiriliyor — saniyede onlarca kez.</dd>
+    <dt>Önemi</dt><dd>Sonuç günde bir kez değişen bir değer; girdi olarak verilen <code>now</code> ise her karede yeni bir <code>Date()</code>. Yani tamamı boşa. Kaba hesapla kare başına ~1,5–3 ms ana iş parçacığı, saniyede 20 okumada %3–6 sürekli yük.</dd>
+    <dt>Sonuç</dt><dd>Pusula animasyonunda takılma — projenin <code>QiblaDial</code>'ı <code>Canvas</code>'a taşıyarak 2,14 ms/kare'yi düşürmek için harcadığı emeğin bir kısmını geri veriyor.</dd>
+    <dt>Düzeltme</dt><dd>Gün + koordinat anahtarıyla belleğe alın. <code>QiblaViewModel</code> zaten bir sınıf, yeri orası.</dd>
+  </dl>
+<pre>@Observable
+final class QiblaViewModel {
+    <span class="add">// Sonuc gunde bir degisiyor, `now` ise her karede yeni.
+    // Bellege almazsak 1440 gunes konumu hesabi pusula hizinda tekrarlaniyor.
+    @ObservationIgnored private var cachedTimes: (key: String, value: [Date])?</span>
+
+    func qiblaTimes(on day: Date) -&gt; [Date] {
+        <span class="add">var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+        let start = calendar.startOfDay(for: day)
+        let key = "\(start.timeIntervalSince1970)|\(coordinate.latitude)|\(coordinate.longitude)"
+        if let cachedTimes, cachedTimes.key == key { return cachedTimes.value }
+
+        let value = Qibla.qiblaTimes(on: day, coordinate: coordinate, timeZone: timeZone)
+        cachedTimes = (key, value)
+        return value</span>
+    }
+}</pre>
+  <p>Aynı ekranda ikinci bir kaynak daha var: <code>QiblaView</code> her gövdede <code>now: Date()</code> geçiyor. Bu değer yalnızca kıble saati için gerekli; belleğe alma eklendikten sonra zararsız hale geliyor.</p>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Sıcak yollarda her çağrıda yeni <code>DateFormatter</code> / <code>NumberFormatter</code></h3><span class="fid">P2-2</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>ImsakiyeViewModel.formatted(_:)</code> · <code>WatchPrayerTimesModel.formatted(_:)</code> · <code>QiblaViewModel.formattedMinute(_:)</code> ve <code>.distanceText</code> · <code>Core/Mosque.swift:24 distanceText</code></dd>
+    <dt>Sorun</dt><dd>Beşi de gövdesinde biçimlendiriciyi <code>init</code> ediyor. <code>DateFormatter</code> kurulumu Foundation'ın en pahalı işlemlerinden biri (ICU şablon çözümlemesi); yüz mikrosaniyeler mertebesinde.</dd>
+    <dt>Önemi</dt><dd>Çağrı sayıları küçük değil: <code>ImsakiyeTable</code> bir ayda 30 satır × 6 sütun = <strong>180 <code>DateFormatter</code></strong> üretiyor, üstüne <code>rowLabel</code> erişilebilirlik etiketi başına 6 tane daha. <code>WatchPrayerTimesModel.formatted</code> saatte <strong>saniyede 7 kez</strong> (1 Hz <code>TimelineView</code> × 6 hücre + kahraman). <code>Mosque.distanceText</code> her listede satır başına bir <code>NumberFormatter</code>.</dd>
+    <dt>Sonuç</dt><dd>İmsakiye sekmesinde kaydırma takılması; saatte gereksiz CPU, yani pil. watchOS'ta bu ölçekte israfın karşılığı doğrudan pil ömrü.</dd>
+    <dt>Düzeltme</dt><dd>Saklanan biçimlendirici + saat dilimi değiştiğinde yeniden kurma. <code>PrayerTimesViewModel</code> bunu zaten doğru yapıyor (<code>rebuildFormatters()</code>) — desen mevcut, diğerlerine uygulanmamış. <code>Mosque.distanceText</code> için tek bir <code>static let</code> yeterli, çünkü yerel sabit (<code>tr_TR</code>).</dd>
+  </dl>
+  <div class="ba">
+    <div><p class="balabel">Önce — <code>Mosque.swift</code></p><pre>var distanceText: String {
+    if distance &lt; 1_000 { ... }
+    let km = distance / 1_000
+    <span class="del">let formatter = NumberFormatter()
+    formatter.numberStyle = .decimal
+    formatter.locale = Locale(identifier: "tr_TR")</span>
+    formatter.maximumFractionDigits =
+        distance &lt; 10_000 ? 1 : 0
+    return (formatter.string(...) ?? "...") + " km"
+}</pre></div>
+    <div><p class="balabel">Sonra</p><pre><span class="add">/// Satir basina yeni bir NumberFormatter kurmak
+/// listede olculebilir yuk; yerel sabit oldugu
+/// icin iki hazir ornek yetiyor.
+private static let kmFine = decimalFormatter(digits: 1)
+private static let kmCoarse = decimalFormatter(digits: 0)
+
+private static func decimalFormatter(digits: Int) -&gt; NumberFormatter {
+    let f = NumberFormatter()
+    f.numberStyle = .decimal
+    f.locale = Locale(identifier: "tr_TR")
+    f.maximumFractionDigits = digits
+    return f
+}</span>
+
+var distanceText: String {
+    if distance &lt; 1_000 { ... }
+    let km = distance / 1_000
+    <span class="add">let f = distance &lt; 10_000 ? Self.kmFine : Self.kmCoarse</span>
+    return (f.string(from: NSNumber(value: km))
+            ?? "\(Int(km))") + " km"
+}</pre></div>
+  </div>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Saatte 1 Hz <code>TimelineView</code> bütün ekranı yeniden çiziyor</h3><span class="fid">P2-3</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVaktiWatch Watch App/WatchApp.swift:23</code></dd>
+    <dt>Sorun</dt><dd><code>TimelineView(.periodic(from: .now, by: 1))</code> saniyede bir <code>WatchPrayerTimesView</code>'in tamamını yeniden değerlendiriyor: <code>GeometryReader</code>, kahraman alan, altı hücrelik ızgara, arka planlar. Oysa geri sayım zaten <code>Text(timerInterval:)</code> ile <em>kendi kendine</em> ilerliyor — bu bileşenin varlık sebebi tam olarak yeniden çizim gerektirmemesi.</dd>
+    <dt>Önemi</dt><dd>Üstelik <code>now</code> her saniye değiştiği için <code>Text(timerInterval: now...upcoming.date)</code>'in aralığı da her saniye yeniden kuruluyor — sistemin optimize ettiği yolun elden kaçırılması.</dd>
+    <dt>Sonuç</dt><dd>watchOS'ta gereksiz CPU uyanması ve pil tüketimi. Saatte 1 Hz tam ekran yeniden çizim, Apple'ın watchOS performans rehberinin açıkça uyardığı desen.</dd>
+    <dt>Düzeltme</dt><dd>Dakikalık zaman çizelgesi yeterli — çünkü saniye hassasiyeti gereken tek şey (geri sayım) zaten kendi ilerliyor. Dakikalık girdi, ızgaradaki “şu anki vakit” vurgusunun ve geçmiş vakitlerin solmasının güncellenmesi için var. Aralığın alt ucunu da sabitleyin.</dd>
+  </dl>
+  <div class="ba">
+    <div><p class="balabel">Önce</p><pre>TimelineView(.periodic(from: .now, by: 1)) { context in
+    WatchPrayerTimesView(viewModel: viewModel,
+                         now: context.date)
+}
+
+// WatchPrayerTimesContent.hero
+Text(timerInterval: <span class="del">now</span>...upcoming.date,
+     countsDown: true)</pre></div>
+    <div><p class="balabel">Sonra</p><pre><span class="add">// Saniye hassasiyeti gereken tek sey geri sayim ve o
+// kendi ilerliyor. Dakikalik girdi yalnizca izgaradaki
+// "su anki vakit" vurgusu icin gerekli.</span>
+TimelineView(<span class="add">.everyMinute</span>) { context in
+    WatchPrayerTimesView(viewModel: viewModel,
+                         now: context.date)
+}
+
+// WatchPrayerTimesContent.hero — aralik sabit kalsin
+Text(timerInterval: <span class="add">previousBoundary</span>...upcoming.date,
+     countsDown: true)</pre></div>
+  </div>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Saat dilimi başlangıçta yakalanıp bir daha güncellenmiyor</h3><span class="fid">P2-4</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>PrayerTimesViewModel.swift:11</code>, <code>QiblaViewModel.swift:7</code>, <code>ImsakiyeViewModel.swift:19</code>, <code>WatchPrayerTimesModel.swift:13</code>, <code>PrayerTimesWidget.swift:5</code>, <code>WatchComplication.swift:11</code></dd>
+    <dt>Sorun</dt><dd>Hepsi <code>TimeZone.current</code> kullanıyor. Bu bir anlık görüntü döndürüyor; cihazın saat dilimi değişince <em>güncellenmiyor</em>. Değişimi bildiren <code>NSSystemTimeZoneDidChange</code> / <code>significantTimeChangeNotification</code> hiçbir yerde dinlenmiyor.</dd>
+    <dt>Önemi</dt><dd>Namaz vakti uygulaması için saat dilimi değişimi kenar durum değil, <strong>ana kullanım senaryosu</strong>: uçakla seyahat, umre/hac. Kullanıcı indiğinde uygulamayı açıyor ve eski dilimin vakitlerini görüyor.</dd>
+    <dt>Sonuç</dt><dd>Uygulama yeniden başlatılana kadar yanlış vakitler. Bildirimler de yanlış planlanıyor. Görünüm modellerinde <code>timeZone</code> için <code>didSet</code> kancası yazılmış ama hiçbir yerden <em>atanmıyor</em> — hazırlık var, bağlantı yok.</dd>
+    <dt>Düzeltme</dt><dd>Tek kelimelik düzeltme: <code>.autoupdatingCurrent</code>. Bu tip sistem değişimini kendi izliyor; <code>Calendar</code>'a atandığında da doğru davranıyor. Ayrıca uygulama öne geldiğinde önbellekleri temizleyin.</dd>
+  </dl>
+<pre><span class="del">var timeZone: TimeZone = .current</span>
+<span class="add">// .current anlik goruntu; kullanici ucakla dilim degistirince eskide kaliyor.
+var timeZone: TimeZone = .autoupdatingCurrent</span></pre>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>İptal, cami aramasında yayılmıyor</h3><span class="fid">P2-5</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>EzanVakti/Services/MosqueFinder.swift:86-109</code></dd>
+    <dt>Sorun</dt><dd>Döngü üç Overpass sunucusunu sırayla deniyor. <code>URLSession</code> görev iptalinde <code>URLError.cancelled</code> fırlatıyor, ama <code>catch { lastError = .network }</code> bunu diğer ağ hatalarından ayırmıyor ve <strong>bir sonraki sunucuya geçiyor</strong>. <code>Task.isCancelled</code> döngü içinde hiç kontrol edilmiyor.</dd>
+    <dt>Önemi</dt><dd><code>NearbyMosquesViewModel.reload()</code> her yarıçap değişiminde <code>task?.cancel()</code> çağırıyor — yani iptal <em>tasarımın parçası</em>, ama alt katman uymuyor. Kullanıcı 1 km → 5 km → 25 km diye hızlı geçtiğinde iptal edilmiş iki arama arka planda 3'er sunucuyu, 20 saniyelik zaman aşımlarıyla denemeye devam ediyor.</dd>
+    <dt>Sonuç</dt><dd>Overpass topluluk sunucularına gereksiz yük (kullanım kuralları açısından da önemli — kod bunu <code>User-Agent</code> ile zaten dikkate almış), boşa giden pil ve veri.</dd>
+    <dt>Düzeltme</dt><dd>Döngü başında iptali kontrol edin, iptali ayrı yakalayın.</dd>
+  </dl>
+<pre>for endpoint in endpoints {
+    <span class="add">try Task.checkCancellation()</span>
+    // ...
+    do {
+        let (data, response) = try await URLSession.shared.data(for: request)
+        // ...
+    } catch is DecodingError {
+        lastError = .serverBusy
+    } <span class="add">catch is CancellationError {
+        throw CancellationError()
+    } catch let error as URLError where error.code == .cancelled {
+        // Iptal bir ag hatasi degil: siradaki sunucuyu denemek yanlis olur.
+        throw CancellationError()
+    }</span> catch {
+        lastError = .network
+    }
+}</pre>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Seri hale getirilmemiş yeniden planlama görevleri</h3><span class="fid">P2-6</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>PrayerTimesView.swift:52, 55, 60</code> — üç ayrı <code>Task { await reschedule() }</code></dd>
+    <dt>Sorun</dt><dd>Hiçbiri tutulmuyor, iptal edilmiyor, sıraya konmuyor. <code>reschedule</code> ise ağır: <code>removeAllPendingNotificationRequests()</code> + 58'e kadar <code>await center.add(request)</code>. Ayar sayfasında altı vakit anahtarını hızlıca açıp kapatmak <strong>altı örtüşen tam yeniden planlama</strong> başlatıyor.</dd>
+    <dt>Önemi</dt><dd>Son durum genelde tutarlı çıkıyor çünkü tanımlayıcılar belirlenimci (<code>prayer-ogle-20260825</code>) ve aynı kimlikle ekleme mevcut olanı değiştiriyor. Yani bu bir bozulma değil, <em>israf ve kırılganlık</em>: <code>scheduledCount</code> hangi görevin son bittiğine göre yanlış kalabiliyor.</dd>
+    <dt>Sonuç</dt><dd>Ayar sayfasında “Planlanan bildirim” sayısı yanlış görünebiliyor; gereksiz bildirim merkezi trafiği.</dd>
+    <dt>Düzeltme</dt><dd>Planlayıcının içinde tek bir görev tutun ve yenisi gelince öncekini iptal edin — çağrı yerleri değişmeden kalır.</dd>
+  </dl>
+<pre>@MainActor @Observable
+final class PrayerNotificationScheduler {
+    <span class="add">/// Ayar sayfasinda hizli degisiklikler ust uste tam yeniden
+    /// planlama baslatiyordu; son istek kazanir.
+    @ObservationIgnored private var pending: Task&lt;Void, Never&gt;?</span>
+
+    func reschedule(calculator: PrayerTimesCalculator, timeZone: TimeZone,
+                    locationName: String, preferences: NotificationPreferences,
+                    now: Date = Date()) async {
+        <span class="add">pending?.cancel()
+        let task = Task { @MainActor in
+            await performReschedule(calculator: calculator, timeZone: timeZone,
+                                    locationName: locationName,
+                                    preferences: preferences, now: now)
+        }
+        pending = task
+        await task.value</span>
+    }
+}</pre>
+  <p>Gövdedeki döngüye de <code>guard !Task.isCancelled else { return }</code> eklenmeli, yoksa iptal edilen görev 58 ekleme yapmaya devam eder.</p>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Widget veri senkronizasyonu görünüm modelinin içinde</h3><span class="fid">P2-7</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>PrayerTimesViewModel.swift:30</code> (otomatik konum) ve <code>LocationProvider.swift:105</code> (elle konum)</dd>
+    <dt>Sorun</dt><dd>Aynı iş — “son bilinen konumu widget'a bırak” — iki farklı katmanda, iki farklı koşulda yapılıyor. Elle seçimde <code>LocationProvider.setMode</code>, otomatik konumda <code>PrayerTimesViewModel.apply</code>. Yani <em>widget'ın veri kaynağı, bir sekmenin görünüm modelinin çalışmasına bağlı</em>. <code>QiblaViewModel.apply</code> ve <code>ImsakiyeViewModel.apply</code> aynı durumu alıyor ama kaydetmiyor.</dd>
+    <dt>Önemi</dt><dd>Bugün çalışıyor çünkü Vakitler ilk sekme ve <code>TabView</code> onu hemen kuruyor. Ama sekme sırası değişirse, ekran tembel yüklenirse veya ileride bir “onboarding” akışı eklenirse sessizce bozulur. Kodun kendi yorumu da bu riski elle seçim için fark etmiş: “ekranlardan birinin görünür olmasına bağlı kalırsa widget seçimi kaçırabilir”.</dd>
+    <dt>Sonuç</dt><dd>Kırılgan bağlantı; hata durumunda widget eski şehri gösterir ve nedeni uzakta olur.</dd>
+    <dt>Düzeltme</dt><dd>Kaydetmeyi konumun tek sahibine, <code>LocationProvider</code>'a taşıyın. Durum orada üretiliyor, paylaşım da orada olmalı; görünüm modelleri yalnızca tüketici olur.</dd>
+  </dl>
+<pre>// LocationProvider — tek yazma noktasi
+private func publish(_ coordinate: Coordinate, name: String) {
+    state = .resolved(coordinate, name: name)
+    <span class="add">// Widget kendi konum izni isteyemiyor; tek yazan taraf burasi.
+    SharedLocationStore.save(coordinate: coordinate, name: name)</span>
+}
+
+func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    guard !mode.isManual, let location = locations.last else { return }
+    let coordinate = Coordinate(latitude: location.coordinate.latitude,
+                                longitude: location.coordinate.longitude)
+    <span class="add">// Ters kodlama gelene kadar yazmiyoruz: "Konum bulundu" ara adi
+    // widget'a sizip gereksiz ikinci bir reloadAllTimelines uretiyordu.
+    state = .resolved(coordinate, name: "Konum bulundu")</span>
+    geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, _ in
+        guard let self else { return }
+        let name = [placemarks?.first?.subAdministrativeArea,
+                    placemarks?.first?.administrativeArea]
+            .compactMap { $0 }.first ?? "Bilinmeyen konum"
+        <span class="add">self.publish(coordinate, name: name)</span>
+    }
+}</pre>
+  <p>Bu aynı zamanda ikinci bir sorunu kapatıyor: bugün her konum çözümünde <code>SharedLocationStore.save</code> <em>iki kez</em> çağrılıyor (önce “Konum bulundu”, sonra gerçek ad) ve adlar farklı olduğu için <strong>iki <code>reloadAllTimelines</code></strong> üretiyor. WidgetKit yenileme bütçesi sınırlı; kod bu bütçeyi başka her yerde titizlikle koruyor.</p>
+</div>
+
+<div class="find" id="f-p2-8">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Konum izni metni yurt dışında doğru değil</h3><span class="fid">P2-8</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>project.pbxproj:857, 880</code> — <code>INFOPLIST_KEY_NSLocationWhenInUseUsageDescription</code></dd>
+    <dt>Sorun</dt><dd>Metin şunu diyor: <em>“Konum cihazdan dışarı gönderilmez.”</em> Bu, Türkiye içinde doğru (<code>BundledMosqueSource</code> paketli veriyle çalışıyor, ağ yok). Kapsama kutusunun dışında ise <code>MosqueFinder</code> koordinatı <code>overpass-api.de</code> gibi üçüncü taraf topluluk sunucularına POST ediyor. <code>MKLocalSearch</code> ile şehir araması da Apple'a gidiyor.</dd>
+    <dt>Önemi</dt><dd>İzin metni kullanıcının okuduğu <em>tek</em> taahhüt. Koşulsuz bir olumsuzluk cümlesi, kodun bir dalıyla çelişiyor. README'deki gizlilik bölümü Overpass konusunu düşünmüş ve “toplama sayılmıyor” sonucuna makul bir gerekçeyle varmış — ama bu, “dışarı gönderilmiyor” ifadesini doğrulamaz; gönderiliyor, saklanmıyor.</dd>
+    <dt>Sonuç</dt><dd>App Review'da açıklama talebi riski ve daha önemlisi, projenin kendi dürüstlük çıtasının altına düşmesi.</dd>
+    <dt>Düzeltme</dt><dd>Metni koşullu ve doğru hale getirin — daha uzun değil, sadece kesin:</dd>
+  </dl>
+<pre>"Namaz vakitlerini ve kible yonunu bulundugunuz yere gore hesaplamak icin
+ konumunuz kullanilir. Vakit ve kible hesabi tumuyle cihazda yapilir; konum
+ yalnizca yurt disinda cami ararken harita servisine gonderilir."</pre>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Namaz kaydı sorguları her seferinde tüm günleri tarıyor</h3><span class="fid">P2-9</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd><code>PrayerLogStore.swift:96-108</code> · tüketici <code>TrackingView.swift:135-138</code></dd>
+    <dt>Sorun</dt><dd><code>missedCount(for:)</code> <code>snapshot.days.values</code>'ın tamamını süzüyor. <code>qadaBalance</code> onu çağırıyor, <code>totalQada</code> beş vakit için beş kez çağırıyor, <code>qadaSection</code> beş kez daha. Yani her yeniden çizimde <strong>~10 tam tarama</strong>. Ayrıca kayıtlar hiç budanmıyor — beş yıllık kullanımda ~9.000 gün girdisi.</dd>
+    <dt>Önemi</dt><dd><code>@Observable</code> olduğu için her işaretleme <code>TrackingContent</code>'i yeniden çizdiriyor, yani tarama sıklığı kullanıcının dokunma hızına bağlı. Bugün fark edilmiyor (birkaç yüz gün), zamanla doğrusal büyüyor.</dd>
+    <dt>Sonuç</dt><dd>Yıllar içinde takip sekmesinde artan gecikme. Ayrıca <code>persist()</code> her dokunuşta tüm anlık görüntüyü ana iş parçacığında JSON'a çevirip diske yazıyor — aynı büyüme eğrisi.</dd>
+    <dt>Düzeltme</dt><dd>Kaçırılan sayıları bir kez hesaplayıp anlık görüntü değiştikçe güncelleyin. Sayaç <em>türetilmiş</em> kalmalı — kodun kaza borcunu türetme kararı doğru, sadece sonucu belleğe alın.</dd>
+  </dl>
+<pre>@ObservationIgnored private var missedCache: [Prayer: Int]?
+
+func missedCount(for prayer: Prayer) -&gt; Int {
+    <span class="add">if let missedCache { return missedCache[prayer] ?? 0 }
+    var counts: [Prayer: Int] = [:]
+    for statuses in snapshot.days.values {
+        for (prayer, status) in statuses where status == .missed {
+            counts[prayer, default: 0] += 1
+        }
+    }
+    missedCache = counts                       // tek gecis, bes vakit birden
+    return counts[prayer] ?? 0</span>
+}
+
+private func persist() {
+    <span class="add">missedCache = nil</span>
+    // ... mevcut yazma
+}</pre>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">P2</span><h3>Swift 6'ya geçişi bugünden engelleyen dört nokta</h3><span class="fid">P2-10</span></div>
+  <dl class="f">
+    <dt>Konum</dt><dd>Tüm hedeflerde <code>SWIFT_VERSION = 5.0</code>. Ayrıca hedefler arası ayar tutarsız: saat hedeflerinde <code>SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor</code> açık, iOS uygulaması ve widget hedefinde <strong>yok</strong>.</dd>
+    <dt>Sorun</dt><dd>Kod bugün Swift 5 kipinde temiz derleniyor ve gerçek bir veri yarışı görmüyorum — <code>DispatchQueue</code> hiç yok, <code>Task.detached</code> yok, <code>@unchecked Sendable</code> yok. Ama Swift 6 kipine geçildiğinde şu dört sınıf hata çıkacak:</dd>
+    <dt>Sonuç</dt><dd>Geçiş bugün ucuz (dört nokta), kod tabanı büyüdükçe pahalılaşır. Tutarsız hedef ayarları ayrıca aynı paylaşılan dosyanın hedefe göre farklı izolasyon kurallarıyla derlenmesi demek — bugün zararsız, Swift 6'da sürpriz kaynağı.</dd>
+  </dl>
+  <div class="tw"><table>
+  <thead><tr><th style="width:30%">Sorun</th><th>Yer ve çözüm</th></tr></thead>
+  <tbody>
+  <tr><td><code>Sendable</code> olmayan genel <code>DateFormatter</code></td><td>Üç dosyada dosya kapsamlı <code>private let</code>: <code>PrayerWidgetViews.swift:11</code>, <code>PrayerLiveActivityViews.swift:16</code>, <code>WatchComplicationViews.swift:11</code>. Swift 6'da doğrudan hata. Çözüm: <code>nonisolated(unsafe) let</code> yerine <code>@MainActor</code> ya da her görünümde <code>Date.FormatStyle</code>'a geçiş (<code>date.formatted(.dateTime.hour().minute())</code>) — ikincisi biçimlendiriciyi tümüyle kaldırır.</td></tr>
+  <tr><td>Delege geri çağrılarının izolasyonu</td><td><code>LocationProvider</code> ve <code>WatchLocationProvider</code> <code>@Observable</code> durumu <code>CLLocationManagerDelegate</code> metotlarından değiştiriyor. Sınıflara <code>@MainActor</code>, delege uyumuna <code>nonisolated</code> + <code>MainActor.assumeIsolated</code> gerekecek.</td></tr>
+  <tr><td><code>CLGeocoder</code> tamamlama kapanışları</td><td><code>LocationProvider.swift:137</code>, <code>WatchLocationProvider.swift:52</code>. <code>Sendable</code> olmayan kapanış sınırı; <code>reverseGeocodeLocation(_:)</code>'ın <code>async</code> sürümüne geçmek hem bunu çözer hem <code>[weak self]</code> gerekliliğini kaldırır.</td></tr>
+  <tr><td>İzolasyonsuz <code>@Observable</code> modeller</td><td><code>PrayerTimesViewModel</code>, <code>QiblaViewModel</code>, <code>ImsakiyeViewModel</code>, <code>WatchPrayerTimesModel</code>, <code>PrayerLogStore</code>, <code>NotificationPreferencesStore</code>. Hepsi yalnızca ana iş parçacığından kullanılıyor; <code>@MainActor</code> eklemek doğru ve bedava.</td></tr>
+  </tbody></table></div>
+  <p><strong>Önerilen sıra:</strong> önce dört hedefte de <code>SWIFT_APPROACHABLE_CONCURRENCY = YES</code> ve <code>SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor</code>'ı eşitleyin (bu tek başına yukarıdaki dördüncü maddeyi çözer), sonra <code>SWIFT_STRICT_CONCURRENCY = complete</code> ile Swift 5 kipinde uyarıları görün, en son <code>SWIFT_VERSION = 6.0</code>.</p>
+</div>
+
+<h2 id="p3"><span class="lt">E</span>Düşük öncelik</h2>
+
+<div class="find">
+  <div class="fhead"><span class="chip c3">P3</span><h3><code>LocationState</code> <code>Equatable</code> olsaydı dört kopya kod silinirdi</h3><span class="fid">P3-1</span></div>
+  <p><code>descriptor(of:)</code> yardımcısı dört dosyada tekrarlanıyor — <code>PrayerTimesView</code>, <code>QiblaView</code>, <code>NearbyMosquesView</code>, <code>ImsakiyeView</code> — üstelik üç farklı gövdeyle (biri tüm durumları, ikisi yalnızca <code>resolved</code>'ı kodluyor). Hepsinin yorumu aynı: <em>“<code>onChange</code> için sade bir kimlik: LocationState eşitlenebilir değil.”</em></p>
+  <p>Oysa <code>LocationState</code>'in bütün ilişkili değerleri zaten <code>Equatable</code>: <code>Coordinate</code> <code>Equatable</code>, <code>String</code> <code>Equatable</code>. Tek kelime ekleyince Swift uyumu sentezliyor ve dört yardımcı da, dizgeye dönüştürme de gereksiz kalıyor. Bu tekrar “şu an benzeyen iki farklı şey” değil, <strong>gerçekten aynı kavram</strong> — soyutlama uydurmuyoruz, eksik uyumu ekliyoruz.</p>
+  <div class="ba">
+    <div><p class="balabel">Önce — dört dosyada</p><pre>enum LocationState {
+    case idle, requesting
+    case resolved(Coordinate, name: String)
+    case denied
+    case failed(String)
+}
+
+// ...her gorunumde tekrar:
+.onChange(of: descriptor(of: location.state)) { _, _ in
+    viewModel.apply(location.state)
+}
+
+private func descriptor(of state: LocationState) -&gt; String {
+    switch state {
+    case .idle: return "idle"
+    case .requesting: return "requesting"
+    case .denied: return "denied"
+    case .failed(let m): return "failed:\(m)"
+    case .resolved(let c, let n):
+        return "resolved:\(c.latitude),\(c.longitude),\(n)"
+    }
+}</pre></div>
+    <div><p class="balabel">Sonra</p><pre>enum LocationState<span class="add">: Equatable</span> {
+    case idle, requesting
+    case resolved(Coordinate, name: String)
+    case denied
+    case failed(String)
+}
+
+// ...her gorunumde:
+.onChange(of: location.state) { _, _ in
+    viewModel.apply(location.state)
+}
+
+<span class="add">// descriptor(of:) dort dosyadan da silindi (~40 satir).</span></pre></div>
+  </div>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c3">P3</span><h3>Görünüm gövdesinde pahalı <code>@State</code> başlatma</h3><span class="fid">P3-2</span></div>
+  <p><code>@State private var preferencesStore = NotificationPreferencesStore()</code> (<code>PrayerTimesView.swift:8</code>) ve <code>@State private var log = PrayerLogStore()</code> (<code>RootView.swift:8</code>). <code>@StateObject</code>'in aksine <code>@State</code>'in başlangıç ifadesi bir <code>@autoclosure</code> değil — görünüm yapısı her yeniden kurulduğunda <em>değerlendirilir</em>, sonucu yalnızca ilk seferinde saklanır. Yani <code>PrayerLogStore()</code>'un diskten JSON okuması ve <code>NotificationPreferencesStore()</code>'un <code>UserDefaults</code> çözmesi gereksiz yere tekrarlanabiliyor.</p>
+  <p>Bu iki görünümün konumu sayesinde bugün pratikte nadiren tetikleniyor (<code>RootView</code> kök, <code>PrayerTimesView</code> ise <code>location</code>'ın gözlemlenen özelliklerini okumadığı için ebeveyni geçersizleşmiyor) — bu yüzden P3. Ama yapı görünüm ağacında aşağı taşınırsa sessizce pahalılaşır. Doğru çözüm başlatmayı ertelemek: <code>.task</code> içinde yüklemek veya depoyu <code>RootView</code>'da bir kez kurup aşağı geçirmek — <code>LocationProvider</code> için zaten yapılan şey.</p>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c3">P3</span><h3>Belge ile kod arasında sapma</h3><span class="fid">P3-3</span></div>
+  <p>README bu projenin en güçlü varlıklarından biri; tam da bu yüzden sapmalar önemli:</p>
+  <ul>
+    <li>README “Varsayılan <strong>2 saat</strong>” diyor (<em>Eşik: vakte çok varsa görünmüyor</em>), kod <code>liveActivityLeadMinutes: Int = 60</code> — yani 1 saat. Üstelik README'nin kendi ölçüm tablosu 2 saati gerekçelendiriyor; <strong>kod muhtemelen yanlış olan taraf</strong>.</li>
+    <li><em>Apple Watch</em> bölümü “Komplikasyon hedefi henüz yok; kaynakları <code>WatchComplicationSources/</code> altında bekliyor” diyor, ama hedef var (<code>watch widgetExtension</code>) ve kaynaklar <code>watch widget/</code> içinde — aynı README'nin ilerisi bunu doğru anlatıyor. Eski paragraf silinmeli.</li>
+    <li><em>Komplikasyon hedefi</em> bölümü “Konum izni metni saat hedefine de gerekiyor” diyor — gereksinim doğru tespit edilmiş ama uygulanmamış (bkz. <a href="#p0">P0-1</a>).</li>
+  </ul>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c3">P3</span><h3>Küçük tutarsızlıklar</h3><span class="fid">P3-4</span></div>
+  <div class="tw"><table>
+  <thead><tr><th style="width:34%">Nokta</th><th>Gözlem</th></tr></thead>
+  <tbody>
+  <tr><td><code>NotificationPreferencesStore</code></td><td><code>UserDefaults.standard</code> kullanıyor, kardeşleri (<code>LocationPreferenceStore</code>, <code>MapAppPreferenceStore</code>) App Group suite'ini. Bugün doğru (widget bildirim tercihine bakmıyor), ama widget ileride “bildirim açık” rozetini göstermek isterse tutarsızlık ortaya çıkar. Bir yorum satırı yeterli.</td></tr>
+  <tr><td><code>wrap(_:max:)</code>, <code>julianDay(...)</code></td><td><code>SolarMath.swift</code>'te modül düzeyinde genel fonksiyonlar. <code>wrap</code> son derece genel bir ad ve dört hedefin her birinin genel ad alanında duruyor. <code>Deg.wrap</code> / <code>Deg.julianDay</code> olarak <code>Deg</code> ad alanına taşımak çakışma riskini kapatır.</td></tr>
+  <tr><td><code>TrackingContent.today</code></td><td><code>private let today = Date()</code> — yapı kurulurken sabitleniyor. Uygulama gece yarısını geçerek açık kalırsa dokunuşlar düne işleniyor. <code>TimelineView(.everyMinute)</code> veya <code>scenePhase</code> kancasıyla tazelenmeli.</td></tr>
+  <tr><td><code>ForEach(days, id: \.timeIntervalSince1970)</code></td><td><code>TrackingView.swift:111</code> — <code>Double</code>'ı kimlik olarak kullanmak çalışıyor ama kırılgan. <code>Date</code> zaten <code>Hashable</code>; <code>id: \.self</code> daha doğru.</td></tr>
+  <tr><td><code>LiveActivityController</code> hata yutma</td><td>Üç <code>_ = try? Activity.request(...)</code>. Etkinlik sınırı dolduğunda veya kullanıcı sistem ayarından kapattığında kullanıcı hiçbir şey görmüyor. <code>PrayerNotificationScheduler.lastError</code> deseni burada da uygulanabilir; ayar sayfasında zaten bir yer var.</td></tr>
+  <tr><td><code>WatchMetrics</code> alan adları</td><td><code>rowPadV</code>, <code>heroBottom</code> — Swift API Design Guidelines kısaltmadan yana değil (<code>rowVerticalPadding</code>). Dosya içi bir yapı olduğu için etkisi küçük; tek stil notu bu.</td></tr>
+  </tbody></table></div>
+</div>
+
+<h2 id="akis"><span class="lt">F</span>Bağımlılık akışı</h2>
+
+<h3>Bugünkü akış</h3>
+<figure>
+<pre>                       RootView
+                          |
+        +--------+--------+--------+--------+
+        |        |        |        |        |
+   PrayerTimes Qibla   Nearby   Imsakiye  Tracking      &lt;- View (kabuk)
+        |        |        |        |        |
+        v        v        v        v        v
+    ...Content  ...    ...      ...      ...           &lt;- Content (saf gorunum)
+        |        |        |        |        |
+        v        v        v        v        v
+    ViewModel  ViewModel ViewModel ViewModel  |         &lt;- @Observable sinif
+        |        |        |                   |
+        |        |        v                   v
+        |        |   MosqueFinder        PrayerLogStore
+        |        |    (enum/static)       (JSON dosya)
+        |        |        |
+        v        v        v
+   PrayerTimesCalculator / Qibla / SolarMath            &lt;- saf Foundation cekirdek
+
+   LocationProvider  --(@State, RootView'da tek ornek)--&gt;  tum sekmeler
+        |
+        +--&gt; <b>SharedLocationStore</b> (elle secim)
+                   ^
+                   |
+   PrayerTimesViewModel.apply --+ (otomatik konum)       &lt;- <b>sorumluluk bolunmus</b></pre>
+<figcaption>Katmanlar temiz; tek yapısal kusur en altta — paylaşılan konum deposuna iki farklı katmandan yazılıyor (P2-7).</figcaption>
+</figure>
+
+<p>Bu akışta <strong>dikkat çeken şey ne <em>var</em> değil, ne <em>yok</em></strong>: görünüm modelinden doğrudan <code>URLSession</code> çağrısı yok, UI'da ağ modeli yok, ekranlar arası görünüm modeli bağımlılığı yok, <code>EnvironmentObject</code> zinciri yok. <code>OverpassResponse</code> <code>fileprivate</code> ve <code>MosqueFinder</code> içinde kalıyor, dışarı yalnızca alan tipi <code>Mosque</code> çıkıyor — DTO/domain ayrımı biçimsel bir Repository katmanı kurulmadan sağlanmış. Bu ölçekte doğru karar.</p>
+
+<h3>Önerilen akış</h3>
+<figure>
+<pre>                       RootView
+                          |
+                   LocationProvider            &lt;- konumun TEK sahibi
+                          |                       (durum + paylasim burada)
+                          +--&gt; SharedLocationStore  --&gt; [App Group] --&gt; Widget
+                          |
+        +--------+--------+--------+--------+
+        v        v        v        v        v
+     View (kabuk: sheet, task, scenePhase, izin akisi)
+        |
+        v
+     Content (saf gorunum — ImageRenderer ile basilabilir)
+        |
+        v
+     ViewModel (@MainActor @Observable — bicimleme + turetme + bellege alma)
+        |
+        v
+     Cekirdek (saf Foundation, belirlenimci, test edilebilir)
+        |
+        +-- PrayerTimesCalculator   +-- Qibla   +-- PrayerLogStore
+
+     Servisler yalnizca kabuk katmanindan cagrilir:
+        PrayerNotificationScheduler · LiveActivityController · MosqueFinder</pre>
+<figcaption>Tek değişiklik: konum paylaşımı görünüm modelinden çıkıp sahibine dönüyor. Yeni katman, yeni protokol, yeni soyutlama <em>yok</em>.</figcaption>
+</figure>
+
+<div class="note">
+  <span class="nlabel">Bilinçli olarak önermediklerim</span>
+  <p>Bu proje için <strong>UseCase/Interactor katmanı, Repository protokolleri ve Coordinator</strong> önermiyorum. İş kuralları (vakit hesabı, kaza türetimi, kıble) zaten saf fonksiyonlar ve saf tiplerde toplanmış — bir <code>UseCase</code> sarmalayıcısı yalnızca dolaylılık ekler. Tek veri kaynağı belirlenimci bir hesap; “önbellek + uzak + yerel” üçlüsünü koordine edecek bir Repository'ye gerek yok. Gezinme iki <code>sheet</code> ve bir <code>TabView</code>'dan ibaret; Coordinator burada çözdüğünden fazla sorun yaratır.</p>
+</div>
+
+<h3>Hedefler arası ilişki</h3>
+<figure>
+<pre>  IPHONE                                   APPLE WATCH
+  ------                                   -----------
+  EzanVakti (app)                          EzanVaktiWatch (app)
+    | CLLocationManager                      | CLLocationManager  <b>&lt;- izin metni YOK (P0-1)</b>
+    | yazar                                  | yazar
+    v                                        v
+  [App Group: group.com.mahmud.ezanvakti]  [App Group: <b>ayni kimlik, ayri konteyner</b>]
+    ^                                        ^
+    | okur                                   | okur
+  EzanVaktiWidgetExtension                 watch widgetExtension
+    - PrayerTimesWidget                      - WatchComplication
+    - PrayerLiveActivity                     - dort aksesuar ailesi
+
+  Cihazlar arasi baglanti: <b>YOK</b> (WatchConnectivity kullanilmiyor — dogru karar)
+
+  PAYLASILAN KAYNAK (pbxproj membershipExceptions ile, paket YOK)
+  ---------------------------------------------------------------
+                              app  widget  watch  komplikasyon
+  Core/Prayer.swift            X     X       X         X
+  Core/PrayerTimesCalculator   X     X       X         X
+  Core/PrayerCalculationParams X     X       X         X
+  Core/SolarMath               X     X       X         X
+  Core/SharedLocationStore     X     X       X         X
+  Core/PrayerActivityContent   X     X       -         -
+  Core/PrayerActivityAttrs     X     X       -         -
+  Features/Palette             X     X       X         -
+  Features/ScaledFont          X     X       X         -
+  Widget/PrayerWidgetEntry     -     X       -         X</pre>
+<figcaption>Beş çekirdek dosya dört hedefin hepsine gidiyor. Üyelik <code>Tools/check/targets.sh</code> ile denetleniyor — paket kullanmayan bir projede bunu doğru yapmanın yolu.</figcaption>
+</figure>
+
+<h3>Bağımlılık enjeksiyonu: her statik ad alanının değerlendirmesi</h3>
+<p>Projede değişken durum tutan <code>.shared</code> singleton'ı <strong>yok</strong>. Bunun yerine 12 durumsuz <code>enum</code> ad alanı var. Aşağıda her biri ayrı ayrı sınıflandırıldı.</p>
+
+<div class="tw"><table>
+<thead><tr><th style="width:27%">Tip</th><th style="width:20%">Sınıflandırma</th><th>Gerekçe</th></tr></thead>
+<tbody>
+<tr><td><code>Deg</code>, <code>Qibla</code>, <code>SolarMath</code> genel fn.</td><td class="lvl" style="color:var(--good)">Güvenli</td><td>Saf matematik, durum yok, yan etki yok. Test edilebilirlikleri zaten tam. Enjeksiyon önermiyorum.</td></tr>
+<tr><td><code>Palette</code></td><td class="lvl" style="color:var(--good)">Güvenli</td><td>Sabit tasarım belirteçleri. Tema desteği eklenirse gözden geçirilir; bugün gerek yok.</td></tr>
+<tr><td><code>NotificationSoundCatalog</code></td><td class="lvl" style="color:var(--good)">Güvenli</td><td><code>Bundle.main</code>'a bakıyor ama süzme mantığı (<code>isBundled</code>) tipin kendisinde ve saf. Bugünkü haliyle uygun.</td></tr>
+<tr><td><code>MapApp</code> / <code>MapAppLauncher</code></td><td class="lvl" style="color:var(--good)">Güvenli</td><td>URL kurma <code>MapApp</code> içinde saf; yalnızca <code>UIApplication.open</code> tarafı yan etkili ve o da ince bir kabuk. Doğru ayrılmış.</td></tr>
+<tr><td><code>BundledMosqueSource</code></td><td class="lvl" style="color:var(--good)">Güvenli</td><td>Zaten enjeksiyona hazır: <code>load(from:)</code> ve <code>search(in:near:radius:)</code> URL/dizi parametresi alıyor. Bilinçli ve doğru tasarım.</td></tr>
+<tr><td><code>SharedLocationStore</code></td><td class="lvl md">Tartışmalı</td><td>Süit adı sabit kodlu, <code>save</code> içinde <code>WidgetCenter.reloadAllTimelines()</code> yan etkisi gömülü. Testte gerçek <code>UserDefaults</code>'a ve WidgetKit'e dokunuyor. <code>UserDefaults</code> parametresi almak yeterli olur; protokol gerekmez.</td></tr>
+<tr><td><code>LocationPreferenceStore</code>, <code>MapAppPreferenceStore</code></td><td class="lvl md">Tartışmalı</td><td>Aynı gerekçe, daha düşük risk (yan etki yok). İkisi ve <code>SharedLocationStore</code> aslında tek bir “paylaşılan tercih deposu” — üç ayrı ad alanı yerine tek bir <code>AppGroupDefaults</code> değeri daha az tekrar.</td></tr>
+<tr><td><code>MosqueCache</code></td><td class="lvl md">Tartışmalı</td><td>Dosya yolu ve ömür sabit; <code>MosqueFinder</code> içinden çağrılıyor. Testte gerçek diske yazar. Kök dizini parametre yapmak yeterli.</td></tr>
+<tr><td><code>MosqueFinder</code></td><td class="lvl hi">Enjekte edilmeli</td><td><strong>Ağa çıkan tek yer</strong> ve <code>URLSession.shared</code> sabit kodlu. Bu haliyle <code>NearbyMosquesViewModel</code> için hiçbir test yazılamaz: 429/5xx/zaman aşımı/iptal dallarının hepsi denenmemiş durumda. Aynı zamanda P2-5'in de kaynağı.</td></tr>
+<tr><td><code>LiveActivityController</code></td><td class="lvl hi">Enjekte edilmeli</td><td>Statik olduğu için P1-3'teki yarış durumu için bir sahip yok ve davranışı doğrulanamıyor. Bir örneğe (instance) dönüştürmek hem seri hale getirmeyi doğal kılıyor hem test kapısı açıyor.</td></tr>
+</tbody>
+</table></div>
+
+<p><strong>Container önermiyorum.</strong> Bu ölçekte bir DI container'ı veya composition root çerçevesi kazançtan çok tören getirir. Yukarıdaki iki “enjekte edilmeli” maddesi için doğru araç <em>protokol + kurucu parametresi</em>: <code>MosqueFinder</code>'ı bir <code>struct</code>'a çevirip <code>URLSession</code>'ı (veya dar bir <code>HTTPClient</code> protokolünü) kurucudan almak, <code>LiveActivityController</code>'ı <code>PrayerTimesView</code>'un sahip olduğu bir örneğe dönüştürmek. İkisi de mevcut çağrı yerlerini neredeyse hiç değiştirmez.</p>
+
+<h2 id="plan"><span class="lt">G</span>Refactoring planı</h2>
+<p>Yeniden yazma önermiyorum — buna gerek yok. Aşağıdaki yedi aşama artan risk sırasına göre dizildi; her biri tek başına birleştirilebilir ve kendi başına değer üretir. İlk iki aşama toplam yarım günlük iş ve yayın engelini kaldırıyor.</p>
+
+<div class="phase">
+  <p class="pnum">Aşama 1 · yarım gün · risk: yok</p>
+  <h3>Yayın engellerini kaldır</h3>
+  <p><strong>Dosyalar:</strong> <code>project.pbxproj</code> (saat hedefi, iki yapılandırma), yeni <code>EzanVaktiWatch Watch App/PrivacyInfo.xcprivacy</code>, yeni <code>watch widget/PrivacyInfo.xcprivacy</code>, <code>project.pbxproj</code> (izin metni düzeltmesi).</p>
+  <p><strong>İş:</strong> P0-1, P0-2, P2-8. Üçü de yapılandırma; kod derlemesi değişmiyor.</p>
+  <p><strong>Risk:</strong> Yok. <strong>Fayda:</strong> Saat hedefleri gönderilebilir hale geliyor ve saat gerçek konumu görüyor — yani saat uygulaması ilk kez amacına uygun çalışıyor.</p>
+  <p><strong>Doğrulama:</strong> Gerçek saatte izin sorusunun çıkması; <code>Tools/check/targets.sh</code> yine yeşil.</p>
+</div>
+
+<div class="phase">
+  <p class="pnum">Aşama 2 · yarım gün · risk: düşük</p>
+  <h3>Doğruluk düzeltmeleri</h3>
+  <p><strong>Dosyalar:</strong> <code>Core/PrayerTimesCalculator.swift</code> (UTC çapası), sekiz biçimlendirici dosyası (<code>en_US_POSIX</code>), <code>Core/PrayerLogStore.swift</code> (bozuk dosya kurtarma).</p>
+  <p><strong>İş:</strong> P1-1, P1-5, P1-6.</p>
+  <p><strong>Risk:</strong> Düşük ama gerçek — hesap çekirdeğine dokunuluyor. <strong>Azaltma:</strong> <code>Tools/validate</code> çıktısını değişiklikten önce ve sonra alıp <code>diff</code>'leyin; İstanbul için bit düzeyinde aynı kalmalı (ben doğruladım, kalıyor).</p>
+  <p><strong>Fayda:</strong> Mısır/Lübnan'da yılda bir günlük tam saat hatası kapanıyor; 24 saat ayarı kapalı kullanıcılarda saat biçimi düzeliyor; kullanıcı verisi geri dönüşsüz kayıptan korunuyor.</p>
+</div>
+
+<div class="phase">
+  <p class="pnum">Aşama 3 · 1 gün · risk: düşük</p>
+  <h3>Yaşam döngüsü ve durum sahipliği</h3>
+  <p><strong>Dosyalar:</strong> <code>Services/LiveActivityController.swift</code>, <code>Services/PrayerNotificationScheduler.swift</code>, <code>Services/LocationProvider.swift</code>, <code>Features/PrayerTimes/PrayerTimesView.swift</code>, <code>Features/PrayerTimes/PrayerTimesViewModel.swift</code>, <code>Core/LocationPreference.swift</code>.</p>
+  <p><strong>İş:</strong> P1-2 (ayar etkisiz kalıyor), P1-3 (Live Activity yarışı), P2-6 (planlama serileştirme), P2-7 (konum paylaşımını sahibine taşı), P3-1 (<code>LocationState: Equatable</code>).</p>
+  <p><strong>Risk:</strong> Düşük — davranış değişikliği görünür ama kapsam dar. <strong>Fayda:</strong> Kilit ekranı bileşeni öngörülebilir hale geliyor, widget senkronizasyonu tek noktaya iniyor, dört dosyadan ~40 satır tekrar siliniyor.</p>
+</div>
+
+<div class="phase">
+  <p class="pnum">Aşama 4 · 1 gün · risk: yok</p>
+  <h3>Saat tarafını iOS seviyesine getir</h3>
+  <p><strong>Dosyalar:</strong> <code>WatchLocationProvider.swift</code>, <code>WatchPrayerTimesModel.swift</code>, <code>WatchPrayerTimesView.swift</code>, <code>WatchApp.swift</code>, <code>watch widget/WatchComplicationViews.swift</code>.</p>
+  <p><strong>İş:</strong> P1-4 (geri düşüşü göster), P2-3 (1 Hz → dakikalık), P2-2'nin saat kısmı (biçimlendiriciyi sakla), P2-4 (<code>autoupdatingCurrent</code>).</p>
+  <p><strong>Risk:</strong> Yok — yalnızca saat hedefleri. <strong>Fayda:</strong> Saat, uygulamanın “yanlış bilgiyi sessizce gösterme” ilkesine uyuyor; pil tüketimi düşüyor.</p>
+</div>
+
+<div class="phase">
+  <p class="pnum">Aşama 5 · 1 gün · risk: düşük</p>
+  <h3>Performans</h3>
+  <p><strong>Dosyalar:</strong> <code>QiblaViewModel.swift</code>, <code>ImsakiyeViewModel.swift</code>, <code>Core/Mosque.swift</code>, <code>Core/PrayerLogStore.swift</code>.</p>
+  <p><strong>İş:</strong> P2-1 (kıble saatini belleğe al), P2-2'nin kalanı, P2-9 (kaçırılan sayıları belleğe al).</p>
+  <p><strong>Risk:</strong> Düşük; belleğe alma geçersizleştirme hataları riski var, o yüzden P2-9'da <code>persist()</code> ile temizleme aynı işlemde yapılmalı.</p>
+  <p><strong>Fayda:</strong> Pusula ekranında ana iş parçacığında ölçülebilir rahatlama; imsakiye kaydırması düzeliyor.</p>
+</div>
+
+<div class="phase">
+  <p class="pnum">Aşama 6 · 2–3 gün · risk: orta</p>
+  <h3>Test mimarisi</h3>
+  <p><strong>Dosyalar:</strong> yeni <code>EzanVaktiTests</code> hedefi; <code>Services/MosqueFinder.swift</code> ve <code>Services/LiveActivityController.swift</code> enjekte edilebilir hale getiriliyor.</p>
+  <p><strong>İş:</strong> Bkz. aşağıdaki test planı. Mevcut <code>Tools/tests</code> içeriği Swift Testing'e taşınır ve <em>ayrıca korunur</em> — Xcode'suz koşabilme özelliği bu projede gerçek bir değer.</p>
+  <p><strong>Risk:</strong> Orta — <code>MosqueFinder</code>'ı <code>enum</code>'dan <code>struct</code>'a çevirmek çağrı yerlerini etkiliyor (tek çağrı yeri var, o yüzden yönetilebilir).</p>
+  <p><strong>Fayda:</strong> <code>xcodebuild test</code> ile CI; şu anda hiç denenmemiş olan hata dalları kapsanıyor.</p>
+</div>
+
+<div class="phase">
+  <p class="pnum">Aşama 7 · 1–2 gün · risk: orta</p>
+  <h3>Swift 6</h3>
+  <p><strong>Dosyalar:</strong> dört hedefin yapılandırması + P2-10 tablosundaki dört nokta.</p>
+  <p><strong>İş:</strong> Önce hedef ayarlarını eşitle, sonra <code>SWIFT_STRICT_CONCURRENCY = complete</code> ile uyarıları temizle, en son <code>SWIFT_VERSION = 6.0</code>.</p>
+  <p><strong>Risk:</strong> Orta — izolasyon değişiklikleri yayılabiliyor. Aşama 6'dan <em>sonra</em> yapılması bilinçli: testler geri dönüşleri yakalar.</p>
+  <p><strong>Fayda:</strong> Bugün dört noktalık iş; kod tabanı büyüdükçe katlanarak pahalılaşır.</p>
+</div>
+
+<h3>Hangi testler yazılmalı</h3>
+<div class="tw"><table>
+<thead><tr><th style="width:20%">Alan</th><th>Öncelikli senaryolar</th></tr></thead>
+<tbody>
+<tr><td><strong>Alan çekirdeği</strong></td><td><code>PrayerTimesCalculator</code>: Diyanet takvimine karşı sabitlenmiş beklenen değerler (İstanbul + uç iller); kutup enleminde <code>nil</code> dönüşü; <strong>gece yarısı yaz saati geçişi</strong> (P1-1 için regresyon kilidi); <code>DailyPrayerTimes</code> eksik sözlükle kurulamıyor. <code>Qibla</code>: bilinen yön değerleri, kıble saatinin 0/1/2 kesişim durumları.</td></tr>
+<tr><td><strong>Kalıcılık</strong></td><td>Mevcut <code>Tools/tests</code> kapsamı (seri, kaza türetimi, geri alma) taşınır. <strong>Eksik olan:</strong> bozuk dosya davranışı (P1-6), göç senaryosu, eş zamanlı yazma.</td></tr>
+<tr><td><strong>Görünüm modeli</strong></td><td><code>PrayerTimesViewModel.apply</code> durum geçişleri (çözüldü → reddedildi → çözüldü); geri düşüş bayrağının doğru anlarda değişmesi; önbellek geçersizleştirme. <code>NearbyMosquesViewModel</code>: “yeterince hareket etti mi” eşiği, yarıçap değişiminde eski listenin bırakılması, iptal davranışı.</td></tr>
+<tr><td><strong>Ağ</strong></td><td><code>MosqueFinder</code> enjekte edilebilir olduktan sonra: 429 → <code>.rateLimited</code>, 5xx → sıradaki sunucu, üçü de düşerse son hata, bozuk JSON → <code>.serverBusy</code>, iptal → yayılıyor. Tekke/medrese ad süzgeci (README'nin ölçtüğü örneklerle).</td></tr>
+<tr><td><strong>Widget</strong></td><td><code>PrayerEntry.make</code>: gece yarısı–imsak arasında <code>previous</code>'ın dünün yatsısına düşmesi; yatsıdan sonra <code>upcoming</code>'in yarının imsakına geçmesi; <code>getTimeline</code>'ın yalnızca vakit sınırlarında girdi üretmesi ve boş sonuçta yenileme noktası bırakması. Bunlar saf fonksiyon, bugün bile test edilebilir.</td></tr>
+<tr><td><strong>Watch</strong></td><td><code>WatchConnectivity</code> kullanılmadığı için test yükü yok — bu, bağımsızlık kararının somut bir kazancı. <code>WatchPrayerTimesModel</code> önbelleği ve geri düşüş bayrağı test edilir.</td></tr>
+<tr><td><strong>Bildirim</strong></td><td><code>reschedule</code>: 58'lik bütçeye uyulması, geçmiş vakitlerin atlanması, kapalı vakitlerin planlanmaması, tanımlayıcı biçiminin kararlı kalması. <code>UNUserNotificationCenter</code> için ince bir protokol yeterli.</td></tr>
+</tbody>
+</table></div>
+
+<h2 id="kod"><span class="lt">H</span>SOLID: koddan gerçek örnekler</h2>
+<p>Somut BEFORE/AFTER örnekleri bulguların içine yerleştirildi — düzeltme, gerekçesinin yanında dururken daha yararlı. Bu bölüm yalnızca SOLID açısından gerçekten ihlal sayılabilecek noktaları listeliyor. Uydurma ihlal üretmedim; kod tabanı bu eksende beklediğimden temiz çıktı.</p>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">SRP</span><h3>Tek sorumluluk — iki gerçek ihlal</h3></div>
+  <dl class="f">
+    <dt>Dosya</dt><dd><code>Features/PrayerTimes/PrayerTimesViewModel.swift:22-40</code></dd>
+    <dt>Tip</dt><dd><code>PrayerTimesViewModel.apply(_:)</code></dd>
+    <dt>Sorun</dt><dd>Görünüm modeli hem kendi durumunu güncelliyor <em>hem de</em> uygulama genelindeki widget veri paylaşımını yürütüyor (<code>SharedLocationStore.save</code>).</dd>
+    <dt>Neden ihlal</dt><dd>İki farklı değişme sebebi: “Vakitler ekranı nasıl görünsün” ve “Widget konumu nereden alsın”. İkincisi bu ekrana ait değil, sistem çapında bir ilke.</dd>
+    <dt>Düzeltme</dt><dd>P2-7 — paylaşımı <code>LocationProvider</code>'a taşı.</dd>
+  </dl>
+  <dl class="f">
+    <dt>Dosya</dt><dd><code>Core/SharedLocationStore.swift:23-41</code></dd>
+    <dt>Tip</dt><dd><code>SharedLocationStore.save(coordinate:name:)</code></dd>
+    <dt>Sorun</dt><dd>Bir “depo” hem yazıyor hem <code>WidgetCenter.reloadAllTimelines()</code> ile WidgetKit'i tetikliyor.</dd>
+    <dt>Neden ihlal</dt><dd>Saklama ile bildirim iki ayrı sorumluluk. Pratik sonucu: bu tip test edilirken kaçınılmaz olarak WidgetKit'e dokunuyor, ayrıca saat hedefinde de aynı yan etki koşuyor.</dd>
+    <dt>Düzeltme</dt><dd>Yan etkiyi çağırana taşıyın veya <code>save</code>'in dönüş değeriyle bildirin: <code>@discardableResult func save(...) -&gt; Bool</code> (<em>değişti mi</em>), tetikleme çağıranda. Yorumda anlatılan “boşuna yenileme” koruması kaybolmaz, görünür hale gelir.</dd>
+  </dl>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c2">DIP</span><h3>Bağımlılığın tersine çevrilmesi — tek gerçek ihlal</h3></div>
+  <dl class="f">
+    <dt>Dosya</dt><dd><code>Services/MosqueFinder.swift:96</code></dd>
+    <dt>Tip</dt><dd><code>MosqueFinder.fetch(near:radius:)</code></dd>
+    <dt>Sorun</dt><dd>Üst düzey arama mantığı doğrudan somut <code>URLSession.shared</code>'a bağlı.</dd>
+    <dt>Neden ihlal</dt><dd>Politika (hangi sunucu, hangi hata hangi mesaja eşlenir, kaç kez denenir) mekanizmadan ayrılmamış. Bunun bedeli teorik değil: dosyadaki dört hata dalının <strong>hiçbiri</strong> denenemiyor, ve P2-5'teki iptal hatası tam da bu yüzden gözden kaçmış.</dd>
+    <dt>Düzeltme</dt><dd>Dar bir soyutlama yeterli — tam bir “ağ katmanı” değil:</dd>
+  </dl>
+<pre><span class="add">/// Yalnizca test icin bir dikis; genel bir ag katmani degil.
+protocol HTTPClient: Sendable {
+    func data(for request: URLRequest) async throws -&gt; (Data, URLResponse)
+}
+extension URLSession: HTTPClient {}</span>
+
+struct MosqueFinder {
+    <span class="add">var client: HTTPClient = URLSession.shared</span>
+    // ... static'ler ornek metotlarina donusuyor, govde aynen kaliyor
+}</pre>
+</div>
+
+<div class="find">
+  <div class="fhead"><span class="chip c3">OCP · LSP · ISP</span><h3>İhlal bulamadım</h3></div>
+  <p><strong>Open/Closed:</strong> Yeni vakit veya yeni durum eklemek büyük ölçüde <code>Prayer</code> / <code>PrayerStatus</code> enum'una bir case eklemekle sınırlı; derleyici tüm <code>switch</code>'leri gösteriyor. <code>PrayerCalculationParameters</code> yeni bir hesap yöntemini (Şâfiî ikindi, farklı yatsı açısı) <em>kod değiştirmeden</em> destekliyor — bu tam olarak OCP'nin istediği şey ve bilinçli tasarlanmış.</p>
+  <p><strong>Liskov:</strong> Kalıtım hiyerarşisi yok denecek kadar az (<code>NSObject</code> alt sınıfları yalnızca delege uyumu için). İhlal edilecek yer yok.</p>
+  <p><strong>Interface Segregation:</strong> Projede yalnızca sistem protokolleri kullanılıyor; kendi protokolü <strong>hiç yok</strong>. Bu, gereksiz protokol üretilmediği anlamına geliyor — çoğu kod tabanında bunun tersi problemi görürüm. ISP açısından ihlal değil, doğru varsayılan.</p>
+</div>
+
+<h2 id="dosya"><span class="lt">I</span>Dosya bazlı inceleme</h2>
+<p>Yalnızca söylenecek bir şey olan dosyalar. Geri kalan ~45 dosya için: <strong>kayda değer sorun yok.</strong></p>
+
+<div class="tw"><table>
+<thead><tr><th style="width:24%">Dosya</th><th style="width:11%">Önem</th><th>Sorumluluk · sorunlar · bölünmeli mi</th></tr></thead>
+<tbody>
+<tr>
+  <td><code>Core/PrayerTimesCalculator.swift</code></td><td class="lvl md">P1</td>
+  <td>Bir günün vakitlerini hesaplar. Yakınsama döngüsü, kutup <code>nil</code> dönüşü ve zorlama açmaların hepsi gerekçelendirilmiş ve güvenli. <strong>Sorun:</strong> yerel gece yarısı çapası (P1-1). <strong>Bölünmeli:</strong> Hayır — 89 satır, tek iş, doğru boyut.</td>
+</tr>
+<tr>
+  <td><code>Core/PrayerLogStore.swift</code></td><td class="lvl md">P1</td>
+  <td>Takip + kaza. Kaza borcunu türetmesi (sayaç tutmaması) doğru karar, testlerle de kanıtlanmış. <strong>Sorunlar:</strong> bozuk dosyada sessiz veri kaybı (P1-6); tam tarama sorguları (P2-9); ana iş parçacığında senkron yazma; budama yok. <strong>Bölünmeli:</strong> Hayır, ama saklama katmanı ileride SwiftData'ya geçilecekse arayüz zaten uygun.</td>
+</tr>
+<tr>
+  <td><code>Services/LiveActivityController.swift</code></td><td class="lvl hi">P1</td>
+  <td>Kilit ekranı geri sayımı. iOS 26 zamanlama yolu ve sürüm ayrımı doğru ele alınmış. <strong>Sorunlar:</strong> kendisiyle yarışıyor (P1-3); üç <code>try?</code> hatayı yutuyor (P3-4); statik olduğu için test edilemiyor. <strong>Bölünmeli:</strong> Hayır — örneğe dönüştürülmeli.</td>
+</tr>
+<tr>
+  <td><code>Features/PrayerTimes/PrayerTimesView.swift</code></td><td class="lvl hi">P1</td>
+  <td>Ana ekran kabuğu: izin akışı, iki sheet, <code>scenePhase</code>, yeniden planlama. <strong>Sorunlar:</strong> tercih değişiminde Live Activity yenilenmiyor (P1-2); üç serbest <code>Task</code> (P2-6); açılışta <code>.task</code> + <code>scenePhase</code> çakışması (P1-3'ün tetikleyicisi). <strong>Bölünmeli:</strong> Sınırda — 107 satır makul, ama yaşam döngüsü mantığı bir <code>PrayerTimesCoordinator</code>'a değil, ilgili servislere (Aşama 3) taşınmalı.</td>
+</tr>
+<tr>
+  <td><code>WatchLocationProvider.swift</code></td><td class="lvl hi">P0</td>
+  <td>Saatin konum çözümü. Telefondaki sağlayıcıyı kopyalamama kararı doğru ve gerekçesi yazılmış. <strong>Sorunlar:</strong> izin metni olmadan izin isteniyor (P0-1); <code>didFailWithError</code> boş; <code>isDenied</code> ve <code>.notDetermined</code> ayrılmıyor; hiçbiri arayüze ulaşmıyor (P1-4). <strong>Bölünmeli:</strong> Hayır — 62 satır, doğru kapsam.</td>
+</tr>
+<tr>
+  <td><code>Services/MosqueFinder.swift</code></td><td class="lvl">P2</td>
+  <td>Cami arama: paketli veri → önbellek → Overpass. Kademeleme mantığı ve OSM etiket seçimi çok iyi gerekçelendirilmiş. <strong>Sorunlar:</strong> iptal yayılmıyor (P2-5); <code>URLSession.shared</code> sabit (DIP). <strong>Bölünmeli:</strong> Hayır — 186 satır ama üç net bölüm (ağ / dönüştürme / süzme) MARK'larla ayrılmış.</td>
+</tr>
+<tr>
+  <td><code>Features/Qibla/QiblaContent.swift</code></td><td class="lvl">P2</td>
+  <td>Kıble ekranının gövdesi. Erişilebilirlik değerinin 15°'ye yuvarlanması sofistike ve doğru bir karar. <strong>Sorun:</strong> gövdede 1440 adımlık tarama çağrısı (P2-1). <strong>Bölünmeli:</strong> Hayır.</td>
+</tr>
+<tr>
+  <td><code>Features/Imsakiye/ImsakiyeViewModel.swift</code></td><td class="lvl">P2</td>
+  <td>Aylık çizelge + hicri kapsam. Önbellek var ve doğru. <strong>Sorunlar:</strong> <code>formatted</code>, <code>monthTitle</code>, <code>hijriSpan</code> ve <code>rows()</code> her çağrıda biçimlendirici kuruyor (P2-2); <code>calendar</code> hesaplanmış özellik olduğu için her erişimde yeni bir <code>Calendar</code> üretiyor. <strong>Bölünmeli:</strong> Hayır — <code>PrayerTimesViewModel</code>'deki <code>rebuildFormatters()</code> deseni buraya uygulanmalı.</td>
+</tr>
+<tr>
+  <td><code>WatchPrayerTimesView.swift</code></td><td class="lvl">P2</td>
+  <td>Saat ekranı + <code>WatchMetrics</code> kademeleri. Yüksekliğe göre üç kademe kararı ölçüme dayalı ve isabetli; <code>ScrollView</code>'ün yalnızca erişilebilirlik puntolarında devreye girmesi de doğru (<code>GeometryReader</code> gerekçesiyle). <strong>Sorunlar:</strong> geri düşüş gösterilmiyor (P1-4); 1 Hz yeniden çizim (P2-3). <strong>Bölünmeli:</strong> Hayır — 179 satır, üç yapı zaten ayrılmış.</td>
+</tr>
+<tr>
+  <td><code>EzanVaktiWidget/PrayerTimesWidget.swift</code></td><td class="lvl lo">—</td>
+  <td>Zaman çizelgesi üretimi. Girdilerin yalnızca vakit sınırlarına konması, boş sonuçta yenileme noktası bırakılması, <code>.atEnd</code> politikası — üçü de doğru. <strong>Kayda değer sorun yok.</strong> Tek not: <code>timeZone</code> <code>.current</code> (P2-4), ama uzantı zaten her tetiklemede yeniden kurulduğu için etkisi iOS uygulamasındakinden küçük.</td>
+</tr>
+<tr>
+  <td><code>Core/Prayer.swift</code>, <code>SolarMath.swift</code>, <code>Qibla.swift</code>, <code>Mosque.swift</code>, <code>PrayerRecord.swift</code></td><td class="lvl lo">—</td>
+  <td><strong>Kayda değer sorun yok.</strong> <code>DailyPrayerTimes</code>'ın failable init + <code>subscript</code> tasarımı, <code>QadaLedger</code>'ın türetilmiş borcu ve <code>CodingKeyRepresentable</code> uyumu bu dosyaların örnek yanları. Küçük notlar P3-4'te.</td>
+</tr>
+<tr>
+  <td><code>PrayerWidgetViews.swift</code>, <code>PrayerLiveActivityViews.swift</code>, <code>WatchComplicationViews.swift</code></td><td class="lvl lo">—</td>
+  <td><strong>Kayda değer sorun yok.</strong> <code>timerInterval</code> alan sürümlerin kullanımı bilinçli ve doğru; kilit ekranı/komplikasyon görünümlerinde renk kullanılmaması sistemin tonlama davranışını doğru okuyor. Tek nokta: dosya kapsamlı <code>DateFormatter</code>'lar (P1-5, P2-10).</td>
+</tr>
+</tbody>
+</table></div>
+
+<h2 id="yapi"><span class="lt">J</span>Hedef ve klasör yapısı</h2>
+<p><strong>SPM modülerleştirmesi önermiyorum</strong> — ve bu, incelemenin en bilinçli “hayır”ı. Gerekçe:</p>
+<ul>
+<li>Paylaşılan yüzey <strong>beş dosya, ~330 satır</strong>. Bir paketin getireceği tören (ayrı <code>Package.swift</code>, sürümleme, Xcode önizleme yavaşlaması, <code>public</code> erişim işaretlemesi) bu ölçekte kazançtan büyük.</li>
+<li><code>Tools/check/targets.sh</code>, paket kullanmamanın <em>tek gerçek riskini</em> — sessiz üyelik hataları — zaten kapatıyor ve <code>pbxproj</code>'u doğruluk kaynağı olarak okuyor.</li>
+<li>Mevcut klasör düzeni (<code>Core</code> / <code>Services</code> / <code>Features</code>) katmanları doğru ayırıyor. <code>Helpers</code>, <code>Utils</code>, <code>Common</code>, <code>Managers</code> gibi sorumluluğu belirsiz klasör <strong>hiç yok</strong> — bu, aradığım kokuların en yaygını ve burada bulunmuyor.</li>
+</ul>
+<p>Bugünkü yapı, aşağıdaki üç küçük düzeltmeyle olduğu gibi kalmalı:</p>
+
+<figure>
+<pre>EzanVakti/
+  Core/           alan + saklama — saf Foundation, cerceve bagimsiz
+                  paylasilan bes dosya burada, digerleri yalniz uygulamada
+  Services/       platform entegrasyonlari (CoreLocation, UserNotifications,
+                  ActivityKit, URLSession, MapKit) — yalniz kabuk katmanindan
+  Features/       ekran basina klasor: View (kabuk) + Content (saf) + ViewModel
+    <b>DesignSystem/</b>   <span class="add">&lt;- YENI: Palette, ScaledFont, SectionLabel buraya</span>
+                     bugun Features/ kokunde duruyorlar ama ozellik degiller,
+                     ve iki hedefe paylasiliyorlar; yeri belirsiz kaliyor
+  PrivacyInfo.xcprivacy
+EzanVaktiWidget/  iOS widget + Live Activity arayuzu
+EzanVaktiWatch Watch App/
+  <span class="add">PrivacyInfo.xcprivacy   &lt;- YENI (P0-2)</span>
+watch widget/     kadran komplikasyonu
+  <span class="add">PrivacyInfo.xcprivacy   &lt;- YENI (P0-2)</span>
+Tools/            Xcode'suz dogrulama hatti — <b>korunmali</b>
+  check/          hedef bazli tip denetimi (pbxproj'dan uyelik okuyor)
+  validate/       cekirdegi CSV'ye doker
+  calibrate/      Diyanet takvimine karsi olcum
+  render/         gorunumleri PNG'ye basar
+  tests/          <span class="add">&lt;- Swift Testing hedefine TASINIR ama burada da KALIR</span>
+<span class="add">EzanVaktiTests/   &lt;- YENI: xcodebuild ile kosan hedef (Asama 6)</span></pre>
+<figcaption>Üç ekleme, sıfır yeniden düzenleme. Klasör isimlerinin hiçbiri “çöplük” değil.</figcaption>
+</figure>
+
+<div class="tw"><table>
+<thead><tr><th style="width:19%">Modül</th><th style="width:26%">Sorumluluk</th><th>Bağımlı olabilir · olamaz</th></tr></thead>
+<tbody>
+<tr><td><code>Core</code></td><td>Alan tipleri, hesap, saklama</td><td><strong>Olabilir:</strong> Foundation, WidgetKit (yalnız <code>SharedLocationStore</code>). <strong>Olamaz:</strong> SwiftUI, UIKit, CoreLocation, ActivityKit, Services, Features. <strong>Kullanan:</strong> dört hedefin hepsi.</td></tr>
+<tr><td><code>DesignSystem</code></td><td>Renk, tipografi, ortak etiket</td><td><strong>Olabilir:</strong> SwiftUI, <code>Core</code> (yalnız <code>Prayer</code> — <code>Palette.background(for:)</code> için). <strong>Olamaz:</strong> Services, Features. <strong>Kullanan:</strong> uygulama, widget, saat.</td></tr>
+<tr><td><code>Services</code></td><td>Platform çerçeveleriyle temas</td><td><strong>Olabilir:</strong> <code>Core</code>, Apple çerçeveleri. <strong>Olamaz:</strong> Features, SwiftUI görünümleri. <strong>Kullanan:</strong> yalnız iOS uygulaması.</td></tr>
+<tr><td><code>Features</code></td><td>Ekranlar ve görünüm modelleri</td><td><strong>Olabilir:</strong> hepsi. <strong>Olamaz:</strong> başka bir <code>Feature</code>'ın iç tiplerine. <strong>Kullanan:</strong> yalnız iOS uygulaması.</td></tr>
+</tbody>
+</table></div>
+<p><strong>Bugün ihlal edilen tek kural:</strong> <code>Features/Palette.swift</code> ve <code>Features/ScaledFont.swift</code> <code>Features/</code> altında ama widget ve saat hedeflerine paylaşılıyor — yani <code>Features</code>'ın “yalnız iOS uygulaması” kuralını deliyorlar. <code>DesignSystem/</code> alt klasörü bunu düzeltir; <code>membershipExceptions</code> yolları güncellenir, kod değişmez.</p>
+
+<h2 id="borc"><span class="lt">K</span>İlk 10 teknik borç</h2>
+<div class="tw"><table>
+<thead><tr><th style="width:5%">#</th><th style="width:34%">Borç</th><th style="width:11%">Etki</th><th style="width:11%">Efor</th><th style="width:11%">Risk</th><th>Not</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td>Saat hedefinde konum izni metni yok</td><td class="lvl hi">Yüksek</td><td class="lvl lo">Düşük</td><td class="lvl lo">Düşük</td><td>Saat uygulaması bugün amacını yerine getirmiyor. Tek satır.</td></tr>
+<tr><td class="n">2</td><td>İki saat hedefinde gizlilik bildirimi eksik</td><td class="lvl hi">Yüksek</td><td class="lvl lo">Düşük</td><td class="lvl lo">Düşük</td><td>Gönderim engeli. Dosya kopyalama.</td></tr>
+<tr><td class="n">3</td><td>Xcode'da test hedefi yok</td><td class="lvl hi">Yüksek</td><td class="lvl md">Orta</td><td class="lvl lo">Düşük</td><td>Kök borç: aşağıdakilerin çoğu testle erken yakalanırdı. Doğrulama kültürü <em>var</em>, CI'ya bağlı değil.</td></tr>
+<tr><td class="n">4</td><td>Yerel gece yarısı çapası (yaz saati)</td><td class="lvl md">Orta</td><td class="lvl lo">Düşük</td><td class="lvl md">Orta</td><td>Etki dar (yılda bir gün, belirli ülkeler) ama o gün tam. Düzeltme kod çıkarıyor.</td></tr>
+<tr><td class="n">5</td><td>Ağ ve Live Activity enjekte edilemiyor</td><td class="lvl md">Orta</td><td class="lvl md">Orta</td><td class="lvl lo">Düşük</td><td>#3'ün önkoşulu. Dar protokoller yeter, container gerekmez.</td></tr>
+<tr><td class="n">6</td><td>Swift 5 dil kipi + hedefler arası tutarsız ayar</td><td class="lvl md">Orta</td><td class="lvl md">Orta</td><td class="lvl md">Orta</td><td>Bugün dört nokta. Ertelendikçe pahalılaşan tek borç.</td></tr>
+<tr><td class="n">7</td><td>Serbest bırakılan <code>Task</code>'lar ve seri olmayan yenilemeler</td><td class="lvl md">Orta</td><td class="lvl lo">Düşük</td><td class="lvl lo">Düşük</td><td>P1-3 kullanıcıya görünür; diğerleri israf. Aynı desenle çözülüyor.</td></tr>
+<tr><td class="n">8</td><td>Biçimlendirici kurulumu sıcak yollarda</td><td class="lvl md">Orta</td><td class="lvl lo">Düşük</td><td class="lvl lo">Düşük</td><td>Saatte pil, imsakiyede kaydırma. <code>en_US_POSIX</code> düzeltmesiyle aynı geçişte yapılır.</td></tr>
+<tr><td class="n">9</td><td>Widget senkronizasyonu görünüm modelinde</td><td class="lvl md">Orta</td><td class="lvl lo">Düşük</td><td class="lvl lo">Düşük</td><td>Bugün çalışıyor, yarın sessizce bozulur. Ucuzken taşınmalı.</td></tr>
+<tr><td class="n">10</td><td>Namaz kaydı sınırsız büyüyor, sorgular tam tarama</td><td class="lvl lo">Düşük</td><td class="lvl lo">Düşük</td><td class="lvl lo">Düşük</td><td>Bugün görünmez; beş yıllık kullanımda görünür hale gelir. Şimdi bir yorum + belleğe alma yeter.</td></tr>
+</tbody>
+</table></div>
+
+<div class="note">
+  <span class="nlabel">Kapanış</span>
+  <p>Bu listedeki maddelerin çoğunun <em>kolay</em> olması tesadüf değil: kod tabanı iyi yapılandırıldığı için sorunlar birbirine dolanmamış, her biri tek bir yerde duruyor. Karşılaştırma için — benzer boyutta çoğu projede ilk on borcun yarısı “bunu düzeltmek için önce şunu ayırmak gerekiyor” diye başlar. Burada öyle bir madde yok.</p>
+  <p>İlk iki aşama (yaklaşık bir gün) tamamlandığında bu uygulamanın <strong>production'a hazırlığı Yüksek</strong> olur. Kalan maddeler gerçek ama hiçbiri yayını engellemiyor.</p>
+</div>
+
+</main>
+</div>
+</div>
+
+</body>
+</html>

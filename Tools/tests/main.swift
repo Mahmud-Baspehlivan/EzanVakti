@@ -136,6 +136,144 @@ do {
     equal(store.qadaBalance(for: .imsak), 3, "yanlis odeme geri alinabiliyor")
 }
 
+// MARK: - Kalan süre biçimi
+
+section("kalan sure bicimi")
+do {
+    let now = day(2026, 8, 24)
+    func readout(_ seconds: Int, showsSeconds: Bool = true) -> RemainingReadout? {
+        RemainingTime.readout(to: now.addingTimeInterval(TimeInterval(seconds)),
+                              at: now, showsSeconds: showsSeconds)
+    }
+    func shown(_ seconds: Int, showsSeconds: Bool = true) -> String {
+        readout(seconds, showsSeconds: showsSeconds)?
+            .parts.map { $0.value + $0.unit }.joined(separator: " ") ?? "-"
+    }
+
+    equal(shown(6 * 3600 + 21 * 60 + 40), "6sa 21dk", "bir saatin ustunde saat + dakika")
+    equal(shown(3600), "1sa 0dk", "tam saatte dakika da yaziliyor, genislik oynamasin")
+    equal(shown(47 * 60), "47dk", "on dakika - bir saat arasi tek birim")
+    equal(shown(600), "10dk", "esikte hala dakika")
+    equal(shown(599), "9dk 59sn", "esigin altinda saniye de yaziliyor")
+    equal(shown(45), "45sn", "bir dakikanin altinda tek birim")
+    equal(shown(0), "0sn", "vakit girdiginde sifir")
+
+    // Saat tarafi esigin altinda sistemin sayacina birakiyor.
+    check(readout(599, showsSeconds: false) == nil, "saatte esigin altinda nil donuyor")
+    check(readout(600, showsSeconds: false) != nil, "saatte esigin ustunde deger donuyor")
+
+    // VoiceOver kisaltmasiz okuyor.
+    equal(readout(6 * 3600 + 21 * 60)?.spoken, "6 saat 21 dakika", "sesli hal kisaltmasiz")
+    equal(readout(47 * 60)?.spoken, "47 dakika", "tek birimde de kisaltmasiz")
+}
+
+// MARK: - İşaretleme penceresi
+
+section("isaretleme penceresi")
+do {
+    // Ogle 13:00, ikindi 16:30, yatsi 21:00 olan uydurma bir gun.
+    let d = day(2026, 8, 24)
+    func at(_ hour: Int, _ minute: Int) -> Date {
+        cal.date(bySettingHour: hour, minute: minute, second: 0, of: d)!
+    }
+    let times = DailyPrayerTimes(
+        day: d,
+        times: [.imsak: at(4, 30), .gunes: at(6, 10), .ogle: at(13, 0),
+                .ikindi: at(16, 30), .aksam: at(19, 50), .yatsi: at(21, 0)],
+        trueSunrise: at(6, 10), trueSunset: at(19, 50))!
+
+    let noon = at(13, 30)   // ogle vakti icindeyiz
+
+    check(PrayerMarking.isMarkable(.ogle, on: d, times: times, now: noon, calendar: cal),
+          "vakti girmis namaz isaretlenebiliyor")
+    check(!PrayerMarking.isMarkable(.yatsi, on: d, times: times, now: noon, calendar: cal),
+          "ogle vaktindeyken yatsi isaretlenemiyor")
+    check(PrayerMarking.isMarkable(.imsak, on: d, times: times, now: noon, calendar: cal),
+          "gunun gecmis vakti isaretlenebiliyor")
+
+    // Tam vaktin girdigi an isaretlenebilir olmali.
+    check(PrayerMarking.isMarkable(.ikindi, on: d, times: times, now: at(16, 30), calendar: cal),
+          "vaktin girdigi an isaretlenebiliyor")
+    check(!PrayerMarking.isMarkable(.ikindi, on: d, times: times, now: at(16, 29), calendar: cal),
+          "bir dakika oncesi isaretlenemiyor")
+
+    // Gecmis gunun tamami acik, gelecek gun tamamen kapali.
+    let yesterday = day(2026, 8, 23)
+    let tomorrow = day(2026, 8, 25)
+    check(PrayerMarking.isMarkable(.yatsi, on: yesterday, times: nil, now: noon, calendar: cal),
+          "gecmis gunun butun vakitleri isaretlenebiliyor")
+    check(!PrayerMarking.isMarkable(.imsak, on: tomorrow, times: nil, now: noon, calendar: cal),
+          "gelecek gun isaretlenemiyor")
+
+    // Vakitler hesaplanamiyorsa engellemek yerine izin veriliyor.
+    check(PrayerMarking.isMarkable(.yatsi, on: d, times: nil, now: noon, calendar: cal),
+          "vakit hesaplanamiyorsa isaretlemeye izin veriliyor")
+}
+
+// MARK: - Saatle eşleşme
+
+section("saat esitleme")
+do {
+    let store = makeStore("sync")
+    let d = day(2026, 8, 24)
+    let key = "2026-08-24"
+    let t0 = Date(timeIntervalSince1970: 1_000_000)
+
+    equal(PrayerDay.key(for: d, in: cal), key,
+          "saat ve telefon ayni gun anahtarini uretiyor")
+
+    check(store.apply(PrayerMark(dayKey: key, prayer: .ogle, status: .congregation, markedAt: t0)),
+          "saatten gelen isaret uygulaniyor")
+    equal(store.status(for: .ogle, on: d), .congregation, "durum kayda gecti")
+
+    // Gecikmis isaret daha yeni karari ezmemeli: saat cevrimdisiyken konan
+    // isaret saatler sonra ulasabiliyor.
+    store.setStatus(.performed, for: .ogle, on: d, at: t0.addingTimeInterval(60))
+    check(!store.apply(PrayerMark(dayKey: key, prayer: .ogle, status: .missed,
+                                  markedAt: t0.addingTimeInterval(30))),
+          "eski isaret reddediliyor")
+    equal(store.status(for: .ogle, on: d), .performed, "telefondaki yeni karar korunuyor")
+
+    // Ayni isaret ikinci kez ulasirsa sonuc degismemeli.
+    let repeated = PrayerMark(dayKey: key, prayer: .ikindi, status: .performed, markedAt: t0)
+    check(store.apply(repeated), "ilk gelis uygulaniyor")
+    check(store.apply(repeated), "ayni isaret tekrar gelince de uygulaniyor")
+    equal(store.status(for: .ikindi, on: d), .performed, "tekrar sonucu degistirmiyor")
+
+    // "Isareti kaldir" da bir karar; ondan onceki isaret geri getirmemeli.
+    store.apply(PrayerMark(dayKey: key, prayer: .ikindi, status: .unmarked,
+                           markedAt: t0.addingTimeInterval(120)))
+    equal(store.status(for: .ikindi, on: d), .unmarked, "kaldirma uygulaniyor")
+    check(!store.apply(PrayerMark(dayKey: key, prayer: .ikindi, status: .performed,
+                                  markedAt: t0.addingTimeInterval(90))),
+          "kaldirmadan onceki isaret reddediliyor")
+    equal(store.status(for: .ikindi, on: d), .unmarked, "kaldirma korunuyor")
+
+    let digest = store.digest(dayCount: 3, endingAt: d, generatedAt: t0)
+    equal(digest.days.count, 3, "ozet istenen gun sayisini tasiyor")
+    equal(digest.days[key]?[.ogle], .performed, "ozet bugunun isaretini tasiyor")
+    check(digest.days["2026-08-23"] != nil, "isaretsiz gun de ozette yaziyor")
+    equal(digest.generatedAt, t0, "ozetin uretim ani tasiniyor")
+}
+
+// MARK: - Eski kayıt dosyası
+
+section("eski kayit dosyasi")
+do {
+    // `markedAt` alani eklenmeden once yazilmis bir dosya. Sentezlenen cozucu
+    // eksik anahtari hata sayardi: butun kayit karantinaya girer, kullanici
+    // aylarca birikmis takibini bos ekranda bulurdu.
+    let url = URL(fileURLWithPath: NSTemporaryDirectory())
+        .appendingPathComponent("ezan-test-legacy.json")
+    let legacy = #"{"days":{"2026-08-20":{"ikindi":"performed"}},"qada":{"opening":{"yatsi":4},"paid":{}}}"#
+    try! Data(legacy.utf8).write(to: url)
+
+    let store = PrayerLogStore(fileURL: url, timeZone: tz)
+    check(store.lastReadError == nil, "eski dosya karantinaya alinmiyor")
+    equal(store.status(for: .ikindi, on: day(2026, 8, 20)), .performed, "eski dosyadaki isaret okunuyor")
+    equal(store.qadaBalance(for: .yatsi), 4, "eski dosyadaki kaza borcu okunuyor")
+}
+
 // MARK: - Kalıcılık
 
 section("kalicilik")

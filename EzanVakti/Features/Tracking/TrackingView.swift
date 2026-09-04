@@ -2,8 +2,34 @@ import SwiftUI
 
 struct TrackingView: View {
     let log: PrayerLogStore
+    /// Vakitler işaretleme penceresi için gerekiyor: vakti girmemiş namaz
+    /// işaretlenemiyor, o da konuma bağlı.
+    let location: LocationProvider
+    /// Saatle eşleşme sessizce bozulursa kullanıcı bunu ancak bilekten
+    /// işaretlediği vakitleri burada bulamayarak anlar; hata görünür duruyor.
+    var watchSyncError: String?
 
     @State private var isEditingQada = false
+    /// Açık gün sayfası. `Date` kendi başına `Identifiable` değil, sarmalanıyor.
+    @State private var editingDay: TrackedDay?
+
+    /// `.autoupdatingCurrent`: uçakla dilim değiştirmek bu uygulamanın ana
+    /// senaryosu; gün sınırı da işaret de yerel güne göre.
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .autoupdatingCurrent
+        return calendar
+    }
+
+    private var coordinate: Coordinate {
+        if case .resolved(let coordinate, _) = location.state { return coordinate }
+        return .istanbul
+    }
+
+    private func times(for day: Date) -> DailyPrayerTimes? {
+        PrayerTimesCalculator(coordinate: coordinate, parameters: .diyanet)
+            .times(for: day, in: calendar.timeZone)
+    }
 
     var body: some View {
         ZStack {
@@ -12,10 +38,16 @@ struct TrackingView: View {
 
             ScrollView {
                 // Zamanı dakikada bir tazeliyor: uygulama gece yarısını geçerek
-                // açık kalırsa dokunuşlar dünün gününe yazılmasın.
+                // açık kalırsa dokunuşlar dünün gününe yazılmasın. Aynı tik
+                // işaretleme penceresini de ilerletiyor — vakit girince satır
+                // bir dakika içinde açılıyor.
                 TimelineView(.everyMinute) { context in
                     TrackingContent(log: log,
                                     now: context.date,
+                                    todayTimes: times(for: context.date),
+                                    calendar: calendar,
+                                    watchSyncError: watchSyncError,
+                                    onSelectDay: { editingDay = TrackedDay(date: $0) },
                                     onEditQada: { isEditingQada = true })
                 }
                 .padding(.horizontal, 20)
@@ -25,7 +57,17 @@ struct TrackingView: View {
         .sheet(isPresented: $isEditingQada) {
             QadaSetupView(log: log)
         }
+        .sheet(item: $editingDay) { day in
+            DayDetailView(log: log, day: day.date, times: times(for: day.date),
+                          now: Date(), calendar: calendar)
+        }
     }
+}
+
+/// `sheet(item:)` `Identifiable` istiyor; gün anahtarı zaten benzersiz.
+struct TrackedDay: Identifiable {
+    let date: Date
+    var id: TimeInterval { date.timeIntervalSinceReferenceDate }
 }
 
 /// Kaydırma kabuğundan ayrı tutuluyor: `ImageRenderer` ScrollView içeriğini
@@ -35,6 +77,13 @@ struct TrackingContent: View {
     /// Dışarıdan veriliyor ki yapı kurulurken sabitlenmesin; varsayılanı olması
     /// `ImageRenderer` ile tek satırda kurmayı bozmuyor.
     var now: Date = Date()
+    /// Bugünün vakitleri; vakti girmemiş namaz işaretlenemiyor. Varsayılan nil
+    /// olduğu için `ImageRenderer` ile tek satırda kurmak hâlâ mümkün — o
+    /// durumda bütün satırlar açık, `PrayerMarking` bunu böyle tanımlıyor.
+    var todayTimes: DailyPrayerTimes?
+    var calendar: Calendar = .current
+    var watchSyncError: String?
+    var onSelectDay: (Date) -> Void = { _ in }
     var onEditQada: () -> Void = {}
 
     var body: some View {
@@ -71,35 +120,13 @@ struct TrackingContent: View {
         card(title: "Bugün", trailing: "\(log.performedCount(on: now))/5") {
             VStack(spacing: 0) {
                 ForEach(PrayerLogStore.trackedPrayers) { prayer in
-                    let status = log.status(for: prayer, on: now)
-                    Button {
-                        log.advanceStatus(for: prayer, on: now)
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: prayer.symbolName)
-                                .scaledFont(15)
-                                .frame(width: 22)
-                                .foregroundStyle(.white.opacity(0.5))
-                            Text(prayer.title)
-                                .foregroundStyle(.white.opacity(0.9))
-                            Spacer()
-                            Text(status.title)
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(status == .unmarked ? .white.opacity(0.35) : status.tint)
-                            Image(systemName: status.symbolName)
-                                .scaledFont(19)
-                                .foregroundStyle(status.tint)
-                        }
-                        .padding(.vertical, 11)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    // Dokundukça durum değiştiği için etiket-değer-ipucu üçlüsü
-                    // gerekiyor: ne olduğu, hangi durumda olduğu, ne olacağı.
-                    .accessibilityElement(children: .ignore)
-                    .accessibilityLabel(prayer.title)
-                    .accessibilityValue(status == .unmarked ? "işaretlenmedi" : status.title)
-                    .accessibilityHint("Sıradaki duruma geçmek için dokun: \(status.next.title)")
+                    PrayerStatusRow(
+                        prayer: prayer,
+                        status: log.status(for: prayer, on: now),
+                        isMarkable: PrayerMarking.isMarkable(prayer, on: now, times: todayTimes,
+                                                             now: now, calendar: calendar),
+                        onAdvance: { log.advanceStatus(for: prayer, on: now) }
+                    )
                 }
             }
         }
@@ -117,20 +144,27 @@ struct TrackingContent: View {
         return card(title: "Son 7 gün") {
             HStack(alignment: .top, spacing: 0) {
                 ForEach(days, id: \.self) { day in
-                    VStack(spacing: 6) {
-                        ForEach(PrayerLogStore.trackedPrayers) { prayer in
-                            Circle()
-                                .fill(log.status(for: prayer, on: day).tint)
-                                .frame(width: 9, height: 9)
+                    // Dokunma hedefi sütunun tamamı, noktalar değil: nokta 9 pt
+                    // ve ekranda otuz beş tane var.
+                    Button { onSelectDay(day) } label: {
+                        VStack(spacing: 6) {
+                            ForEach(PrayerLogStore.trackedPrayers) { prayer in
+                                Circle()
+                                    .fill(log.status(for: prayer, on: day).tint)
+                                    .frame(width: 9, height: 9)
+                            }
+                            Text(formatter.string(from: day))
+                                .font(.caption2)
+                                .foregroundStyle(.white.opacity(0.45))
+                                .padding(.top, 2)
                         }
-                        Text(formatter.string(from: day))
-                            .font(.caption2)
-                            .foregroundStyle(.white.opacity(0.45))
-                            .padding(.top, 2)
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
                     }
-                    .frame(maxWidth: .infinity)
+                    .buttonStyle(.plain)
                     .accessibilityElement(children: .ignore)
                     .accessibilityLabel("\(formatter.string(from: day)), \(log.performedCount(on: day)) / 5 kılındı")
+                    .accessibilityHint("Bu günü işaretlemek için dokun")
                 }
             }
             .padding(.vertical, 6)
@@ -195,7 +229,7 @@ struct TrackingContent: View {
     /// kaybolması, kaybolduğunun fark edilmemesi demek.
     @ViewBuilder
     private var storageNotice: some View {
-        if let message = log.lastReadError ?? log.lastWriteError {
+        if let message = log.lastReadError ?? log.lastWriteError ?? watchSyncError {
             Label(message, systemImage: "exclamationmark.triangle.fill")
                 .font(.caption)
                 .foregroundStyle(.orange)

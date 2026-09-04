@@ -57,6 +57,14 @@ final class WatchPrayerTimesModel {
         return (.imsak, tomorrow[.imsak])
     }
 
+    /// Sıradaki vakte kalan sürenin sözcüklü hâli. Son 10 dakikada `nil` —
+    /// orada saniye anlamlı ve sayaç sistemin kendi kendine ilerleyen metnine
+    /// bırakılıyor. Biçimin gerekçesi `RemainingTime`'da.
+    func remainingReadout(at now: Date) -> RemainingReadout? {
+        guard let upcoming = upcoming(at: now) else { return nil }
+        return RemainingTime.readout(to: upcoming.date, at: now, showsSeconds: false)
+    }
+
     /// İçinde bulunulan vaktin anı — geri sayımın sabit alt ucu.
     ///
     /// Aralık "şu an"la kurulunca her yeniden çizimde yeni bir aralık oluyor ve

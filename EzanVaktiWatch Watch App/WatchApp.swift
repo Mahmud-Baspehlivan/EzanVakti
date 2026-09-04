@@ -2,9 +2,15 @@ import SwiftUI
 
 @main
 struct EzanVaktiWatchApp: App {
+    /// Takip mağazası uygulama düzeyinde: `WCSession.delegate` zayıf tutuluyor,
+    /// mağaza görünüm gövdesinde kurulsaydı görünüm her yeniden kurulduğunda
+    /// yeni bir örnek doğar, eski örnek silinince temsilci nil'e düşer ve
+    /// telefondan gelen güncellemeler sessizce kesilirdi. `App` bir kez kuruluyor.
+    @State private var tracking = WatchTrackingStore()
+
     var body: some Scene {
         WindowGroup {
-            WatchRootView()
+            WatchRootView(tracking: tracking)
         }
     }
 }
@@ -16,6 +22,8 @@ struct EzanVaktiWatchApp: App {
 /// bir kez bulunan, tekrarlanmayan bir iş; saatin değeri bir bakışta alınan
 /// tekrarlı bilgide.
 struct WatchRootView: View {
+    let tracking: WatchTrackingStore
+
     @State private var viewModel = WatchPrayerTimesModel()
     @State private var location = WatchLocationProvider()
 
@@ -26,7 +34,7 @@ struct WatchRootView: View {
         // gerekiyor, ikisi de dakikalık. Saniyede bir tam ekran yeniden çizmek
         // bilekteki pili doğrudan yakıyordu.
         TimelineView(.prayerBoundaries(viewModel.upcomingBoundaries(after: .now))) { context in
-            WatchPrayerTimesView(viewModel: viewModel, now: context.date)
+            WatchPrayerTimesView(viewModel: viewModel, tracking: tracking, now: context.date)
         }
         .onAppear { location.start() }
         .onChange(of: locationKey) { _, _ in

@@ -76,31 +76,71 @@ struct PrayerTimesContent: View {
 
     private var hero: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if let upcoming = viewModel.upcoming(at: now) {
+            if let upcoming = viewModel.upcoming(at: now),
+               let readout = viewModel.remainingReadout(at: now) {
                 SectionLabel(text: upcoming.prayer.title, size: 13, tracking: 2.4)
 
-                // Saat kahraman: asıl aranan bilgi bu, geri sayım destek.
-                Text(viewModel.formatted(upcoming.date))
-                    .scaledFont(68, weight: .medium, design: .rounded)
-                    .foregroundStyle(.white)
-                    .padding(.top, 6)
-
-                HStack(spacing: 5) {
-                    Text(viewModel.remaining(at: now))
-                        .contentTransition(.numericText())
-                    Text(viewModel.remainingCaption(at: now))
-                        .foregroundStyle(.white.opacity(0.4))
+                // Kahraman **kalan süre**, vaktin saati değil.
+                //
+                // Önce saat buradaydı ("asıl aranan bilgi bu" gerekçesiyle) ama
+                // o sayı hemen aşağıdaki listede zaten yazıyor: ekranın en
+                // büyük öğesi bir tekrar, listede hiç bulunmayan tek bilgi olan
+                // kalan süre ise en küçüğüydü. Hiyerarşi tersti.
+                //
+                // Sayı büyük, birim küçük: düz "1 sa 46 dk" 68 pt'de taşıyor ve
+                // birimsiz bırakmak da olmuyor — "6:21" altı saat mi altı
+                // dakika mı, biçimden anlaşılmıyor.
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    ForEach(readout.parts) { part in
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text(part.value)
+                                .scaledFont(68, weight: .medium, design: .rounded)
+                                .monospacedDigit()
+                                .contentTransition(.numericText())
+                            Text(part.unit)
+                                .scaledFont(24, weight: .medium)
+                                .foregroundStyle(.white.opacity(0.5))
+                        }
+                    }
+                    Text("kaldı")
+                        .scaledFont(18, weight: .medium)
+                        .foregroundStyle(.white.opacity(0.45))
                 }
-                .scaledFont(16, weight: .medium)
-                .monospacedDigit()
-                .foregroundStyle(.white.opacity(0.62))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.top, 4)
+
+                // Vaktin saati desteğe indi. Simge onu bir saat olarak
+                // etiketliyor; "16:53'te" yazmak istenirdi ama Türkçede
+                // bulunma hâli eki saatin son okunan sayısına göre değişiyor
+                // ("üçte" ama "yedide", "kırkta" ama "ellide") — sabit bir ek
+                // zamanların yarısında yanlış olurdu.
+                HStack(spacing: 5) {
+                    Image(systemName: "clock")
+                        .scaledFont(13, weight: .medium)
+                    Text(viewModel.formatted(upcoming.date))
+                        .scaledFont(17, weight: .medium)
+                        .monospacedDigit()
+                }
+                .foregroundStyle(.white.opacity(0.55))
+                .padding(.top, 3)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 34)
         .padding(.bottom, 30)
-        // Üç ayrı parça yerine tek cümle: "İkindi 16:58, 1 sa 46 dk kaldı".
-        .accessibilityElement(children: .combine)
+        // Parçalara bölünmüş sayıyı VoiceOver "1 sa 46 dk" diye okuyor;
+        // kısaltmalar ekran için, ses için değil.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(heroAccessibilityLabel)
+    }
+
+    private var heroAccessibilityLabel: String {
+        guard let upcoming = viewModel.upcoming(at: now),
+              let readout = viewModel.remainingReadout(at: now) else { return "" }
+        return "\(upcoming.prayer.title) \(viewModel.formatted(upcoming.date)), "
+            + "\(readout.spoken) kaldı"
     }
 
     // MARK: - Vakit listesi

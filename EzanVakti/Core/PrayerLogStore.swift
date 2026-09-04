@@ -33,8 +33,14 @@ final class PrayerLogStore {
         snapshot.days[key(for: day)]?[prayer] ?? .unmarked
     }
 
-    func setStatus(_ status: PrayerStatus, for prayer: Prayer, on day: Date) {
-        let dayKey = key(for: day)
+    /// `at` dışarıdan verilebiliyor: saatten gelen işaret telefona geç ulaşsa da
+    /// kayda **konduğu** anla giriyor, yoksa gecikmiş bir işaret her seferinde
+    /// en yeni karar gibi görünürdü.
+    func setStatus(_ status: PrayerStatus, for prayer: Prayer, on day: Date, at markedAt: Date = Date()) {
+        setStatus(status, for: prayer, dayKey: key(for: day), at: markedAt)
+    }
+
+    private func setStatus(_ status: PrayerStatus, for prayer: Prayer, dayKey: String, at markedAt: Date) {
         var statuses = snapshot.days[dayKey] ?? [:]
 
         if status == .unmarked {
@@ -48,11 +54,44 @@ final class PrayerLogStore {
         } else {
             snapshot.days[dayKey] = statuses
         }
+        snapshot.markedAt[dayKey, default: [:]][prayer] = markedAt
         persist()
     }
 
     func advanceStatus(for prayer: Prayer, on day: Date) {
         setStatus(status(for: prayer, on: day).next, for: prayer, on: day)
+    }
+
+    // MARK: - Saatle eşleşme
+
+    /// Saatten gelen işareti uygular. Uygulanmadıysa `false` döner.
+    ///
+    /// Tek kural: **sonra işaretlenen kazanır.** Saat çevrimdışıyken konan
+    /// işaret saatler sonra ulaşabiliyor; geliş sırasına güvenmek, bu arada
+    /// telefondan verilmiş daha yeni bir kararı sessizce geri alırdı.
+    ///
+    /// Eşitlik uygulanıyor sayılıyor: aynı işaret ikinci kez ulaşırsa (kuyruk
+    /// yeniden gönderirse) sonuç değişmiyor, reddetmenin bir faydası yok.
+    @discardableResult
+    func apply(_ mark: PrayerMark) -> Bool {
+        if let existing = snapshot.markedAt[mark.dayKey]?[mark.prayer], existing > mark.markedAt {
+            return false
+        }
+        setStatus(mark.status, for: mark.prayer, dayKey: mark.dayKey, at: mark.markedAt)
+        return true
+    }
+
+    /// Saate gönderilecek özet: bugünden geriye `dayCount` günün işaretleri.
+    func digest(dayCount: Int, endingAt end: Date = Date(), generatedAt: Date = Date()) -> PrayerLogDigest {
+        var days: [String: [Prayer: PrayerStatus]] = [:]
+        for day in recentDays(count: dayCount, ending: end) {
+            let dayKey = key(for: day)
+            // Boş günler de yazılıyor: saatteki bekleyen işaret ancak telefonun
+            // o gün için ne dediğini görünce düşürülebiliyor, sessizlik "haber
+            // yok" ile "işaret kaldırıldı"yı ayırt ettirmiyor.
+            days[dayKey] = snapshot.days[dayKey] ?? [:]
+        }
+        return PrayerLogDigest(days: days, generatedAt: generatedAt)
     }
 
     func isComplete(_ day: Date) -> Bool {
@@ -155,10 +194,13 @@ final class PrayerLogStore {
 
     // MARK: - Saklama
 
-    private func key(for day: Date) -> String {
-        let parts = calendar.dateComponents([.year, .month, .day], from: day)
-        return String(format: "%04d-%02d-%02d", parts.year ?? 0, parts.month ?? 0, parts.day ?? 0)
-    }
+    /// Anahtar üretimi `PrayerDay`'de: saat de aynı biçimi üretmek zorunda,
+    /// iki yerde ayrı yazılırsa bir gün ayrışırlar.
+    private func key(for day: Date) -> String { PrayerDay.key(for: day, in: calendar) }
+
+    /// Kayıt her değiştiğinde çağrılıyor — saate gönderilen özeti tazelemek için.
+    /// Mağaza `WatchConnectivity`'yi tanımıyor; bağlantıyı kuran taraf dinliyor.
+    @ObservationIgnored var onChange: (() -> Void)?
 
     private func persist() {
         // Kayıt değişti; türetilmiş sayılar artık geçersiz. Snapshot private(set)
@@ -176,6 +218,7 @@ final class PrayerLogStore {
             // Yazma hatası sessizce yutulursa kullanıcı kaydının gittiğini fark etmez.
             lastWriteError = error.localizedDescription
         }
+        onChange?()
     }
 
     private(set) var lastWriteError: String?
