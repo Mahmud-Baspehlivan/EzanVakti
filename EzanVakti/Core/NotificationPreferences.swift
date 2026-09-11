@@ -18,10 +18,18 @@ struct NotificationPreferences: Codable, Equatable {
     /// sürenin yarısı 3 saatten uzun ve Yatsı–İmsak kışın 11.5 saate çıkıyor —
     /// hem 6 saatlik bir geri sayım kimseye bir şey söylemiyor hem de Live
     /// Activity'nin 8 saatlik ömür sınırı aşılıyor.
+    ///
+    /// Varsayılan **1 saat**, 2 değil: en kısa geçiş (Akşam–Yatsı) 79 dakika,
+    /// yani 2 saatlik pencerede iki vaktin penceresi üst üste biniyor. Dinamik
+    /// Ada iki etkinliği aynı anda gösteremediği için minimal moda düşüyor ve
+    /// orada geri sayım hiç yok — sayaç tam gerektiği anda kayboluyordu.
+    /// `PrayerActivityContent.upcoming` pencereyi önceki vakitte de kesiyor,
+    /// yani 2/3 saat seçmek artık bindirmeye yol açmıyor; varsayılanın 1 saat
+    /// olması yine de bütün pencerenin gerçekten görünmesini sağlıyor.
     var liveActivityLeadMinutes: Int
 
     init(enabled: Set<Prayer>, minutesBefore: Int, soundID: String,
-         liveActivityEnabled: Bool = true, liveActivityLeadMinutes: Int = 120) {
+         liveActivityEnabled: Bool = true, liveActivityLeadMinutes: Int = 60) {
         self.enabled = enabled
         self.minutesBefore = minutesBefore
         self.soundID = soundID
@@ -38,7 +46,7 @@ struct NotificationPreferences: Codable, Equatable {
         liveActivityEnabled = try container
             .decodeIfPresent(Bool.self, forKey: .liveActivityEnabled) ?? true
         liveActivityLeadMinutes = try container
-            .decodeIfPresent(Int.self, forKey: .liveActivityLeadMinutes) ?? 120
+            .decodeIfPresent(Int.self, forKey: .liveActivityLeadMinutes) ?? 60
     }
 
     static let `default` = NotificationPreferences(
@@ -46,7 +54,7 @@ struct NotificationPreferences: Codable, Equatable {
         minutesBefore: 0,
         soundID: NotificationSound.system.id,
         liveActivityEnabled: true,
-        liveActivityLeadMinutes: 120
+        liveActivityLeadMinutes: 60
     )
 }
 

@@ -96,12 +96,12 @@ struct PrayerTimesView: View {
         await liveActivity.refresh(
             with: PrayerActivityContent.upcoming(
                 count: 3,
+                leadMinutes: preferencesStore.preferences.liveActivityLeadMinutes,
                 coordinate: viewModel.coordinate,
                 locationName: viewModel.locationName,
                 timeZone: viewModel.timeZone
             ),
-            enabled: preferencesStore.preferences.liveActivityEnabled,
-            leadMinutes: preferencesStore.preferences.liveActivityLeadMinutes
+            enabled: preferencesStore.preferences.liveActivityEnabled
         )
     }
 

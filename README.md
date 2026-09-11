@@ -825,7 +825,7 @@ Ayrı hedef gerekmedi: ActivityKit arayüzü var olan widget uzantısının içi
 | Kompakt sağ | Canlı geri sayım |
 | Minimal | Vakit ikonu |
 | Genişletilmiş | Vakit adı · saati · ilerleme çubuğu · konum + kalan |
-| Kilit ekranı kartı | Küçük widget'a yakın: etiket, saat, geri sayım, ilerleme |
+| Kilit ekranı kartı | Vakit ikonu + adı · konum · **büyük geri sayım** · vaktin saati · ilerleme |
 
 ### Kendi kendine ilerleyen bileşenler
 
@@ -839,7 +839,7 @@ oluyordu; çubuk saatlerce %0'da donuk kalıp sonra sıçrıyordu.
 
 ### Eşik: vakte çok varsa görünmüyor
 
-Varsayılan **2 saat**; ayarlanabilir (1 / 2 / 3 saat).
+Varsayılan **1 saat**; ayarlanabilir (1 / 2 / 3 saat).
 
 Ölçüm bunu iki ayrı sebeple gerektirdi. İstanbul'da yıl boyunca vakitler arası
 süre:
@@ -858,8 +858,36 @@ süre:
 2. Yatsı–İmsak kışın **11.5 saate** çıkıyor ve Live Activity'nin **8 saatlik**
    ömür sınırını aşıyor; etkinlik vakit gelmeden sistemce bayatlatılırdı.
 
-2 saatlik eşikle kısa geçişler (İmsak–Güneş, Akşam–Yatsı) tümüyle kapsanıyor,
-uzunlarda yalnızca son iki saat görünüyor.
+Eşikle kısa geçişlerde pencerenin tamamı, uzunlarda yalnızca sonu görünüyor.
+
+### Pencere önceki vakitte de kesiliyor
+
+Eşiğin bir de üst sınırı var ve ilk sürümde yoktu: pencere **önceki vaktin
+anından öteye taşımıyor** (`windowStart = max(önceki vakit, vakit - lead)`).
+
+Sebep tablodaki en kısa geçiş. Akşam–Yatsı **79 dakika**, yani 2 saatlik
+eşikte Yatsı'nın penceresi Akşam'dan *önce* açılıyordu ve iki etkinlik aynı anda
+canlı kalıyordu. Dinamik Ada iki etkinliği yan yana gösteremiyor, **minimal
+moda** düşüyor — ve minimal sunumda yalnızca vakit ikonu var, geri sayım yok.
+Belirti tam ters okunuyordu: "vakte az kalınca sayaç çıkmıyor." Çıkmayan sayaç
+aslında iki pencerenin bindirmesiydi.
+
+Aynı sınır ikinci bir kusuru da kapatıyor. `Text(timerInterval:)` ve
+`ProgressView(timerInterval:)` aralığı olarak **önceki vakit** kullanılıyordu,
+yani Yatsı–İmsak'ta 11.5 saatlik bir aralık: çubuk açıldığı anda %80 dolu
+başlıyor ve gözle kımıldamıyor, sayaç da "11:29:58" gibi ada'ya sığmayan bir
+metin oluyordu. Görünen pencereyle sayılan aralık artık aynı şey — çubuk boştan
+doluya gidiyor — ve sayacın en uzun hali seçilen eşik kadar (`2:59:59`).
+
+Etkinliğin başlangıç anı da aynı alandan okunuyor
+(`LiveActivityController`'daki `startAt = content.windowStart`); eşiği iki yerde
+ayrı ayrı uygulamak ikisinin ayrışmasına açık kapı bırakırdı.
+
+`PrayerActivityContent.windowStart` alanının kodlama anahtarı eski adında
+(`previousTime`) kaldı. Uygulama güncellenirken kilit ekranında duran bir
+etkinlik ActivityKit'in sakladığı eski yükle geri geliyor; anahtar değişse durum
+çözülemez, etkinlik `Activity.activities` listesine hiç düşmez ve `endAll` onu
+bir daha kaldıramazdı.
 
 ### Arka planda başlatma
 
@@ -924,6 +952,24 @@ temizliyor — yani gerilemesi yok. `submit` başarısız olursa (en sık sebebi
 kullanıcının "Arka Planda Yenileme"yi kapatmış olması) sebep `cleanupError`'da
 duruyor ve bildirim ayarları sayfasında görünüyor; `lastError`'dan ayrı, çünkü o
 etkinliğin hiç kurulamadığını söylüyor, bu yalnız geç kalkacağını.
+
+### Kilit ekranı kartı
+
+Kartın kahramanı **kalan süre**. İlk sürümde 34 puntoyla yazılan şey vaktin
+saatiydi; kalan süre onun yanında 15 puntoluk soluk bir ikinci saat olarak
+duruyordu, yani kilit ekranında yan yana iki rakam grubu ve hangisinin ne
+olduğu belirsiz. Şimdi geri sayım büyük ve "kaldı" ile etiketli, vaktin saati
+sağda ikincil.
+
+Vakit ikonu da eklendi: Dinamik Ada'nın dört sunumunda da o ikon vardı, kartta
+yoktu — aynı etkinliğin iki yüzü birbirini tutmuyordu.
+
+Sayaçlardaki sabit genişlikler (`frame(width:)`) `minimumScaleFactor` ile
+tamamlandı. Metnin uzunluğu pencereyle değişiyor — bir saatin altında "45:12",
+üstünde "2:59:59" — ve yedi haneli hali ada'nın 52 pt'sine sığmıyordu.
+
+Dört durum da `Tools/render` ile basılıp denetlendi: 1 saatlik pencere, 3
+saatlik pencere (en uzun metin), uzun konum adı, "vakti girdi".
 
 ### Doğrulanamayan
 

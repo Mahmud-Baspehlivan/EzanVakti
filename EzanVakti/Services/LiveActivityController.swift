@@ -44,19 +44,17 @@ final class LiveActivityController {
         ActivityAuthorizationInfo().areActivitiesEnabled
     }
 
-    func refresh(with contents: [PrayerActivityContent], enabled: Bool,
-                        leadMinutes: Int) async {
+    func refresh(with contents: [PrayerActivityContent], enabled: Bool) async {
         let previous = inFlight
         let task = Task { @MainActor [self] in
             await previous?.value
-            await apply(with: contents, enabled: enabled, leadMinutes: leadMinutes)
+            await apply(with: contents, enabled: enabled)
         }
         inFlight = task
         await task.value
     }
 
-    private func apply(with contents: [PrayerActivityContent], enabled: Bool,
-                              leadMinutes: Int) async {
+    private func apply(with contents: [PrayerActivityContent], enabled: Bool) async {
         await endAll()
 
         guard enabled else {
@@ -76,11 +74,14 @@ final class LiveActivityController {
         // Tek bir vaktin kurulamaması yenilemeyi durdurmuyor; kalanlar denendikten
         // sonra son hata yazılıyor, hepsi başarılıysa alan temizleniyor.
         var failure: String?
-        let lead = Double(leadMinutes) * 60
         let now = Date()
 
         for content in contents.prefix(Self.scheduleCount) {
-            let startAt = content.prayerTime.addingTimeInterval(-lead)
+            // Pencerenin başı içerikten okunuyor, burada yeniden
+            // hesaplanmıyor: geri sayım ve ilerleme çubuğu da aynı aralığı
+            // kullanıyor, yani etkinlik tam çubuk boşken açılıyor. Lead'i iki
+            // yerde ayrı ayrı uygulamak ikisinin ayrışmasına açık kapı olurdu.
+            let startAt = content.windowStart
             let activityContent = ActivityContent(state: content, staleDate: content.prayerTime)
 
             if startAt <= now {
@@ -117,7 +118,11 @@ final class LiveActivityController {
                         style: .standard,
                         alertConfiguration: AlertConfiguration(
                             title: "\(content.prayer.title) yaklaşıyor",
-                            body: "\(content.prayer.title) vaktine \(leadMinutes) dakika kaldı.",
+                            // Ayarlanan lead değil, pencerenin gerçek uzunluğu:
+                            // pencere önceki vakitte kesildiğinde ("3 saat"
+                            // seçiliyken Akşam–Yatsı 79 dakika) ikisi ayrışıyor
+                            // ve bildirim olmayan bir süreyi söylüyordu.
+                            body: "\(content.prayer.title) vaktine \(Int(content.prayerTime.timeIntervalSince(startAt) / 60)) dakika kaldı.",
                             sound: .default
                         ),
                         start: startAt
